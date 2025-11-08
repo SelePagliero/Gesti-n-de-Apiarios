@@ -225,6 +225,6 @@ Para actualizar el modelo desde la base de datos, utiliza el siguiente comando e
 
 ## Créditos
 
-Desarrollado por [SelePagliero](https://github.com/SelePagliero) y colaboradores.
+Desarrollado por [SelePagliero](https://github.com/SelePagliero).
 
 ---
