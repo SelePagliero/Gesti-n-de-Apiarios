@@ -1,0 +1,101 @@
+.page[b-mukocaglva] {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+main[b-mukocaglva] {
+    flex: 1;
+}
+
+.sidebar[b-mukocaglva] {
+    background-color: #FFB703; 
+    color: #FAF3E0; 
+}
+
+.top-row[b-mukocaglva] {
+    background-color: #8B4513;
+    border-bottom: 1px solid #6B8E23; 
+    color: #FAF3E0; 
+    justify-content: flex-end;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+}
+
+    .top-row[b-mukocaglva]  a, .top-row[b-mukocaglva]  .btn-link {
+        white-space: nowrap;
+        margin-left: 1.5rem;
+        text-decoration: none;
+    }
+
+    .top-row[b-mukocaglva]  a:hover, .top-row[b-mukocaglva]  .btn-link:hover {
+        text-decoration: underline;
+    }
+
+    .top-row[b-mukocaglva]  a:first-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+@media (max-width: 640.98px) {
+    .top-row[b-mukocaglva] {
+        justify-content: space-between;
+    }
+
+    .top-row[b-mukocaglva]  a, .top-row[b-mukocaglva]  .btn-link {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 641px) {
+    .page[b-mukocaglva] {
+        flex-direction: row;
+    }
+
+    .sidebar[b-mukocaglva] {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+
+    .top-row[b-mukocaglva] {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .top-row.auth[b-mukocaglva]  a:first-child {
+        flex: 1;
+        text-align: right;
+        width: 0;
+    }
+
+    .top-row[b-mukocaglva], article[b-mukocaglva] {
+        padding-left: 2rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+#blazor-error-ui[b-mukocaglva] {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss[b-mukocaglva] {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+
+

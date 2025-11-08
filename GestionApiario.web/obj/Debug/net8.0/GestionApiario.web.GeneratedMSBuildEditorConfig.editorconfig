@@ -1,0 +1,101 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = GestionApiario.web
+build_property.RootNamespace = GestionApiario.web
+build_property.ProjectDir = C:\Users\Selena\Documents\Tec.Programacion\Tesis\GestionApiario.web\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\Selena\Documents\Tec.Programacion\Tesis\GestionApiario.web
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/App.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHAucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Alimento/ActualizarAlimento.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBbGltZW50b1xBY3R1YWxpemFyQWxpbWVudG8ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Alimento/ListaAlimentos.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBbGltZW50b1xMaXN0YUFsaW1lbnRvcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Apiario/ActualizarApiario.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBcGlhcmlvXEFjdHVhbGl6YXJBcGlhcmlvLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Apiario/ListaApiarios.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBcGlhcmlvXExpc3RhQXBpYXJpb3MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Campaña/ActualizarCampaña.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDYW1wYcOxYVxBY3R1YWxpemFyQ2FtcGHDsWEucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Campaña/ListaCampañas.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDYW1wYcOxYVxMaXN0YUNhbXBhw7Fhcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Controles/ActualizarControles.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb250cm9sZXNcQWN0dWFsaXphckNvbnRyb2xlcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Controles/ListaControles.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb250cm9sZXNcTGlzdGFDb250cm9sZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Counter.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb3VudGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Enfermedad/ActualizarEnfermedad.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFbmZlcm1lZGFkXEFjdHVhbGl6YXJFbmZlcm1lZGFkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Enfermedad/ListaEnfermedades.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFbmZlcm1lZGFkXExpc3RhRW5mZXJtZWRhZGVzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Error.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFcnJvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Producto/ActualizarProducto.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQcm9kdWN0b1xBY3R1YWxpemFyUHJvZHVjdG8ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Producto/ListaProductos.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQcm9kdWN0b1xMaXN0YVByb2R1Y3Rvcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Routes.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xfSW1wb3J0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTWFpbkxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-mukocaglva
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2TWVudS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-j256md2dja
+
+[C:/Users/Selena/Documents/Tec.Programacion/Tesis/GestionApiario.web/Components/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIb21lLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-liqw1sc46i

@@ -1,0 +1,6 @@
+@GestionApiario_HostAddress = http://localhost:5283
+
+GET {{GestionApiario_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

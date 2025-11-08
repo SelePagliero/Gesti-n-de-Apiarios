@@ -1,0 +1,59 @@
+﻿@page "/crear-campaña"
+@page "/actualizar-campaña/{codigo:int}"
+@using GestionApiario.compartido.Dto
+@using GestionApiario.web.Servicios.Interfaces
+@inject IApiariosServicio _servicio;
+@inject NavigationManager _navegationmanager;
+
+@rendermode InteractiveServer
+
+@if (Codigo is null)
+{
+    <h3>Crear Campaña</h3>
+}
+else
+{
+    <h3>Actualizar Campaña</h3>
+}
+
+<EditForm FormName="ActualizarCampaña" Model="Campaña" OnSubmit="HandleSubmit">
+    <label for="año">Año</label>
+    <InputNumber class="form-control" id="año" @bind-Value=Campaña.Año></InputNumber>
+    <label for="responsable">Responsable</label>
+    <InputText class="form-control" id="responsable" @bind-Value="Campaña.Responsable"></InputText>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int? Codigo { get; set; }
+    public CampañaDto Campaña { get; set; } = new CampañaDto();
+    protected async Task HandleSubmit()
+    {
+        if (Codigo is null)
+        {
+            await _servicio.CrearCampaña(Campaña);
+        }
+        else
+        {
+            await _servicio.ModificarCamapaña(Codigo.Value, Campaña);
+        }
+
+        _navegationmanager.NavigateTo("/campanias");
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Codigo.HasValue)
+        {
+            var campañaDetalle = await _servicio.ObtenerCampañas(Codigo.Value);
+            Campaña = new()
+            {
+                Año = campañaDetalle.Año,
+                Responsable=campañaDetalle.Responsable
+            };
+        }
+    }
+}

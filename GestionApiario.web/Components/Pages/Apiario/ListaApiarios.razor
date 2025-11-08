@@ -1,0 +1,76 @@
+﻿@page "/apiarios"
+@using GestionApiario.compartido.Dto
+@using GestionApiario.web.Servicios.Interfaces
+@inject IApiariosServicio _servicio;
+@inject NavigationManager _navegationmanager;
+
+@rendermode InteractiveServer
+
+<PageTitle>Apiarios</PageTitle>
+
+<h1>Apiarios</h1>
+
+@if (apiarios == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <a href="/crear-apiario" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Crear Apiario</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Fecha de alta</th>
+                <th>Fecha de modificación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var apiario in apiarios)
+            {
+                <tr>
+                    <td>@apiario.Codigo</td>
+                    <td>@apiario.Nombre</td>
+                    <td>@apiario.FechaAlta</td>
+                    <td>
+                        @if (apiario.FechaModificacion.HasValue)
+                        {
+                            @apiario.FechaModificacion
+                        }
+                        else
+                        {
+                            @apiario.FechaAlta
+                        }
+                    </td>
+                    <td>
+                        <a href="/ver-apiario/@apiario.Codigo" class="btn btn-success"><i class="bi bi-eye"></i> Ver</a>
+                        <a href="/actualizar-apiario/@apiario.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                        <button onclick="@(() => EliminarApiario(@apiario.Codigo))" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<ApiarioGrillaDto>? apiarios = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarApiarios();
+    }
+
+    async Task EliminarApiario(int codigo)
+    {
+        await _servicio.EliminarApiario(codigo);
+        _navegationmanager.Refresh(forceReload: true);
+    }
+
+    async Task CargarApiarios()
+    {
+        apiarios = await _servicio.ObtenerTodosApiarios();
+    }
+}

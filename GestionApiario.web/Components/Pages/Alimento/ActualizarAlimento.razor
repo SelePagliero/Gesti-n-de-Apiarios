@@ -1,0 +1,56 @@
+﻿@page "/crear-alimento"
+@page "/actualizar-alimento/{codigo:int}"
+@using GestionApiario.compartido.Dto
+@using GestionApiario.web.Servicios.Interfaces
+@inject IApiariosServicio _servicio;
+@inject NavigationManager _navegationmanager;
+
+@rendermode InteractiveServer
+
+@if (Codigo is null)
+{
+    <h3>Crear Alimento</h3>
+}
+else
+{
+    <h3>Actualizar Alimento</h3>
+}
+
+<EditForm FormName="ActualizarAlimento" Model="Alimento" OnSubmit="HandleSubmit">
+    <label for="nombre">Nombre</label>
+    <InputText class="form-control" id="nombre" @bind-Value=Alimento.Nombre></InputText>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Codigo { get; set; }
+    public AlimentoDto Alimento { get; set; } = new AlimentoDto();
+
+    protected async Task HandleSubmit()
+    {
+        if (Codigo is null)
+        {
+            await _servicio.CrearAlimento(Alimento);
+        }
+        else
+        {
+            await _servicio.ModificarAlimento(Codigo.Value, Alimento);
+        }
+
+        _navegationmanager.NavigateTo("/alimentos");
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Codigo.HasValue)
+        {
+            var alimentoDetalle = await _servicio.ObtenerAlimento(Codigo.Value);
+            Alimento = new()
+                {
+                    Nombre = alimentoDetalle.Nombre
+                };
+        }
+   }
+}

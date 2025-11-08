@@ -1,0 +1,13 @@
+wwwroot\apicultor.png
+wwwroot\app.css
+wwwroot\bootstrap\bootstrap.min.css
+wwwroot\bootstrap\bootstrap.rar
+wwwroot\icons8-calendario-más-50.png
+wwwroot\icons8-casa-50.png
+wwwroot\icons8-colmena-66.png
+wwwroot\icons8-farming-96.png
+wwwroot\icons8-jarabe-64.png
+wwwroot\icons8-miel-48.png
+wwwroot\icons8-verificación-30.png
+wwwroot\icons8-virus-50.png
+wwwroot\js\DashBoard.js

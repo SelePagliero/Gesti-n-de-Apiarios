@@ -1,0 +1,77 @@
+﻿@page "/campanias"
+@using GestionApiario.compartido.Dto
+@using GestionApiario.web.Servicios.Interfaces
+@inject IApiariosServicio _servicio;
+@inject NavigationManager _navegationmanager;
+
+@rendermode InteractiveServer
+
+<PageTitle>Campañas</PageTitle>
+
+<h1>Campañas</h1>
+
+@if (campañas == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <a href="/crear-campaña" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Crear Campaña</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Año</th>
+                <th>Responsable</th>
+                <th>Fecha de alta</th>
+                <th>Fecha de modificación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var campaña in campañas)
+            {
+                <tr>
+                    <td>@campaña.Codigo</td>
+                    <td>@campaña.Año</td>
+                    <td>@campaña.Responsable</td>
+                    <td>@campaña.FechaAlta</td>
+                    <td>
+                        @if (campaña.FechaModificacion.HasValue)
+                        {
+                            @campaña.FechaModificacion
+                        }
+                        else
+                        {
+                            @campaña.FechaAlta
+                        }
+                    </td>
+                    <td>
+                        <a href="/actualizar-campaña/@campaña.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i>Editar</a>
+                        <button onclick="@(() => EliminarCampaña(@campaña.Codigo))" class="btn btn-danger"><i class="bi bi-trash"></i>Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<CampañaGrillaDto>? campañas = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCampañas();
+    }
+
+    async Task EliminarCampaña(int codigo)
+    {
+        await _servicio.EliminarCampaña(codigo);
+        _navegationmanager.Refresh(true);
+    }
+
+    async Task CargarCampañas()
+    {
+        campañas = await _servicio.ObtenerTodasCampañas();
+    }
+}

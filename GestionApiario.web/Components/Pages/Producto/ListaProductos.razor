@@ -1,0 +1,70 @@
+﻿@page "/productos"
+@using GestionApiario.compartido.Dto
+@using GestionApiario.web.Servicios.Interfaces
+@inject IApiariosServicio _servicio;
+@inject NavigationManager _navigationManeger;
+
+@rendermode InteractiveServer
+
+<PageTitle>Productos</PageTitle>
+
+<h1>Productos</h1>
+
+@if (productos == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <a href="/crear-producto" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Crear Producto</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Fecha de alta</th>
+                <th>Fecha de modificación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var producto in productos)
+            {
+                <tr>
+                    <td>@producto.Codigo</td>
+                    <td>@producto.Nombre</td>
+                    <td>@producto.FechaAlta</td>
+                    <td>
+                        @if (producto.FechaModificacion.HasValue)
+                        {
+                            @producto.FechaModificacion
+                        }
+                        else
+                        {
+                            @producto.FechaAlta
+                        }
+                    </td>
+                    <td>
+                        <a href="/actualizar-producto/@producto.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i>Editar</a>
+                        <button onclick="@(() => EliminarProducto(@producto.Codigo))" class="btn btn-danger"><i class="bi bi-trash"></i>Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<ProductoGrillaDto>? productos = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        productos = await _servicio.ObtenerTodosProductos();
+    }
+
+    async Task EliminarProducto(int codigo)
+    {
+        await _servicio.EliminarProducto(codigo);
+        _navigationManeger.Refresh(true);
+    }
+}

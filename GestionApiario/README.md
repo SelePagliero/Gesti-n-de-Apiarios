@@ -1,0 +1,2 @@
+## Actualizar modelo desde la base de datos
+Scaffold-DbContext "Server=DESKTOP-VVAL3QS;Database=GestionApiarios;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -Models -Force

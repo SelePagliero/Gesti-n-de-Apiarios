@@ -1,0 +1,79 @@
+﻿@page "/crear-apiario"
+@page "/actualizar-apiario/{codigo:int}"
+@page "/ver-apiario/{codigo:int}"
+@using GestionApiario.compartido.Dto
+@using GestionApiario.web.Servicios.Interfaces
+@inject IApiariosServicio _servicio;
+@inject NavigationManager _navegationmanager;
+@rendermode InteractiveServer
+
+@{
+    bool EsSoloLectura = _navegationmanager.Uri.Contains("/ver-apiario");
+}
+
+@if (EsSoloLectura)
+{
+    <h3>Ver Apiario</h3>
+}
+else if (Codigo is null)
+{
+    <h3>Crear Apiario</h3>
+}
+else
+{
+    <h3>Actualizar Apiario</h3>
+}
+
+<EditForm FormName="ActualizarApiario" Model="Apiario" OnSubmit="HandleSubmit">
+    <label for="nombre">Nombre</label>
+    <InputText class="form-control" id="nombre" @bind-Value=Apiario.Nombre disabled="@EsSoloLectura"></InputText>
+    <label for="empresa">Empresa</label>
+    <InputText class="form-control" id="empresa" @bind-Value="Apiario.Empresa" disabled="@EsSoloLectura"></InputText>
+    <label for="longitud">Longitud</label>
+    <InputText class="form-control" id="longitud" @bind-Value="Apiario.Longitud" disabled="@EsSoloLectura"></InputText>
+    <label for="latitud">Latitud</label>
+    <InputText class="form-control" id="latitud" @bind-Value="Apiario.Latitud" disabled="@EsSoloLectura"></InputText>
+    @if (EsSoloLectura)
+    {
+        <button type="button" class="btn btn-secondary" @onclick='() => _navegationmanager.NavigateTo("/apiarios")'>Volver</button>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    }
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Codigo { get; set; }
+    public ApiarioDto Apiario { get; set; } = new ApiarioDto();
+
+    protected async Task HandleSubmit()
+    {
+        if (Codigo is null)
+        {
+            await _servicio.CrearApiario(Apiario);
+        }
+        else
+        {
+            await _servicio.ModificarApiario(Codigo.Value, Apiario);
+        }
+
+        _navegationmanager.NavigateTo("/apiarios");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Codigo.HasValue)
+        {
+            var apiarioDetalle = await _servicio.ObtenerApiario(Codigo.Value);
+            Apiario = new()
+            {
+                Nombre = apiarioDetalle.Nombre,
+                Empresa = apiarioDetalle.Empresa,
+                Longitud = apiarioDetalle.Longitud,
+                Latitud = apiarioDetalle.Latitud
+            };
+        }
+    }
+}

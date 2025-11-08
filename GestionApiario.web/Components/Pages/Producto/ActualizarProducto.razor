@@ -1,0 +1,56 @@
+﻿@page "/crear-producto"
+@page "/actualizar-producto/{codigo:int}"
+@using GestionApiario.compartido.Dto
+@using GestionApiario.web.Servicios.Interfaces
+@inject IApiariosServicio _servicio;
+@inject NavigationManager _navegationmanager;
+
+@rendermode InteractiveServer
+
+@if (Codigo is null)
+{
+    <h3>Crear Producto</h3>
+}
+else
+{
+    <h3>Actualizar Producto</h3>
+}
+
+<EditForm FormName="ActualizarProducto" Model="Producto" OnSubmit="HandleSubmit">
+    <label for="nombre">Nombre</label>
+    <InputText class="form-control" id="nombre" @bind-Value=Producto.Nombre></InputText>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Codigo { get; set; }
+    public ProductoDto Producto { get; set; } = new ProductoDto();
+
+    protected async Task HandleSubmit()
+    {
+        if (Codigo is null)
+        {
+            await _servicio.CrearProducto(Producto);
+        }
+        else
+        {
+            await _servicio.ModificarProducto(Codigo.Value, Producto);
+        }
+
+        _navegationmanager.NavigateTo("/productos");
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Codigo.HasValue)
+        {
+            var productoDetalle = await _servicio.ObtenerProducto(Codigo.Value);
+            Producto = new()
+                {
+                    Nombre = productoDetalle.Nombre
+                };
+        }
+   }
+}

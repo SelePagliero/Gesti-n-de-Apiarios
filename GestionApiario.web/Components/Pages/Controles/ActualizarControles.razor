@@ -1,0 +1,212 @@
+﻿@page "/crear-control"
+@page "/actualizar-control/{codigo:int}"
+@page "/ver-control/{codigo:int}"
+@using GestionApiario.compartido.Dto
+@using GestionApiario.web.Servicios.Interfaces
+@inject IApiariosServicio _servicio;
+@inject NavigationManager _navegationmanager;
+
+@rendermode InteractiveServer
+
+@{
+    bool EsSoloLectura = false;
+    if (NavigationManager.Uri.Contains("/ver-control",StringComparison.InvariantCultureIgnoreCase))
+    {
+        EsSoloLectura = true;
+    }
+}
+
+@if (EsSoloLectura)
+{
+    <h3>Ver Control</h3>
+}
+else if (Codigo is null)
+{
+    <h3>Crear Control</h3>
+}
+else
+{
+    <h3>Actualizar Control</h3>
+}
+
+<EditForm FormName="ActualizarControl" Model="Control" OnSubmit="HandleSubmit">
+    <div class="container">
+        <div class="row">
+            <!-- Primera columna -->
+            <div class="col-12 col-md-6">
+                <div class="mb-3">
+                    <label for="selectCampaña" class="form-label">Campaña</label>
+                    <select id="selectCampaña" class="form-control" @bind="Control.CodCampaña" disabled="@EsSoloLectura">
+                        <option value="0">Seleccione una Campaña</option>
+                        @foreach (var campaña in listaDeCampañas)
+                        {
+                            <option value="@campaña.Codigo">@campaña.Año</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3 form-floating">
+                    <InputDate class="form-control" id="fecha" @bind-Value=Control.Fecha disabled="@EsSoloLectura" />
+                    <label for="fecha" class="form-label">Fecha</label>
+                </div>
+                <div class="mb-3">
+                    <label for="selectApiario" class="form-label">Apiario</label>
+                    <select id="selectApiario" class="form-control" @bind="Control.CodApiario" disabled="@EsSoloLectura">
+                        <option value="0">Seleccione un Apiario</option>
+                        @foreach (var apiario in listaDeApiarios)
+                        {
+                            <option value="@apiario.Codigo">@apiario.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3 form-floating">
+                    <InputNumber class="form-control" id="cantColmenas" @bind-Value=Control.CantDeColmenas disabled="@EsSoloLectura" />
+                    <label for="cantColmenas" class="form-label">Cantidad de Colmenas</label>
+                </div>
+                <div class="mb-3">
+                    <label for="selectAlimentos" class="form-label">Alimentos</label>
+                    <select id="selectAlimentos" class="form-control" @bind="Control.CodAlimento" disabled="@EsSoloLectura">
+                        <option value="0">Seleccione un Alimento</option>
+                        @foreach (var alimento in listDeAlimentos)
+                        {
+                            <option value="@alimento.Codigo">@alimento.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3 form-floating">
+                    <InputNumber class="form-control" id="cantAlimento" @bind-Value=Control.CantidadAlimento disabled="@EsSoloLectura" />
+                    <label for="cantAlimento" class="form-label">Cantidad de Alimento</label>
+                </div>
+            </div>
+            <!-- Segunda columna -->
+            <div class="col-12 col-md-6">
+                <div class="mb-3">
+                    <label for="selectEnfermedad" class="form-label">Enfermedad</label>
+                    <select id="selectEnfermedad" class="form-control" @bind="Control.CodEnfermedad" disabled="@EsSoloLectura">
+                        <option value="">Seleccione una Enfermedad</option>
+                        @foreach (var enfermedad in listaDeEnfermedades)
+                        {
+                            <option value="@enfermedad.Codigo">@enfermedad.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="selectProducto" class="form-label">Productos</label>
+                    <select id="selectProducto" class="form-control" @bind="Control.CodProductos" disabled="@EsSoloLectura">
+                        <option value="">Seleccione un Producto</option>
+                        @foreach (var producto in listaDeProductos)
+                        {
+                            <option value="@producto.Codigo">@producto.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="cantProducto" class="form-label">Cantidad de Productos</label>
+                    <InputNumber class="form-control" id="cantProducto" @bind-Value=Control.CantProducto disabled="@EsSoloLectura" />
+                </div>
+                <div class="mb-3">
+                    <label for="observaciones" class="form-label">Observaciones</label>
+                    <InputText class="form-control" id="observaciones" @bind-Value=Control.Obsevaciones disabled="@EsSoloLectura" />
+                </div>
+                <div class="text-end">
+                    @if (EsSoloLectura)
+                    {
+                        <button type="button" class="btn btn-secondary" @onclick='() => _navegationmanager.NavigateTo("/controles")'>Volver</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Codigo { get; set; }
+    public ControlDto Control { get; set; } = new ControlDto();
+    public List<CampañaBaseDto> listaDeCampañas = new();
+    public List<ProductoBaseDto> listaDeProductos = new();
+    public List<AlimentoBaseDto> listDeAlimentos=new();
+    public List<EnfermedadBaseDto> listaDeEnfermedades = new();
+    public List<ApiarioBaseDto> listaDeApiarios = new();
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    protected async Task HandleSubmit()
+    {
+        if (Codigo is null)
+        {
+            await _servicio.CrearControl(Control);
+        }
+        else
+        {
+            await _servicio.ModificarControl(Codigo.Value, Control);
+        }
+
+        _navegationmanager.NavigateTo("/controles");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Codigo.HasValue)
+        {
+            var controlDetalle = await _servicio.ObtenerControl(Codigo.Value);
+            Control = new()
+            {
+                CodCampaña= controlDetalle.CodCampaña,
+                CodAlimento=controlDetalle.CodAlimento.HasValue?controlDetalle.CodAlimento.Value:0,
+                CodApiario=controlDetalle.CodApiario,
+                CodEnfermedad=controlDetalle.CodEnfermedad.GetValueOrDefault(0),
+                CodProductos = controlDetalle.CodProductos.GetValueOrDefault(0),
+                CantDeColmenas=controlDetalle.CantDeColmenas,
+                CantidadAlimento=controlDetalle.CantidadAlimento,
+                CantProducto=controlDetalle.CantProducto,
+                Fecha=controlDetalle.Fecha,
+                Obsevaciones=controlDetalle.Obsevaciones
+            };
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var campañas = await _servicio.ObtenerTodasCampañas();
+        listaDeCampañas = campañas.Select(c => new CampañaBaseDto
+            {
+                Codigo = c.Codigo,
+                Año = c.Año
+            }).ToList();
+
+        var productos = await _servicio.ObtenerTodosProductos();
+        listaDeProductos = productos.Select(p => new ProductoBaseDto
+            {
+                Codigo = p.Codigo,
+                Nombre = p.Nombre
+            }).ToList();
+        
+        var alimentos = await _servicio.ObtenerTodosAlimentos();
+        listDeAlimentos = alimentos.Select(a => new AlimentoBaseDto
+            {
+                Codigo = a.Codigo,
+                Nombre = a.Nombre
+            }).ToList();
+        
+        var enfermedades = await _servicio.ObtenerTodasEnfermedades();
+        listaDeEnfermedades = enfermedades.Select(e => new EnfermedadBaseDto
+            {
+                Codigo = e.Codigo,
+                Nombre = e.Nombre
+            }).ToList();
+
+        var apiarios = await _servicio.ObtenerTodosApiarios();
+        listaDeApiarios = apiarios.Select(a => new ApiarioBaseDto
+        {
+            Codigo = a.Codigo,
+            Nombre = a.Nombre
+        }).ToList(); 
+
+        base.OnInitialized();
+    }
+}
