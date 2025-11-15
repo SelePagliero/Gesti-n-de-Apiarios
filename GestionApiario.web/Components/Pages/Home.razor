@@ -70,8 +70,10 @@
     </div>
 
     <div class="row">
-        <div class="col-xl-12 col-lg-12">
-            <div class="card shadow mb-4">
+        @if (mostrarGrafico)
+        {
+            <div class="col-xl-12 col-lg-12">
+                <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Porcentaje de enfermedades encontradas</h6>
@@ -83,7 +85,28 @@
                     </div>                    
                 </div>
             </div>
-        </div>
+            </div>
+        }
+        else
+        {
+            <div class="col-xl-12 col-lg-12">
+                <div class="card shadow mb-4 border-left-success">
+                    <!-- Card Header -->
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-success">Estado Sanitario</h6>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body text-center py-5">
+                        <div class="mb-3">
+                            <i class="fas fa-check-circle fa-4x text-success"></i>
+                        </div>
+                        <h4 class="font-weight-bold text-success mb-2">¡Excelente!</h4>
+                        <p class="text-gray-600 mb-0">No se han registrado enfermedades en los apiarios</p>
+                        <p class="text-gray-500 small">Todos los apiarios se encuentran en estado óptimo</p>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
    
 </body>
@@ -91,19 +114,49 @@
 @code{
     [Inject] IJSRuntime JSRuntime { get; set; }
     public DashBoardDto DashBoard { get; set; } = new DashBoardDto();
+    public bool mostrarGrafico = false;
+    
     protected override async Task OnInitializedAsync()
     {
         var response = await _servicio.ObtenerDashBoard();
         DashBoard.ApiariosActivos = response.ApiariosActivos;
         DashBoard.ApiariosConEnfermedades = response.ApiariosConEnfermedades;
         DashBoard.CantidadTotalDeColmenas = response.CantidadTotalDeColmenas;
-        await RenderChartEnfermedadesAsync();
+        
+        // No renderizar el gráfico aquí, esperar a OnAfterRenderAsync
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RenderChartEnfermedadesAsync();
+        }
     }
 
     private async Task RenderChartEnfermedadesAsync()
     {
         var enfermedadesData = await _servicio.ObtenerDatosGraficoEnfermedades();
-        await JSRuntime.InvokeVoidAsync("renderGraficoEnfermedades", enfermedadesData);
-
+        
+        // Verificar si hay datos
+        bool hayDatos = enfermedadesData?.datasets != null && 
+                        enfermedadesData.datasets.Any(d => d.data != null && d.data.Count > 0);
+        
+        if (hayDatos)
+        {
+            mostrarGrafico = true;
+            StateHasChanged(); // Forzar actualización del UI para renderizar el canvas
+            
+            // Esperar un tick para que el DOM se actualice
+            await Task.Delay(10);
+            
+            // Ahora sí invocar el JavaScript con el canvas ya en el DOM
+            await JSRuntime.InvokeVoidAsync("renderGraficoEnfermedades", enfermedadesData);
+        }
+        else
+        {
+            mostrarGrafico = false;
+            StateHasChanged();
+        }
     }
 }

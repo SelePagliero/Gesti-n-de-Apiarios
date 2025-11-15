@@ -22,6 +22,4 @@ public partial class Producto
     public string? UsuarioModificacion { get; set; }
 
     public virtual ICollection<Controle> Controles { get; set; } = new List<Controle>();
-
-    public virtual ICollection<Productosporenfermedad> Productosporenfermedads { get; set; } = new List<Productosporenfermedad>();
 }

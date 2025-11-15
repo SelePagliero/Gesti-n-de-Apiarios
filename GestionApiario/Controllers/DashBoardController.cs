@@ -22,7 +22,7 @@ namespace GestionApiario.Controllers
 
             dashBoard.ApiariosActivos = _context.Apiarios.Count(a => a.FechaBaja == null);
             dashBoard.CantidadTotalDeColmenas = _context.Controles.Where(c => c.FechaBaja == null).Sum(a => a.CantDeColmenas).Value;
-            dashBoard.ApiariosConEnfermedades = _context.Controles.Count(a => a.CodEnfermedad != null);
+            dashBoard.ApiariosConEnfermedades = _context.Controles.Count(a => a.CodEnfermedad != null && a.FechaBaja==null);
 
             return Ok(dashBoard);
         }
@@ -56,7 +56,7 @@ namespace GestionApiario.Controllers
                            ];
             enfermedadesDto.hoverBorderColor= "rgba(234, 236, 244, 1)";
 
-            var TodasEnfermedades = _context.Controles.Include(c=> c.CodEnfermedadNavigation).Where(e => e.CodEnfermedad!=null).ToList();
+            var TodasEnfermedades = _context.Controles.Include(c=> c.CodEnfermedadNavigation).Where(e => e.CodEnfermedad!=null && e.FechaBaja==null).ToList();
             var CuentaTotalEnfermedades = TodasEnfermedades.Count;
             var porcentajePorEnfermedad = TodasEnfermedades
                 .GroupBy(c => c.CodEnfermedadNavigation.Nombre)

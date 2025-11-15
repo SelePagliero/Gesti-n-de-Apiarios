@@ -63,7 +63,6 @@ SistemaGestionApiarios/
 ?   ?   ??? Controle.cs                 # Entidad Control
 ?   ?   ??? Enfermedad.cs               # Entidad Enfermedad
 ?   ?   ??? Producto.cs                 # Entidad Producto
-?   ?   ??? Productosporenfermedad.cs   # Relación N:N
 ?   ?
 ?   ??? Program.cs                       # Configuración de la API
 ?   ??? appsettings.json                # Configuración y cadena de conexión

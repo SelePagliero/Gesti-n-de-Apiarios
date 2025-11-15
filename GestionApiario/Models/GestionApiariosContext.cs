@@ -27,8 +27,6 @@ public partial class GestionApiariosContext : DbContext
 
     public virtual DbSet<Producto> Productos { get; set; }
 
-    public virtual DbSet<Productosporenfermedad> Productosporenfermedads { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Alimento>(entity =>
@@ -195,37 +193,6 @@ public partial class GestionApiariosContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
         });
-
-        modelBuilder.Entity<Productosporenfermedad>(entity =>
-        {
-            entity.HasKey(e => new { e.CodEnfermedad, e.CodProducto }).HasName("PK__PRODUCTO__4306209F17F69558");
-
-            entity.ToTable("PRODUCTOSPORENFERMEDAD");
-
-            entity.Property(e => e.FechaAlta).HasColumnType("datetime");
-            entity.Property(e => e.FechaBaja).HasColumnType("datetime");
-            entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
-            entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.CodEnfermedadNavigation).WithMany(p => p.Productosporenfermedads)
-                .HasForeignKey(d => d.CodEnfermedad)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PRODUCTOS__CodEn__534D60F1");
-
-            entity.HasOne(d => d.CodProductoNavigation).WithMany(p => p.Productosporenfermedads)
-                .HasForeignKey(d => d.CodProducto)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PRODUCTOS__CodPr__5441852A");
-        });
-
         OnModelCreatingPartial(modelBuilder);
     }
 
