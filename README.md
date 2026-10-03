@@ -1,229 +1,171 @@
-# Gesti�n de Apiarios
+# Gestión de Apiarios
 
-Sistema integral para la gesti�n de apiarios, colmenas, campa�as, controles, enfermedades, alimentos y productos ap�colas. Desarrollado en .NET 8 con arquitectura multicapa y frontend Blazor Server.
+Sistema para la gestión de apiarios, campañas, controles, enfermedades, alimentos y productos apícolas. Está desarrollado en .NET 8, con una API REST en ASP.NET Core y un frontend en Blazor Server.
 
-## Tabla de Contenidos
+## Tabla de contenidos
 
-- [Caracter�sticas](#caracter�sticas)
+- [Características](#características)
 - [Arquitectura](#arquitectura)
-- [Tecnolog�as](#tecnolog�as)
-- [Estructura de la Soluci�n](#estructura-de-la-soluci�n)
-- [Configuraci�n y Ejecuci�n](#configuraci�n-y-ejecuci�n)
-- [Migraciones y Base de Datos](#migraciones-y-base-de-datos)
-- [Buenas Pr�cticas](#buenas-pr�cticas)
-- [Cr�ditos](#cr�ditos)
+- [Tecnologías](#tecnologías)
+- [Estructura de la solución](#estructura-de-la-solución)
+- [Configuración y ejecución](#configuración-y-ejecución)
+- [Usuarios e inicio de sesión](#usuarios-e-inicio-de-sesión)
+- [Base de datos y migraciones](#base-de-datos-y-migraciones)
+- [Pruebas automatizadas](#pruebas-automatizadas)
+- [Créditos](#créditos)
 
 ---
 
-## Caracter�sticas
+## Características
 
-- Gesti�n de apiarios, colmenas, campa�as, controles, enfermedades, alimentos y productos.
-- Dashboard con m�tricas clave y gr�ficos interactivos.
-- CRUD completo para todas las entidades principales.
-- Arquitectura desacoplada con DTOs y servicios.
-- Interfaz moderna y responsiva con Blazor Server.
+- Alta, consulta, modificación y baja lógica de apiarios, campañas, controles, enfermedades, alimentos y productos.
+- Inicio de sesión con usuario y contraseña (ASP.NET Core Identity). Cada alta, modificación y baja registra qué usuario la hizo.
+- Filtros de controles por apiario, campaña, enfermedad (o "con alguna enfermedad") y rango de fechas. Los aplica la API y quedan en la URL.
+- Tablero con indicadores (apiarios activos, colmenas, apiarios con enfermedades) y gráfico de enfermedades.
+- Validaciones en los formularios y en la API, con mensajes en español.
+- Pruebas automatizadas de la API.
 
 ## Arquitectura
 
-La soluci�n est� compuesta por tres proyectos principales:
+La solución tiene cuatro proyectos:
 
-- **GestionApiario.web**: Frontend Blazor Server y servicios de integraci�n.
-- **GestionApiario**: API RESTful y l�gica de negocio, basada en ASP.NET Core y Entity Framework Core.
-- **GestionApiario.compartido**: Definici�n de DTOs y modelos compartidos entre los proyectos.
+- **GestionApiario**: API REST con ASP.NET Core y Entity Framework Core. Expone los endpoints de cada entidad y los de cuenta de usuario (`/cuenta/login`, `/cuenta/register`, `/cuenta/refresh`). Todos los controladores exigen haber iniciado sesión.
+- **GestionApiario.web**: frontend en Blazor Server. Consume la API con `HttpClient` y envía el token del usuario en cada solicitud.
+- **GestionApiario.compartido**: DTO compartidos entre la API y el frontend, con sus validaciones.
+- **GestionApiario.Pruebas**: pruebas de integración de la API con xUnit y una base de datos en memoria.
 
-## Tecnolog�as
+## Tecnologías
 
 - .NET 8
+- ASP.NET Core Web API y ASP.NET Core Identity (tokens de acceso)
 - Blazor Server
-- ASP.NET Core Web API
-- Entity Framework Core (SQL Server)
-- Bootstrap 4/5
-- JavaScript (para gr�ficos con Chart.js)
+- Entity Framework Core 8 (SQL Server)
+- Bootstrap 4 (tema SB Admin 2) y Bootstrap Icons
+- Chart.js 2.9 para el gráfico del tablero
+- xUnit para las pruebas
 
-## Estructura de la Soluci�n
+## Estructura de la solución
 
 ```
 SistemaGestionApiarios/
-?
-??? GestionApiario/                      # ?? API Backend (ASP.NET Core Web API)
-?   ??? Controllers/                     # Controladores REST
-?   ?   ??? AlimentoController.cs       # CRUD de alimentos
-?   ?   ??? ApiarioController.cs        # CRUD de apiarios
-?   ?   ??? Campa�aController.cs        # CRUD de campa�as
-?   ?   ??? ControlesController.cs      # CRUD de controles
-?   ?   ??? DashBoardController.cs      # M�tricas y datos del dashboard
-?   ?   ??? EnfermedadController.cs     # CRUD de enfermedades
-?   ?   ??? ProductoController.cs       # CRUD de productos
-?   ?
-?   ??? Models/                          # Modelos de Entity Framework Core
-?   ?   ??? GestionApiariosContext.cs   # Contexto de base de datos
-?   ?   ??? Apiario.cs                  # Entidad Apiario
-?   ?   ??? Alimento.cs                 # Entidad Alimento
-?   ?   ??? Campa�a.cs                  # Entidad Campa�a
-?   ?   ??? Controle.cs                 # Entidad Control
-?   ?   ??? Enfermedad.cs               # Entidad Enfermedad
-?   ?   ??? Producto.cs                 # Entidad Producto
-?   ?
-?   ??? Program.cs                       # Configuraci�n de la API
-?   ??? appsettings.json                # Configuraci�n y cadena de conexi�n
-?   ??? GestionApiario.csproj           # Archivo de proyecto
-?
-??? GestionApiario.web/                  # ?? Frontend (Blazor Server)
-?   ??? Components/
-?   ?   ??? Layout/                      # Componentes de dise�o
-?   ?   ?   ??? MainLayout.razor        # Layout principal
-?   ?   ?   ??? MainLayout.razor.css    # Estilos del layout
-?   ?   ?   ??? NavMenu.razor           # Men� de navegaci�n
-?   ?   ?   ??? NavMenu.razor.css       # Estilos del men�
-?   ?   ?
-?   ?   ??? Pages/                       # P�ginas Blazor
-?   ?   ?   ??? Home.razor              # Dashboard principal
-?   ?   ?   ??? Home.razor.css          # Estilos del dashboard
-?   ?   ?   ?
-?   ?   ?   ??? Apiario/                # M�dulo de Apiarios
-?   ?   ?   ?   ??? ListaApiarios.razor
-?   ?   ?   ?   ??? ActualizarApiario.razor
-?   ?   ?   ?
-?   ?   ?   ??? Alimento/               # M�dulo de Alimentos
-?   ?   ?   ?   ??? ListaAlimentos.razor
-?   ?   ?   ?   ??? ActualizarAlimento.razor
-?   ?   ?   ?
-?   ?   ?   ??? Campa�a/                # M�dulo de Campa�as
-?   ?   ?   ?   ??? ListaCampa�as.razor
-?   ?   ?   ?   ??? ActualizarCampa�a.razor
-?   ?   ?   ?
-?   ?   ?   ??? Controles/              # M�dulo de Controles
-?   ?   ?   ?   ??? ListaControles.razor
-?   ?   ?   ?   ??? ActualizarControles.razor
-?   ?   ?   ?
-?   ?   ?   ??? Enfermedad/             # M�dulo de Enfermedades
-?   ?   ?   ?   ??? ListaEnfermedades.razor
-?   ?   ?   ?   ??? ActualizarEnfermedad.razor
-?   ?   ?   ?
-?   ?   ?   ??? Producto/               # M�dulo de Productos
-?   ?   ?   ?   ??? ListaProductos.razor
-?   ?   ?   ?   ??? ActualizarProducto.razor
-?   ?   ?   ?
-?   ?   ?   ??? Counter.razor           # P�gina de ejemplo
-?   ?   ?   ??? Error.razor             # P�gina de error
-?   ?   ?
-?   ?   ??? App.razor                    # Componente ra�z
-?   ?   ??? Routes.razor                 # Configuraci�n de rutas
-?   ?   ??? _Imports.razor               # Imports globales
-?   ?
-?   ??? Servicios/                       # Servicios de integraci�n
-?   ?   ??? Interfaces/
-?   ?   ?   ??? IApiariosServicio.cs    # Interfaz del servicio
-?   ?   ??? ApiarioServicio.cs          # Implementaci�n HTTP
-?   ?
-?   ??? wwwroot/                         # Archivos est�ticos
-?   ?   ??? bootstrap/
-?   ?   ?   ??? bootstrap.min.css       # Framework CSS
-?   ?   ??? js/
-?   ?   ?   ??? Chart.min.js            # Librer�a de gr�ficos
-?   ?   ?   ??? DashBoard.js            # L�gica de gr�ficos
-?   ?   ??? app.css                      # Estilos personalizados
-?   ?   ??? icons8-*.png                 # Iconos del men�
-?   ?   ??? favicon.png
-?   ?
-?   ??? Program.cs                       # Configuraci�n de Blazor
-?   ??? GestionApiario.web.csproj       # Archivo de proyecto
-?
-??? GestionApiario.compartido/          # ?? Librer�a compartida
-?   ??? Dto/                             # Data Transfer Objects
-?   ?   ??? AlimentoDto.cs              # DTOs de Alimento
-?   ?   ??? AlimentoBaseDto.cs
-?   ?   ??? AlimentoDetalleDto.cs
-?   ?   ??? AlimentoGrillaDto.cs
-?   ?   ?
-?   ?   ??? ApiarioDto.cs               # DTOs de Apiario
-?   ?   ??? ApiarioBaseDto.cs
-?   ?   ??? ApiarioDetalleDto.cs
-?   ?   ??? ApiarioGrillaDto.cs
-?   ?   ?
-?   ?   ??? Campa�aDto.cs               # DTOs de Campa�a
-?   ?   ??? Campa�aBaseDto.cs
-?   ?   ??? Campa�aDetalleDto.cs
-?   ?   ??? Campa�aGrillaDto.cs
-?   ?   ?
-?   ?   ??? ControlDto.cs               # DTOs de Control
-?   ?   ??? ControlDetalleDto.cs
-?   ?   ??? ControlGrillaDto.cs
-?   ?   ?
-?   ?   ??? EnfermedadDto.cs            # DTOs de Enfermedad
-?   ?   ??? EnfermedadBaseDto.cs
-?   ?   ??? EnfermedadDetalleDto.cs
-?   ?   ??? EnfermedadGrillaDto.cs
-?   ?   ?
-?   ?   ??? ProductoDto.cs              # DTOs de Producto
-?   ?   ??? ProductoBaseDto.cs
-?   ?   ??? ProductoDetalleDto.cs
-?   ?   ??? ProductoGrillaDto.cs
-?   ?   ?
-?   ?   ??? DashBoardDto.cs             # DTO del Dashboard
-?   ?   ??? EnfermedadesGraficoResponse.cs  # DTO para gr�ficos
-?   ?
-?   ??? GestionApiario.compartido.csproj
-?
-??? .gitignore                           # Archivos ignorados por Git
-??? README.md                            # Este archivo
+├── GestionApiario.sln
+├── GestionApiario/                       # API (ASP.NET Core Web API)
+│   ├── Controllers/
+│   │   ├── ControladorBase.cs            # Base común: ruta, [ApiController] y usuario actual
+│   │   ├── AlimentoController.cs
+│   │   ├── ApiarioController.cs
+│   │   ├── CampañaController.cs
+│   │   ├── ControlesController.cs
+│   │   ├── DashBoardController.cs        # Indicadores y gráfico del tablero
+│   │   ├── EnfermedadController.cs
+│   │   └── ProductoController.cs
+│   ├── Migrations/                       # Migraciones de Entity Framework Core
+│   ├── Models/                           # Entidades y GestionApiariosContext
+│   └── Program.cs                        # Configuración de la API, Identity y Swagger
+│
+├── GestionApiario.web/                   # Frontend (Blazor Server)
+│   ├── Components/
+│   │   ├── Compartido/MensajeError.razor
+│   │   ├── Cuenta/                       # Login.razor y Registro.razor
+│   │   ├── Layout/                       # MainLayout, CuentaLayout, NavMenu
+│   │   └── Pages/                        # Una carpeta por entidad (Lista y Actualizar)
+│   ├── Servicios/
+│   │   ├── Autenticacion/                # Sesión del usuario y llamadas a /cuenta
+│   │   ├── Interfaces/IApiariosServicio.cs
+│   │   ├── ApiarioServicio.cs            # Cliente HTTP de la API
+│   │   └── ErroresApi.cs                 # Traduce los errores de la API a mensajes legibles
+│   ├── wwwroot/                          # CSS, íconos, Chart.js y DashBoard.js
+│   └── Program.cs
+│
+├── GestionApiario.compartido/
+│   └── Dto/                              # DTO de entrada, detalle, grilla y tablero
+│
+└── GestionApiario.Pruebas/               # Pruebas de integración de la API
 ```
 
-### Descripci�n de Capas
-
-#### ?? **GestionApiario (Backend API)**
-- Expone endpoints RESTful para todas las operaciones CRUD.
-- Utiliza Entity Framework Core para el acceso a datos.
-- Implementa el patr�n Repository impl�citamente a trav�s de DbContext.
-
-#### ?? **GestionApiario.web (Frontend Blazor)**
-- Interfaz de usuario interactiva con Blazor Server.
-- Consumo de API mediante HttpClient.
-- Componentes reutilizables y p�ginas modulares por entidad.
-- Dashboard con visualizaciones usando Chart.js.
-
-#### ?? **GestionApiario.compartido (Capa de Contratos)**
-- Contiene los DTOs (Data Transfer Objects) compartidos.
-- Facilita la comunicaci�n entre frontend y backend.
-- Permite mantener una separaci�n clara de responsabilidades.
-
-## Configuraci�n y Ejecuci�n
+## Configuración y ejecución
 
 1. **Clonar el repositorio**
-``` git clone https://github.com/SelePagliero/Gesti-n-de-Apiarios.git ```
 
-2. **Configurar la base de datos**
-   - Modifica la cadena de conexi�n en `appsettings.json` o en el contexto de EF Core seg�n tu entorno.
+   ```
+   git clone https://github.com/SelePagliero/Gesti-n-de-Apiarios.git
+   ```
 
-3. **Restaurar paquetes y compilar**
-``` dotnet restore dotnet build ```
+2. **Restaurar las herramientas y paquetes**
 
+   ```
+   dotnet tool restore
+   dotnet restore
+   ```
 
-4. **Ejecutar la soluci�n**
-   - Inicia primero el proyecto `GestionApiario` (API).
-   - Luego ejecuta `GestionApiario.web` (Blazor Server).
+3. **Configurar la cadena de conexión.** No se guarda en el repositorio; se usa el almacén de secretos de usuario de .NET:
 
-5. **Acceder a la aplicaci�n**
-   - Navega a `https://localhost:7035` (o el puerto configurado).
+   ```
+   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=TU_SERVIDOR;Database=GestionApiarios;Trusted_Connection=True;TrustServerCertificate=True;" --project GestionApiario
+   ```
 
-## Migraciones y Base de Datos
+   Reemplazá `TU_SERVIDOR` por el nombre de tu instancia de SQL Server.
 
-Para actualizar el modelo desde la base de datos, utiliza el siguiente comando en la consola de NuGet:
-``` Scaffold-DbContext "Server=TU_SERVIDOR;Database=GestionApiarios;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force ```
+4. **Crear o actualizar la base de datos** (ver [Base de datos y migraciones](#base-de-datos-y-migraciones)).
 
+5. **Ejecutar la solución.** Iniciá primero la API y después la web:
 
-> **Nota:** Cambia `TU_SERVIDOR` por el nombre de tu servidor SQL.
+   ```
+   dotnet run --project GestionApiario --launch-profile https
+   dotnet run --project GestionApiario.web --launch-profile https
+   ```
 
-## Buenas Pr�cticas
+   - API y Swagger: `https://localhost:7035/swagger`
+   - Aplicación web: `https://localhost:7101`
 
-- Separaci�n de responsabilidades: DTOs, servicios, controladores y vistas bien definidos.
-- Uso de inyecci�n de dependencias para servicios.
-- C�digo limpio y comentado.
-- Manejo de errores y validaciones en backend y frontend.
-- Uso de componentes reutilizables en Blazor.
+   La dirección de la API que usa la web se configura en `GestionApiario.web/appsettings.json`, en la clave `Api:UrlBase`.
 
-## Cr�ditos
+## Usuarios e inicio de sesión
+
+- La primera vez, entrá a la web y usá **Registrate** para crear un usuario. La contraseña debe tener al menos 8 caracteres, con mayúscula, minúscula y número.
+- Después de 5 intentos fallidos, la cuenta se bloquea por 5 minutos.
+- Desde Swagger: ejecutá `POST /cuenta/login`, copiá el `accessToken` de la respuesta, tocá **Authorize** y pegalo.
+- El email del usuario se guarda en las columnas `UsuarioAlta`, `UsuarioModificacion` y `UsuarioBaja` de cada tabla.
+
+## Base de datos y migraciones
+
+El esquema se maneja con migraciones de Entity Framework Core. La herramienta `dotnet-ef` está declarada como herramienta local en `.config/dotnet-tools.json`, así que con `dotnet tool restore` queda disponible.
+
+- **Base nueva:** crea todas las tablas, incluidas las de usuarios.
+
+  ```
+  dotnet ef database update --project GestionApiario
+  ```
+
+- **Base existente creada con un script** (sin historial de migraciones): primero hay que marcar la migración inicial como aplicada, porque sus tablas ya existen. Después se aplican las demás:
+
+  ```sql
+  INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion)
+  VALUES ('20251115134317_eliminacionProductoPorEnfermedad', '8.0.17');
+  ```
+
+  ```
+  dotnet ef database update --project GestionApiario
+  ```
+
+- **Nueva migración** después de cambiar el modelo:
+
+  ```
+  dotnet ef migrations add NombreDeLaMigracion --project GestionApiario
+  ```
+
+## Pruebas automatizadas
+
+```
+dotnet test
+```
+
+Las pruebas levantan la API en memoria con una base de datos InMemory, así que no necesitan SQL Server. Verifican:
+- el inicio de sesión;
+- las validaciones;
+- la auditoría de usuarios;
+- los cálculos del tablero.
+
+## Créditos
 
 Desarrollado por [SelePagliero](https://github.com/SelePagliero).
-
----
