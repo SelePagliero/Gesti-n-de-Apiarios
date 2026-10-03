@@ -20,6 +20,7 @@ Sistema para la gestión de apiarios, campañas, controles, enfermedades, alimen
 
 - Alta, consulta, modificación y baja lógica de apiarios, campañas, controles, enfermedades, alimentos y productos.
 - Inicio de sesión con usuario y contraseña (ASP.NET Core Identity). Cada alta, modificación y baja registra qué usuario la hizo.
+- Varios apicultores: cada uno ve y modifica solo sus apiarios y controles. La Administradora ve y modifica todo, administra los catálogos y puede transferir apiarios entre apicultores.
 - Filtros de controles por apiario, campaña, enfermedad (o "con alguna enfermedad") y rango de fechas. Los aplica la API y quedan en la URL.
 - Tablero con indicadores (apiarios activos, colmenas, apiarios con enfermedades) y gráfico de enfermedades.
 - Validaciones en los formularios y en la API, con mensajes en español.
@@ -126,6 +127,26 @@ SistemaGestionApiarios/
 - Después de 5 intentos fallidos, la cuenta se bloquea por 5 minutos.
 - Desde Swagger: ejecutá `POST /cuenta/login`, copiá el `accessToken` de la respuesta, tocá **Authorize** y pegalo.
 - El email del usuario se guarda en las columnas `UsuarioAlta`, `UsuarioModificacion` y `UsuarioBaja` de cada tabla.
+
+### Apicultores y Administradora
+
+| | Apicultor | Administradora |
+|---|---|---|
+| Apiarios | crea; ve, edita y elimina solo los suyos | ve, crea, edita y elimina todos; puede cambiar el dueño |
+| Controles | solo sobre sus apiarios | sobre cualquier apiario |
+| Alimentos, Enfermedades, Productos, Campañas | solo consulta | todo |
+| Tablero, gráfico y filtros | solo sus datos | todos, o los de un apicultor |
+
+- Las restricciones las aplica la API: un apiario o control ajeno responde 404 y modificar un catálogo sin permiso responde 403.
+- Cada control pertenece al dueño de su apiario. Al transferir un apiario, sus controles pasan con él.
+- **Configurar la Administradora:** guardá su email en los secretos de usuario:
+
+  ```
+  dotnet user-secrets set "Administracion:Email" "email@de-la-administradora" --project GestionApiario
+  ```
+
+  Al arrancar, la API le asigna el rol y le pasa los apiarios que no tienen dueño. Si la cuenta se registra después de arrancar la API, reiniciala una vez.
+- Si se cambia el rol de un usuario, el cambio se aplica cuando vuelve a iniciar sesión o cuando se renueva su token (como máximo en una hora).
 
 ## Base de datos y migraciones
 
