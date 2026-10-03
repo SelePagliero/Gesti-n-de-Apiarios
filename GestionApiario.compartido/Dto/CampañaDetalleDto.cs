@@ -23,6 +23,7 @@ namespace GestionApiario.compartido.Dto
         public DateTime? FechaBaja { get; set; }
 
         public DateTime? FechaModificacion { get; set; }
+        public string? UsuarioModificacion { get; set; }
 
     }
 }

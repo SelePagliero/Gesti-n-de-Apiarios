@@ -1,0 +1,11 @@
+@inject NavigationManager _navegationmanager
+
+@code {
+    // Manda a la pantalla de ingreso y recuerda a qué página se quería entrar.
+    protected override void OnInitialized()
+    {
+        var paginaActual = _navegationmanager.ToBaseRelativePath(_navegationmanager.Uri);
+        var destino = string.IsNullOrEmpty(paginaActual) ? "login" : $"login?returnUrl={Uri.EscapeDataString(paginaActual)}";
+        _navegationmanager.NavigateTo(destino);
+    }
+}

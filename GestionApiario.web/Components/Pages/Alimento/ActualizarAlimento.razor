@@ -1,11 +1,9 @@
-﻿@page "/crear-alimento"
+@page "/crear-alimento"
 @page "/actualizar-alimento/{codigo:int}"
-@using GestionApiario.compartido.Dto
-@using GestionApiario.web.Servicios.Interfaces
-@inject IApiariosServicio _servicio;
-@inject NavigationManager _navegationmanager;
+@inject IApiariosServicio _servicio
+@inject NavigationManager _navegationmanager
 
-@rendermode InteractiveServer
+<PageTitle>Alimento</PageTitle>
 
 @if (Codigo is null)
 {
@@ -16,9 +14,16 @@ else
     <h3>Actualizar Alimento</h3>
 }
 
-<EditForm FormName="ActualizarAlimento" Model="Alimento" OnSubmit="HandleSubmit">
-    <label for="nombre">Nombre</label>
-    <InputText class="form-control" id="nombre" @bind-Value=Alimento.Nombre></InputText>
+<MensajeError Mensaje="@mensajeError" />
+
+<EditForm Model="Alimento" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <InputText class="form-control" id="nombre" @bind-Value="Alimento.Nombre" />
+        <ValidationMessage For="() => Alimento.Nombre" />
+    </div>
+    <a href="/alimentos" class="btn btn-secondary">Volver</a>
     <button type="submit" class="btn btn-primary">Guardar</button>
 </EditForm>
 
@@ -26,20 +31,29 @@ else
     [Parameter]
     public int? Codigo { get; set; }
     public AlimentoDto Alimento { get; set; } = new AlimentoDto();
+    string? mensajeError;
 
     protected async Task HandleSubmit()
     {
-        if (Codigo is null)
+        mensajeError = null;
+        try
         {
-            await _servicio.CrearAlimento(Alimento);
+            if (Codigo is null)
+            {
+                await _servicio.CrearAlimento(Alimento);
+            }
+            else
+            {
+                await _servicio.ModificarAlimento(Codigo.Value, Alimento);
+            }
         }
-        else
+        catch (HttpRequestException ex)
         {
-            await _servicio.ModificarAlimento(Codigo.Value, Alimento);
+            mensajeError = ex.Message;
+            return;
         }
 
         _navegationmanager.NavigateTo("/alimentos");
-
     }
 
     protected override async Task OnParametersSetAsync()
@@ -48,9 +62,9 @@ else
         {
             var alimentoDetalle = await _servicio.ObtenerAlimento(Codigo.Value);
             Alimento = new()
-                {
-                    Nombre = alimentoDetalle.Nombre
-                };
+            {
+                Nombre = alimentoDetalle.Nombre ?? string.Empty
+            };
         }
-   }
+    }
 }

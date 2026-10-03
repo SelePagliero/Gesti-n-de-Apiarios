@@ -1,0 +1,78 @@
+@page "/login"
+@layout CuentaLayout
+@using System.ComponentModel.DataAnnotations
+@inject CuentaServicio _cuenta
+@inject EstadoAutenticacion _estado
+@inject NavigationManager _navegationmanager
+
+<PageTitle>Iniciar sesión</PageTitle>
+
+<h5 class="mb-3">Iniciar sesión</h5>
+
+<MensajeError Mensaje="@mensajeError" />
+
+<EditForm Model="Datos" OnValidSubmit="Ingresar">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" type="email" class="form-control" @bind-Value="Datos.Email" autocomplete="username" />
+        <ValidationMessage For="() => Datos.Email" />
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="Datos.Password" autocomplete="current-password" />
+        <ValidationMessage For="() => Datos.Password" />
+    </div>
+    <button type="submit" class="btn btn-primary w-100" disabled="@procesando">
+        @(procesando ? "Ingresando..." : "Ingresar")
+    </button>
+</EditForm>
+
+<p class="mt-3 mb-0 text-center">
+    ¿No tenés cuenta? <a href="registro">Registrate</a>
+</p>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    public DatosIngreso Datos { get; set; } = new();
+    private string? mensajeError;
+    private bool procesando;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Si ya hay una sesión abierta no tiene sentido mostrar el formulario.
+        if (await _estado.ObtenerSesionAsync() is not null)
+            IrAlDestino();
+    }
+
+    private async Task Ingresar()
+    {
+        procesando = true;
+        mensajeError = await _cuenta.IniciarSesionAsync(Datos.Email.Trim(), Datos.Password);
+        procesando = false;
+
+        if (mensajeError is null)
+            IrAlDestino();
+    }
+
+    private void IrAlDestino()
+    {
+        // Solo se aceptan rutas internas para evitar redirecciones a otros sitios.
+        var destino = !string.IsNullOrEmpty(ReturnUrl) && !ReturnUrl.Contains("//") && !ReturnUrl.Contains(':')
+            ? ReturnUrl.TrimStart('/')
+            : string.Empty;
+        _navegationmanager.NavigateTo(destino);
+    }
+
+    public class DatosIngreso
+    {
+        [Required(ErrorMessage = "Ingresá tu email.")]
+        [EmailAddress(ErrorMessage = "El email no es válido.")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Ingresá tu contraseña.")]
+        public string Password { get; set; } = string.Empty;
+    }
+}

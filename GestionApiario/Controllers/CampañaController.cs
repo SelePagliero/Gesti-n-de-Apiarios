@@ -1,14 +1,11 @@
-﻿
+using GestionApiario.compartido.Dto;
 using GestionApiario.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using GestionApiario.compartido.Dto;
 
 namespace GestionApiario.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class CampañaController : Controller
+    public class CampañaController : ControladorBase
     {
         private readonly GestionApiariosContext _context;
         public CampañaController(GestionApiariosContext context)
@@ -23,45 +20,68 @@ namespace GestionApiario.Controllers
             {
                 Año = nuevaCampaña.Año,
                 Responsable = nuevaCampaña.Responsable,
-                FechaAlta = DateTime.Now
+                FechaAlta = DateTime.Now,
+                UsuarioAlta = UsuarioActual
             };
 
             _context.Campañas.Add(campaña);
             await _context.SaveChangesAsync();
-            return Created();
+            return CreatedAtAction(nameof(ObtenerCampaña), new { Codigo = campaña.Codigo }, null);
         }
 
         [HttpGet("{Codigo}")]
-        public async Task<ActionResult<Campaña>> ObtenerCampaña([FromRoute] int Codigo)
+        public async Task<ActionResult<CampañaDetalleDto>> ObtenerCampaña([FromRoute] int Codigo)
         {
-
-            var campaña = await _context.Campañas.Where(a => a.Codigo == Codigo).FirstOrDefaultAsync();
+            var campaña = await _context.Campañas
+                .Where(c => c.Codigo == Codigo && c.FechaBaja == null)
+                .Select(c => new CampañaDetalleDto()
+                {
+                    Codigo = c.Codigo,
+                    Año = c.Año,
+                    Responsable = c.Responsable,
+                    UsuarioAlta = c.UsuarioAlta,
+                    FechaAlta = c.FechaAlta,
+                    UsuarioBaja = c.UsuarioBaja,
+                    FechaBaja = c.FechaBaja,
+                    FechaModificacion = c.FechaModificacion,
+                    UsuarioModificacion = c.UsuarioModificacion
+                })
+                .FirstOrDefaultAsync();
 
             if (campaña == null) { return NotFound(); }
             return Ok(campaña);
         }
 
         [HttpPut("{Codigo}")]
-        public async Task<ActionResult> ModificarCampaña([FromRoute] int Codigo, [FromBody] CampañaDto CampañaModificar)
+        public async Task<ActionResult> ModificarCampaña([FromRoute] int Codigo, [FromBody] CampañaDto campañaModificar)
         {
-
-            var campaña = await _context.Campañas.Where(a => a.Codigo == Codigo).FirstOrDefaultAsync();
+            var campaña = await _context.Campañas.FirstOrDefaultAsync(c => c.Codigo == Codigo && c.FechaBaja == null);
 
             if (campaña == null) { return NotFound(); }
 
-            campaña.Año = CampañaModificar.Año;
-            campaña.Responsable = CampañaModificar.Responsable;
+            campaña.Año = campañaModificar.Año;
+            campaña.Responsable = campañaModificar.Responsable;
             campaña.FechaModificacion = DateTime.Now;
-            _context.SaveChanges();
+            campaña.UsuarioModificacion = UsuarioActual;
+            await _context.SaveChangesAsync();
             return Ok();
         }
 
         [HttpGet("vertodos")]
-        public async Task<ActionResult<List<Campaña>>> ObtenerTodos()
+        public async Task<ActionResult<List<CampañaGrillaDto>>> ObtenerTodos()
         {
-
-
-            var listaCampañas = _context.Campañas.Where(a => a.FechaBaja == null).ToList();
+            var listaCampañas = await _context.Campañas
+                .Where(c => c.FechaBaja == null)
+                .OrderByDescending(c => c.Año)
+                .Select(c => new CampañaGrillaDto()
+                {
+                    Codigo = c.Codigo,
+                    Año = c.Año,
+                    Responsable = c.Responsable,
+                    FechaAlta = c.FechaAlta,
+                    FechaModificacion = c.FechaModificacion
+                })
+                .ToListAsync();
 
             return Ok(listaCampañas);
         }
@@ -69,16 +89,14 @@ namespace GestionApiario.Controllers
         [HttpDelete("{Codigo}")]
         public async Task<ActionResult> Eliminar([FromRoute] int Codigo)
         {
+            var campaña = await _context.Campañas.FirstOrDefaultAsync(c => c.Codigo == Codigo && c.FechaBaja == null);
 
-            var borrarCampaña = await _context.Campañas.Where(a => a.Codigo == Codigo).FirstOrDefaultAsync();
+            if (campaña == null) { return NotFound(); }
 
-            if (borrarCampaña == null) { return NotFound(); }
-
-            borrarCampaña.FechaBaja = DateTime.Now;
-            borrarCampaña.FechaModificacion = DateTime.Now;
-            _context.SaveChanges();
+            campaña.FechaBaja = DateTime.Now;
+            campaña.UsuarioBaja = UsuarioActual;
+            await _context.SaveChangesAsync();
             return Ok();
         }
     }
 }
-

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestionApiario.Models;
 
-public partial class GestionApiariosContext : DbContext
+public partial class GestionApiariosContext : IdentityDbContext<IdentityUser>
 {
     public GestionApiariosContext()
     {
@@ -23,12 +25,14 @@ public partial class GestionApiariosContext : DbContext
 
     public virtual DbSet<Controle> Controles { get; set; }
 
-    public virtual DbSet<Enfermedad> Enfermedads { get; set; }
+    public virtual DbSet<Enfermedad> Enfermedades { get; set; }
 
     public virtual DbSet<Producto> Productos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<Alimento>(entity =>
         {
             entity.HasKey(e => e.Codigo).HasName("PK__ALIMENTO__06370DAD793DF6FA");
@@ -114,7 +118,8 @@ public partial class GestionApiariosContext : DbContext
             entity.Property(e => e.FechaAlta).HasColumnType("datetime");
             entity.Property(e => e.FechaBaja).HasColumnType("datetime");
             entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
-            entity.Property(e => e.Obsevaciones)
+            entity.Property(e => e.Observaciones)
+                .HasColumnName("Obsevaciones")
                 .HasMaxLength(500)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)

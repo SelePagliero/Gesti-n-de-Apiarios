@@ -43,7 +43,7 @@ h1:focus {
 }
 
     .blazor-error-boundary::after {
-        content: "An error has occurred."
+        content: "Ocurrió un error."
     }
 
 .darker-border-checkbox.form-check-input {

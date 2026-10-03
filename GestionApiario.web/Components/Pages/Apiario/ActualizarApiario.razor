@@ -1,15 +1,14 @@
-﻿@page "/crear-apiario"
+@page "/crear-apiario"
 @page "/actualizar-apiario/{codigo:int}"
 @page "/ver-apiario/{codigo:int}"
-@using GestionApiario.compartido.Dto
-@using GestionApiario.web.Servicios.Interfaces
-@inject IApiariosServicio _servicio;
-@inject NavigationManager _navegationmanager;
-@rendermode InteractiveServer
+@inject IApiariosServicio _servicio
+@inject NavigationManager _navegationmanager
 
 @{
-    bool EsSoloLectura = _navegationmanager.Uri.Contains("/ver-apiario");
+    bool EsSoloLectura = _navegationmanager.Uri.Contains("/ver-apiario", StringComparison.OrdinalIgnoreCase);
 }
+
+<PageTitle>Apiario</PageTitle>
 
 @if (EsSoloLectura)
 {
@@ -24,20 +23,32 @@ else
     <h3>Actualizar Apiario</h3>
 }
 
-<EditForm FormName="ActualizarApiario" Model="Apiario" OnSubmit="HandleSubmit">
-    <label for="nombre">Nombre</label>
-    <InputText class="form-control" id="nombre" @bind-Value=Apiario.Nombre disabled="@EsSoloLectura"></InputText>
-    <label for="empresa">Empresa</label>
-    <InputText class="form-control" id="empresa" @bind-Value="Apiario.Empresa" disabled="@EsSoloLectura"></InputText>
-    <label for="longitud">Longitud</label>
-    <InputText class="form-control" id="longitud" @bind-Value="Apiario.Longitud" disabled="@EsSoloLectura"></InputText>
-    <label for="latitud">Latitud</label>
-    <InputText class="form-control" id="latitud" @bind-Value="Apiario.Latitud" disabled="@EsSoloLectura"></InputText>
-    @if (EsSoloLectura)
-    {
-        <button type="button" class="btn btn-secondary" @onclick='() => _navegationmanager.NavigateTo("/apiarios")'>Volver</button>
-    }
-    else
+<MensajeError Mensaje="@mensajeError" />
+
+<EditForm Model="Apiario" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <InputText class="form-control" id="nombre" @bind-Value="Apiario.Nombre" disabled="@EsSoloLectura" />
+        <ValidationMessage For="() => Apiario.Nombre" />
+    </div>
+    <div class="mb-3">
+        <label for="empresa" class="form-label">Empresa</label>
+        <InputText class="form-control" id="empresa" @bind-Value="Apiario.Empresa" disabled="@EsSoloLectura" />
+        <ValidationMessage For="() => Apiario.Empresa" />
+    </div>
+    <div class="mb-3">
+        <label for="latitud" class="form-label">Latitud</label>
+        <InputText class="form-control" id="latitud" @bind-Value="Apiario.Latitud" disabled="@EsSoloLectura" />
+        <ValidationMessage For="() => Apiario.Latitud" />
+    </div>
+    <div class="mb-3">
+        <label for="longitud" class="form-label">Longitud</label>
+        <InputText class="form-control" id="longitud" @bind-Value="Apiario.Longitud" disabled="@EsSoloLectura" />
+        <ValidationMessage For="() => Apiario.Longitud" />
+    </div>
+    <a href="/apiarios" class="btn btn-secondary">Volver</a>
+    @if (!EsSoloLectura)
     {
         <button type="submit" class="btn btn-primary">Guardar</button>
     }
@@ -47,16 +58,26 @@ else
     [Parameter]
     public int? Codigo { get; set; }
     public ApiarioDto Apiario { get; set; } = new ApiarioDto();
+    string? mensajeError;
 
     protected async Task HandleSubmit()
     {
-        if (Codigo is null)
+        mensajeError = null;
+        try
         {
-            await _servicio.CrearApiario(Apiario);
+            if (Codigo is null)
+            {
+                await _servicio.CrearApiario(Apiario);
+            }
+            else
+            {
+                await _servicio.ModificarApiario(Codigo.Value, Apiario);
+            }
         }
-        else
+        catch (HttpRequestException ex)
         {
-            await _servicio.ModificarApiario(Codigo.Value, Apiario);
+            mensajeError = ex.Message;
+            return;
         }
 
         _navegationmanager.NavigateTo("/apiarios");

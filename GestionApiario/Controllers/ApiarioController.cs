@@ -1,13 +1,11 @@
-﻿using GestionApiario.compartido.Dto;
+using GestionApiario.compartido.Dto;
 using GestionApiario.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestionApiario.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class ApiarioController : Controller
+    public class ApiarioController : ControladorBase
     {
         private readonly GestionApiariosContext _context;
         public ApiarioController(GestionApiariosContext context)
@@ -16,74 +14,79 @@ namespace GestionApiario.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> InsertarApario([FromBody] ApiarioDto nuevoApiario)
+        public async Task<ActionResult> InsertarApiario([FromBody] ApiarioDto nuevoApiario)
         {
             Apiario apiario = new()
             {
                 Nombre = nuevoApiario.Nombre,
                 Empresa = nuevoApiario.Empresa,
+                Longitud = nuevoApiario.Longitud,
+                Latitud = nuevoApiario.Latitud,
                 FechaAlta = DateTime.Now,
-                Longitud=nuevoApiario.Longitud,
-                Latitud=nuevoApiario.Latitud
+                UsuarioAlta = UsuarioActual
             };
 
             _context.Apiarios.Add(apiario);
             await _context.SaveChangesAsync();
-            return Created();
+            return CreatedAtAction(nameof(ObtenerApiario), new { Codigo = apiario.Codigo }, null);
         }
 
         [HttpGet("{Codigo}")]
-        public async Task<ActionResult<ApiarioDetalleDto>> ObtenerApario([FromRoute] int Codigo)
+        public async Task<ActionResult<ApiarioDetalleDto>> ObtenerApiario([FromRoute] int Codigo)
         {
-      
-           var Apiario =await _context.Apiarios.Where(a => a.Codigo == Codigo).FirstOrDefaultAsync();
+            var apiario = await _context.Apiarios
+                .Where(a => a.Codigo == Codigo && a.FechaBaja == null)
+                .Select(a => new ApiarioDetalleDto()
+                {
+                    Codigo = a.Codigo,
+                    Nombre = a.Nombre,
+                    Empresa = a.Empresa,
+                    FechaAlta = a.FechaAlta,
+                    FechaBaja = a.FechaBaja,
+                    Latitud = a.Latitud,
+                    Longitud = a.Longitud,
+                    UsuarioAlta = a.UsuarioAlta,
+                    UsuarioBaja = a.UsuarioBaja,
+                    FechaModificacion = a.FechaModificacion,
+                    UsuarioModificacion = a.UsuarioModificacion
+                })
+                .FirstOrDefaultAsync();
 
-            if (Apiario == null) { return NotFound();}
-            ApiarioDetalleDto apiarioDto = new ApiarioDetalleDto()
-            {
-                Codigo = Apiario.Codigo,
-                Nombre = Apiario.Nombre,
-                Empresa = Apiario.Empresa,
-                FechaAlta = Apiario.FechaAlta,
-                FechaBaja = Apiario.FechaBaja,
-                Latitud = Apiario.Latitud,
-                Longitud = Apiario.Longitud,
-                UsuarioAlta = Apiario.UsuarioAlta,
-                UsuarioBaja = Apiario.UsuarioBaja,
-                FechaModificacion = Apiario.FechaModificacion,
-                UsuarioModificacion = Apiario.UsuarioModificacion
-            };
-            return Ok(apiarioDto);
+            if (apiario == null) { return NotFound(); }
+            return Ok(apiario);
         }
 
         [HttpPut("{Codigo}")]
         public async Task<ActionResult> Modificar([FromRoute] int Codigo, [FromBody] ApiarioDto apiarioModificar)
         {
+            var apiario = await _context.Apiarios.FirstOrDefaultAsync(a => a.Codigo == Codigo && a.FechaBaja == null);
 
-            var Apiario = await _context.Apiarios.Where(a => a.Codigo == Codigo).FirstOrDefaultAsync();
+            if (apiario == null) { return NotFound(); }
 
-            if (Apiario == null) { return NotFound(); }
-
-            Apiario.Nombre= apiarioModificar.Nombre;
-            Apiario.Empresa= apiarioModificar.Empresa;
-            Apiario.FechaModificacion = DateTime.Now;
-            _context.SaveChanges();
+            apiario.Nombre = apiarioModificar.Nombre;
+            apiario.Empresa = apiarioModificar.Empresa;
+            apiario.Latitud = apiarioModificar.Latitud;
+            apiario.Longitud = apiarioModificar.Longitud;
+            apiario.FechaModificacion = DateTime.Now;
+            apiario.UsuarioModificacion = UsuarioActual;
+            await _context.SaveChangesAsync();
             return Ok();
         }
 
         [HttpGet("vertodos")]
-        public ActionResult<List<ApiarioGrillaDto>> ObtenerTodos()
+        public async Task<ActionResult<List<ApiarioGrillaDto>>> ObtenerTodos()
         {
-
-
-            var listaApiarios = _context.Apiarios.Where(a => a.FechaBaja == null).Select(apiario => new ApiarioGrillaDto()
-            {
-                Codigo = apiario.Codigo,
-                Nombre = apiario.Nombre,
-                FechaModificacion = apiario.FechaModificacion,
-                FechaAlta = apiario.FechaAlta
-
-            }).ToList();
+            var listaApiarios = await _context.Apiarios
+                .Where(a => a.FechaBaja == null)
+                .OrderBy(a => a.Nombre)
+                .Select(apiario => new ApiarioGrillaDto()
+                {
+                    Codigo = apiario.Codigo,
+                    Nombre = apiario.Nombre,
+                    FechaModificacion = apiario.FechaModificacion,
+                    FechaAlta = apiario.FechaAlta
+                })
+                .ToListAsync();
 
             return Ok(listaApiarios);
         }
@@ -91,14 +94,13 @@ namespace GestionApiario.Controllers
         [HttpDelete("{Codigo}")]
         public async Task<ActionResult> Eliminar([FromRoute] int Codigo)
         {
+            var apiario = await _context.Apiarios.FirstOrDefaultAsync(a => a.Codigo == Codigo && a.FechaBaja == null);
 
-            var Apiario = await _context.Apiarios.Where(a => a.Codigo == Codigo).FirstOrDefaultAsync();
+            if (apiario == null) { return NotFound(); }
 
-            if (Apiario == null) { return NotFound(); }
-
-            Apiario.FechaBaja = DateTime.Now;
-            Apiario.FechaModificacion = DateTime.Now;
-            _context.SaveChanges();
+            apiario.FechaBaja = DateTime.Now;
+            apiario.UsuarioBaja = UsuarioActual;
+            await _context.SaveChangesAsync();
             return Ok();
         }
     }

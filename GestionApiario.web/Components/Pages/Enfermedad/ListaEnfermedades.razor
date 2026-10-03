@@ -1,77 +1,84 @@
-﻿@page "/enfermedades"
-@using GestionApiario.compartido.Dto
-@using GestionApiario.web.Servicios.Interfaces
-@inject IApiariosServicio _servicio;
-@inject NavigationManager _navigationManager;
-
-@rendermode InteractiveServer
+@page "/enfermedades"
+@inject IApiariosServicio _servicio
+@inject IJSRuntime JS
 
 <PageTitle>Enfermedades</PageTitle>
 
 <h1>Enfermedades</h1>
 
+<MensajeError Mensaje="@mensajeError" />
+
 @if (enfermedades == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Cargando...</em></p>
 }
 else
 {
-    <a href="/crear-enfermedad" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Crear Enfermedad</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Fecha de alta</th>
-                <th>Fecha de modificación</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var enfermedad in enfermedades)
-            {
+    <a href="/crear-enfermedad" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Enfermedad</a>
+
+    @if (enfermedades.Count == 0)
+    {
+        <p class="text-muted">Todavía no hay enfermedades cargadas.</p>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>@enfermedad.Codigo</td>
-                    <td>@enfermedad.Nombre</td>
-                    <td>@enfermedad.FechaAlta</td>
-                    <td>
-                        @if (enfermedad.FechaModificacion.HasValue)
-                        {
-                            @enfermedad.FechaModificacion
-                        }
-                        else
-                        {
-                            @enfermedad.FechaAlta
-                        }
-                    </td>
-                    <td>
-                        <a href="/actualizar-enfermedad/@enfermedad.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i>Editar</a>
-                        <button onclick="@(() => EliminarEnfermedad(@enfermedad.Codigo))" class="btn btn-danger"><i class="bi bi-trash"></i>Eliminar</button>
-                    </td>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Fecha de alta</th>
+                    <th>Fecha de modificación</th>
+                    <th>Acciones</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var enfermedad in enfermedades)
+                {
+                    <tr>
+                        <td>@enfermedad.Codigo</td>
+                        <td>@enfermedad.Nombre</td>
+                        <td>@enfermedad.FechaAlta?.ToString("g")</td>
+                        <td>@((enfermedad.FechaModificacion ?? enfermedad.FechaAlta)?.ToString("g"))</td>
+                        <td>
+                            <a href="/actualizar-enfermedad/@enfermedad.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                            <button type="button" @onclick="() => EliminarEnfermedad(enfermedad)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 }
 
 @code {
     List<EnfermedadGrillaDto>? enfermedades = null;
+    string? mensajeError;
 
     protected override async Task OnInitializedAsync()
     {
-        await CargarEnfermedad();
+        await CargarEnfermedades();
     }
 
-    async Task EliminarEnfermedad(int codigo)
+    async Task EliminarEnfermedad(EnfermedadGrillaDto enfermedad)
     {
-        await _servicio.EliminarEnfermedad(codigo);
-        _navigationManager.Refresh(true);
+        if (!await JS.InvokeAsync<bool>("confirm", $"¿Eliminar la enfermedad \"{enfermedad.Nombre}\"?"))
+            return;
+
+        mensajeError = null;
+        try
+        {
+            await _servicio.EliminarEnfermedad(enfermedad.Codigo);
+            await CargarEnfermedades();
+        }
+        catch (HttpRequestException ex)
+        {
+            mensajeError = ex.Message;
+        }
     }
 
-    async Task CargarEnfermedad()
+    async Task CargarEnfermedades()
     {
         enfermedades = await _servicio.ObtenerTodasEnfermedades();
     }
 }
-
-

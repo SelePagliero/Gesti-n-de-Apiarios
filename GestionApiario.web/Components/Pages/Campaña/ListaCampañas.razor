@@ -1,73 +1,82 @@
-﻿@page "/campanias"
-@using GestionApiario.compartido.Dto
-@using GestionApiario.web.Servicios.Interfaces
-@inject IApiariosServicio _servicio;
-@inject NavigationManager _navegationmanager;
-
-@rendermode InteractiveServer
+@page "/campanias"
+@inject IApiariosServicio _servicio
+@inject IJSRuntime JS
 
 <PageTitle>Campañas</PageTitle>
 
 <h1>Campañas</h1>
 
+<MensajeError Mensaje="@mensajeError" />
+
 @if (campañas == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Cargando...</em></p>
 }
 else
 {
-    <a href="/crear-campaña" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Crear Campaña</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>Año</th>
-                <th>Responsable</th>
-                <th>Fecha de alta</th>
-                <th>Fecha de modificación</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var campaña in campañas)
-            {
+    <a href="/crear-campaña" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Campaña</a>
+
+    @if (campañas.Count == 0)
+    {
+        <p class="text-muted">Todavía no hay campañas cargadas.</p>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>@campaña.Codigo</td>
-                    <td>@campaña.Año</td>
-                    <td>@campaña.Responsable</td>
-                    <td>@campaña.FechaAlta</td>
-                    <td>
-                        @if (campaña.FechaModificacion.HasValue)
-                        {
-                            @campaña.FechaModificacion
-                        }
-                        else
-                        {
-                            @campaña.FechaAlta
-                        }
-                    </td>
-                    <td>
-                        <a href="/actualizar-campaña/@campaña.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i>Editar</a>
-                        <button onclick="@(() => EliminarCampaña(@campaña.Codigo))" class="btn btn-danger"><i class="bi bi-trash"></i>Eliminar</button>
-                    </td>
+                    <th>Código</th>
+                    <th>Año</th>
+                    <th>Responsable</th>
+                    <th>Fecha de alta</th>
+                    <th>Fecha de modificación</th>
+                    <th>Acciones</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var campaña in campañas)
+                {
+                    <tr>
+                        <td>@campaña.Codigo</td>
+                        <td>@campaña.Año</td>
+                        <td>@campaña.Responsable</td>
+                        <td>@campaña.FechaAlta?.ToString("g")</td>
+                        <td>@((campaña.FechaModificacion ?? campaña.FechaAlta)?.ToString("g"))</td>
+                        <td>
+                            <a href="/actualizar-campaña/@campaña.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                            <button type="button" @onclick="() => EliminarCampaña(campaña)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 }
 
 @code {
     List<CampañaGrillaDto>? campañas = null;
+    string? mensajeError;
 
     protected override async Task OnInitializedAsync()
     {
         await CargarCampañas();
     }
 
-    async Task EliminarCampaña(int codigo)
+    async Task EliminarCampaña(CampañaGrillaDto campaña)
     {
-        await _servicio.EliminarCampaña(codigo);
-        _navegationmanager.Refresh(true);
+        if (!await JS.InvokeAsync<bool>("confirm", $"¿Eliminar la campaña {campaña.Año}?"))
+            return;
+
+        mensajeError = null;
+        try
+        {
+            await _servicio.EliminarCampaña(campaña.Codigo);
+            await CargarCampañas();
+        }
+        catch (HttpRequestException ex)
+        {
+            mensajeError = ex.Message;
+        }
     }
 
     async Task CargarCampañas()

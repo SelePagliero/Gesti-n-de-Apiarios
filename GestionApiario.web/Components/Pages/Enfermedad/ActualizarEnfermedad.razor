@@ -1,11 +1,9 @@
-﻿@page "/crear-enfermedad"
+@page "/crear-enfermedad"
 @page "/actualizar-enfermedad/{codigo:int}"
-@using GestionApiario.compartido.Dto
-@using GestionApiario.web.Servicios.Interfaces
-@inject IApiariosServicio _servicio;
-@inject NavigationManager _navegationmanager;
+@inject IApiariosServicio _servicio
+@inject NavigationManager _navegationmanager
 
-@rendermode InteractiveServer
+<PageTitle>Enfermedad</PageTitle>
 
 @if (Codigo is null)
 {
@@ -16,43 +14,57 @@ else
     <h3>Actualizar Enfermedad</h3>
 }
 
-<EditForm FormName="ActualizarEnfermedad" Model="Enfermedad" OnSubmit="HandleSubmit">
-    <label for="nombre">Nombre</label>
-    <InputText class="form-control" id="nombre" @bind-Value=Enfermedad.Nombre></InputText>
+<MensajeError Mensaje="@mensajeError" />
+
+<EditForm Model="Enfermedad" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <InputText class="form-control" id="nombre" @bind-Value="Enfermedad.Nombre" />
+        <ValidationMessage For="() => Enfermedad.Nombre" />
+    </div>
+    <a href="/enfermedades" class="btn btn-secondary">Volver</a>
     <button type="submit" class="btn btn-primary">Guardar</button>
 </EditForm>
-
 
 @code {
     [Parameter]
     public int? Codigo { get; set; }
     public EnfermedadDto Enfermedad { get; set; } = new EnfermedadDto();
+    string? mensajeError;
+
     protected async Task HandleSubmit()
     {
-        if (Codigo is null)
+        mensajeError = null;
+        try
         {
-            await _servicio.CrearEnfermedad(Enfermedad);
+            if (Codigo is null)
+            {
+                await _servicio.CrearEnfermedad(Enfermedad);
+            }
+            else
+            {
+                await _servicio.ModificarEnfermedad(Codigo.Value, Enfermedad);
+            }
         }
-        else
+        catch (HttpRequestException ex)
         {
-            await _servicio.ModificarEnfermedad(Codigo.Value, Enfermedad);
+            mensajeError = ex.Message;
+            return;
         }
 
         _navegationmanager.NavigateTo("/enfermedades");
-
     }
 
     protected override async Task OnParametersSetAsync()
     {
         if (Codigo.HasValue)
         {
-            var enfermedadDetalle = await _servicio.ObtenerEnfermedades(Codigo.Value);
+            var enfermedadDetalle = await _servicio.ObtenerEnfermedad(Codigo.Value);
             Enfermedad = new()
             {
-                Nombre = enfermedadDetalle.Nombre
+                Nombre = enfermedadDetalle.Nombre ?? string.Empty
             };
         }
-
-
     }
 }

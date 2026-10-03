@@ -1,11 +1,9 @@
-﻿@page "/crear-producto"
+@page "/crear-producto"
 @page "/actualizar-producto/{codigo:int}"
-@using GestionApiario.compartido.Dto
-@using GestionApiario.web.Servicios.Interfaces
-@inject IApiariosServicio _servicio;
-@inject NavigationManager _navegationmanager;
+@inject IApiariosServicio _servicio
+@inject NavigationManager _navegationmanager
 
-@rendermode InteractiveServer
+<PageTitle>Producto</PageTitle>
 
 @if (Codigo is null)
 {
@@ -16,9 +14,16 @@ else
     <h3>Actualizar Producto</h3>
 }
 
-<EditForm FormName="ActualizarProducto" Model="Producto" OnSubmit="HandleSubmit">
-    <label for="nombre">Nombre</label>
-    <InputText class="form-control" id="nombre" @bind-Value=Producto.Nombre></InputText>
+<MensajeError Mensaje="@mensajeError" />
+
+<EditForm Model="Producto" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <InputText class="form-control" id="nombre" @bind-Value="Producto.Nombre" />
+        <ValidationMessage For="() => Producto.Nombre" />
+    </div>
+    <a href="/productos" class="btn btn-secondary">Volver</a>
     <button type="submit" class="btn btn-primary">Guardar</button>
 </EditForm>
 
@@ -26,20 +31,29 @@ else
     [Parameter]
     public int? Codigo { get; set; }
     public ProductoDto Producto { get; set; } = new ProductoDto();
+    string? mensajeError;
 
     protected async Task HandleSubmit()
     {
-        if (Codigo is null)
+        mensajeError = null;
+        try
         {
-            await _servicio.CrearProducto(Producto);
+            if (Codigo is null)
+            {
+                await _servicio.CrearProducto(Producto);
+            }
+            else
+            {
+                await _servicio.ModificarProducto(Codigo.Value, Producto);
+            }
         }
-        else
+        catch (HttpRequestException ex)
         {
-            await _servicio.ModificarProducto(Codigo.Value, Producto);
+            mensajeError = ex.Message;
+            return;
         }
 
         _navegationmanager.NavigateTo("/productos");
-
     }
 
     protected override async Task OnParametersSetAsync()
@@ -48,9 +62,9 @@ else
         {
             var productoDetalle = await _servicio.ObtenerProducto(Codigo.Value);
             Producto = new()
-                {
-                    Nombre = productoDetalle.Nombre
-                };
+            {
+                Nombre = productoDetalle.Nombre ?? string.Empty
+            };
         }
-   }
+    }
 }

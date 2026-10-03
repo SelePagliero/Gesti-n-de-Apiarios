@@ -1,11 +1,9 @@
-﻿@page "/crear-campaña"
+@page "/crear-campaña"
 @page "/actualizar-campaña/{codigo:int}"
-@using GestionApiario.compartido.Dto
-@using GestionApiario.web.Servicios.Interfaces
-@inject IApiariosServicio _servicio;
-@inject NavigationManager _navegationmanager;
+@inject IApiariosServicio _servicio
+@inject NavigationManager _navegationmanager
 
-@rendermode InteractiveServer
+<PageTitle>Campaña</PageTitle>
 
 @if (Codigo is null)
 {
@@ -16,43 +14,62 @@ else
     <h3>Actualizar Campaña</h3>
 }
 
-<EditForm FormName="ActualizarCampaña" Model="Campaña" OnSubmit="HandleSubmit">
-    <label for="año">Año</label>
-    <InputNumber class="form-control" id="año" @bind-Value=Campaña.Año></InputNumber>
-    <label for="responsable">Responsable</label>
-    <InputText class="form-control" id="responsable" @bind-Value="Campaña.Responsable"></InputText>
+<MensajeError Mensaje="@mensajeError" />
+
+<EditForm Model="Campaña" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="año" class="form-label">Año</label>
+        <InputNumber class="form-control" id="año" @bind-Value="Campaña.Año" />
+        <ValidationMessage For="() => Campaña.Año" />
+    </div>
+    <div class="mb-3">
+        <label for="responsable" class="form-label">Responsable</label>
+        <InputText class="form-control" id="responsable" @bind-Value="Campaña.Responsable" />
+        <ValidationMessage For="() => Campaña.Responsable" />
+    </div>
+    <a href="/campanias" class="btn btn-secondary">Volver</a>
     <button type="submit" class="btn btn-primary">Guardar</button>
 </EditForm>
-
 
 @code {
     [Parameter]
     public int? Codigo { get; set; }
-    public CampañaDto Campaña { get; set; } = new CampañaDto();
+    public CampañaDto Campaña { get; set; } = new CampañaDto { Año = DateTime.Today.Year };
+    string? mensajeError;
+
     protected async Task HandleSubmit()
     {
-        if (Codigo is null)
+        mensajeError = null;
+        try
         {
-            await _servicio.CrearCampaña(Campaña);
+            if (Codigo is null)
+            {
+                await _servicio.CrearCampaña(Campaña);
+            }
+            else
+            {
+                await _servicio.ModificarCampaña(Codigo.Value, Campaña);
+            }
         }
-        else
+        catch (HttpRequestException ex)
         {
-            await _servicio.ModificarCamapaña(Codigo.Value, Campaña);
+            mensajeError = ex.Message;
+            return;
         }
 
         _navegationmanager.NavigateTo("/campanias");
-
     }
 
     protected override async Task OnParametersSetAsync()
     {
         if (Codigo.HasValue)
         {
-            var campañaDetalle = await _servicio.ObtenerCampañas(Codigo.Value);
+            var campañaDetalle = await _servicio.ObtenerCampaña(Codigo.Value);
             Campaña = new()
             {
                 Año = campañaDetalle.Año,
-                Responsable=campañaDetalle.Responsable
+                Responsable = campañaDetalle.Responsable
             };
         }
     }
