@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 
 namespace GestionApiario.Models;
@@ -26,6 +27,11 @@ public partial class Apiario
     public string? Latitud { get; set; }
 
     public string? Longitud { get; set; }
+
+    // Dueño del apiario (AspNetUsers.Id). Los controles pertenecen al dueño de su apiario.
+    public string? UsuarioId { get; set; }
+
+    public virtual IdentityUser? Usuario { get; set; }
 
     public virtual ICollection<Controle> Controles { get; set; } = new List<Controle>();
 }

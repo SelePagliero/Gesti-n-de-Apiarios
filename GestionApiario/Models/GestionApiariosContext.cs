@@ -46,14 +46,11 @@ public partial class GestionApiariosContext : IdentityDbContext<IdentityUser>
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
         });
 
         modelBuilder.Entity<Apiario>(entity =>
@@ -74,14 +71,16 @@ public partial class GestionApiariosContext : IdentityDbContext<IdentityUser>
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
+
+            // No se puede borrar un usuario que todavía es dueño de apiarios.
+            entity.HasOne(d => d.Usuario).WithMany()
+                .HasForeignKey(d => d.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Campaña>(entity =>
@@ -97,14 +96,11 @@ public partial class GestionApiariosContext : IdentityDbContext<IdentityUser>
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
         });
 
         modelBuilder.Entity<Controle>(entity =>
@@ -123,14 +119,11 @@ public partial class GestionApiariosContext : IdentityDbContext<IdentityUser>
                 .HasMaxLength(500)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
 
             entity.HasOne(d => d.CodAlimentoNavigation).WithMany(p => p.Controles)
                 .HasForeignKey(d => d.CodAlimento)
@@ -166,14 +159,11 @@ public partial class GestionApiariosContext : IdentityDbContext<IdentityUser>
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
         });
 
         modelBuilder.Entity<Producto>(entity =>
@@ -189,14 +179,11 @@ public partial class GestionApiariosContext : IdentityDbContext<IdentityUser>
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
         });
         OnModelCreatingPartial(modelBuilder);
     }

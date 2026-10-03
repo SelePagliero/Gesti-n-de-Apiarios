@@ -7,6 +7,9 @@ namespace GestionApiario.compartido.Dto
     {
         public const string MensajeRangoInvalido = "La fecha desde no puede ser posterior a la fecha hasta.";
 
+        // Solo lo tiene en cuenta la API si consulta la Administradora; un apicultor siempre ve solo lo suyo.
+        public string? UsuarioId { get; set; }
+
         public int? CodApiario { get; set; }
 
         public int? CodCampaña { get; set; }

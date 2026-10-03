@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using GestionApiario.compartido.Dto;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GestionApiario.Controllers
 {
@@ -6,18 +8,12 @@ namespace GestionApiario.Controllers
     [Route("[controller]")]
     public abstract class ControladorBase : ControllerBase
     {
-        // Las columnas UsuarioAlta, UsuarioModificacion y UsuarioBaja admiten hasta 50 caracteres.
-        private const int LargoMaximoUsuario = 50;
+        // Email del usuario que hace la operación; se guarda en UsuarioAlta, UsuarioModificacion y UsuarioBaja.
+        protected string? UsuarioActual => User.Identity?.Name;
 
-        protected string? UsuarioActual
-        {
-            get
-            {
-                var nombre = User.Identity?.Name;
-                if (string.IsNullOrEmpty(nombre))
-                    return null;
-                return nombre.Length <= LargoMaximoUsuario ? nombre : nombre[..LargoMaximoUsuario];
-            }
-        }
+        // Id del usuario (AspNetUsers.Id); es el que se guarda como dueño del apiario.
+        protected string? UsuarioIdActual => User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        protected bool EsAdministrador => User.IsInRole(RolesUsuario.Administrador);
     }
 }

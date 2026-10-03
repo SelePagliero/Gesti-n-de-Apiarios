@@ -1,4 +1,5 @@
 using GestionApiario.compartido.Dto;
+using Microsoft.AspNetCore.Authorization;
 using GestionApiario.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace GestionApiario.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<ActionResult> InsertarEnfermedad([FromBody] EnfermedadDto nuevaEnfermedad)
         {
             Enfermedad enfermedad = new()
@@ -51,6 +53,7 @@ namespace GestionApiario.Controllers
         }
 
         [HttpPut("{Codigo}")]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<ActionResult> Modificar([FromRoute] int Codigo, [FromBody] EnfermedadDto enfermedadModificar)
         {
             var enfermedad = await _context.Enfermedades.FirstOrDefaultAsync(e => e.Codigo == Codigo && e.FechaBaja == null);
@@ -83,6 +86,7 @@ namespace GestionApiario.Controllers
         }
 
         [HttpDelete("{Codigo}")]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<ActionResult> Eliminar([FromRoute] int Codigo)
         {
             var enfermedad = await _context.Enfermedades.FirstOrDefaultAsync(e => e.Codigo == Codigo && e.FechaBaja == null);

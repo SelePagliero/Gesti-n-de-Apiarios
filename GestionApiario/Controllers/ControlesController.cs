@@ -34,8 +34,8 @@ namespace GestionApiario.Controllers
         [HttpGet("{Codigo}")]
         public async Task<ActionResult<ControlDetalleDto>> ObtenerControles([FromRoute] int Codigo)
         {
-            var control = await _context.Controles
-                .Where(c => c.Codigo == Codigo && c.FechaBaja == null)
+            var control = await ControlesVisibles()
+                .Where(c => c.Codigo == Codigo)
                 .Select(c => new ControlDetalleDto()
                 {
                     Codigo = c.Codigo,
@@ -59,7 +59,7 @@ namespace GestionApiario.Controllers
         [HttpPut("{Codigo}")]
         public async Task<ActionResult> ModificarControl([FromRoute] int Codigo, [FromBody] ControlDto controlModificar)
         {
-            var control = await _context.Controles.FirstOrDefaultAsync(c => c.Codigo == Codigo && c.FechaBaja == null);
+            var control = await ControlesVisibles().FirstOrDefaultAsync(c => c.Codigo == Codigo);
 
             if (control == null) { return NotFound(); }
 
@@ -76,9 +76,12 @@ namespace GestionApiario.Controllers
         [HttpGet("vertodos")]
         public async Task<ActionResult<List<ControlGrillaDto>>> ObtenerTodos([FromQuery] FiltroControlesDto filtro)
         {
-            // Los controles de apiarios dados de baja no se muestran en la grilla, aunque se filtre por ese apiario.
-            var consulta = _context.Controles
-                .Where(c => c.FechaBaja == null && c.CodApiarioNavigation!.FechaBaja == null);
+            // Los controles de apiarios dados de baja o ajenos no se muestran, aunque se filtre por ese apiario.
+            var consulta = ControlesVisibles();
+
+            // El filtro por apicultor solo vale para la Administradora; un apicultor ya ve únicamente lo suyo.
+            if (EsAdministrador && !string.IsNullOrEmpty(filtro.UsuarioId))
+                consulta = consulta.Where(c => c.CodApiarioNavigation!.UsuarioId == filtro.UsuarioId);
 
             // El rango de fechas inválido ya lo rechaza [ApiController] con un 400 (FiltroControlesDto.Validate).
             if (filtro.CodApiario is not null)
@@ -108,7 +111,8 @@ namespace GestionApiario.Controllers
                     CantidadAlimento = c.CantidadAlimento,
                     Enfermedad = c.CodEnfermedadNavigation!.Nombre,
                     Producto = c.CodProductosNavigation!.Nombre,
-                    CantProducto = c.CantProducto
+                    CantProducto = c.CantProducto,
+                    Apicultor = c.CodApiarioNavigation!.Usuario!.Email
                 })
                 .ToListAsync();
             return Ok(listaControles);
@@ -117,7 +121,7 @@ namespace GestionApiario.Controllers
         [HttpDelete("{Codigo}")]
         public async Task<ActionResult> Eliminar([FromRoute] int Codigo)
         {
-            var control = await _context.Controles.FirstOrDefaultAsync(c => c.Codigo == Codigo && c.FechaBaja == null);
+            var control = await ControlesVisibles().FirstOrDefaultAsync(c => c.Codigo == Codigo);
 
             if (control == null) { return NotFound(); }
 
@@ -125,6 +129,14 @@ namespace GestionApiario.Controllers
             control.UsuarioBaja = UsuarioActual;
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        // Controles activos de apiarios activos que el usuario puede ver: la Administradora ve todos y cada
+        // apicultor solo los de sus apiarios. Un control ajeno responde 404, como si no existiera.
+        private IQueryable<Controle> ControlesVisibles()
+        {
+            var activos = _context.Controles.Where(c => c.FechaBaja == null && c.CodApiarioNavigation!.FechaBaja == null);
+            return EsAdministrador ? activos : activos.Where(c => c.CodApiarioNavigation!.UsuarioId == UsuarioIdActual);
         }
 
         // En los DTO, el código 0 significa "sin seleccionar"; en la base se guarda como null.
@@ -148,7 +160,9 @@ namespace GestionApiario.Controllers
             if (!await _context.Campañas.AnyAsync(c => c.Codigo == control.CodCampaña && c.FechaBaja == null))
                 return "La campaña no existe.";
 
-            if (!await _context.Apiarios.AnyAsync(a => a.Codigo == control.CodApiario && a.FechaBaja == null))
+            // Un apicultor solo puede cargar controles en sus propios apiarios.
+            if (!await _context.Apiarios.AnyAsync(a => a.Codigo == control.CodApiario && a.FechaBaja == null
+                    && (EsAdministrador || a.UsuarioId == UsuarioIdActual)))
                 return "El apiario no existe.";
 
             if (control.CodAlimento != 0 && !await _context.Alimentos.AnyAsync(al => al.Codigo == control.CodAlimento && al.FechaBaja == null))

@@ -21,4 +21,7 @@ public class ControlGrillaDto
     public string? Producto { get; set; }
 
     public decimal? CantProducto { get; set; }
+
+    // Email del dueño del apiario del control.
+    public string? Apicultor { get; set; }
 }

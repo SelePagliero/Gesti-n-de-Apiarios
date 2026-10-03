@@ -16,5 +16,9 @@ namespace GestionApiario.compartido.Dto
 
         [StringLength(50, ErrorMessage = "La longitud no puede superar los 50 caracteres.")]
         public string? Longitud { get; set; }
+
+        // Dueño del apiario (Id de usuario). Solo la Administradora puede elegirlo o cambiarlo;
+        // si viene vacío, al crear queda el usuario actual y al modificar se mantiene el dueño.
+        public string? UsuarioId { get; set; }
     }
 }

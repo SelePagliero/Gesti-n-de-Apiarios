@@ -42,14 +42,18 @@ namespace GestionApiario.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<DashBoardDto>> ObtenerTodos()
+        public async Task<ActionResult<DashBoardDto>> ObtenerTodos([FromQuery] string? usuarioId)
         {
-            var ultimosControles = UltimoControlDeCadaApiarioActivo();
+            var dueño = DueñoAMostrar(usuarioId);
+            var ultimosControles = UltimoControlDeCadaApiarioActivo(dueño);
+            var apiariosActivos = _context.Apiarios.Where(a => a.FechaBaja == null);
+            if (dueño is not null)
+                apiariosActivos = apiariosActivos.Where(a => a.UsuarioId == dueño);
 
             // Como hay un solo control por apiario, contar controles equivale a contar apiarios.
             var dashBoard = new DashBoardDto
             {
-                ApiariosActivos = await _context.Apiarios.CountAsync(a => a.FechaBaja == null),
+                ApiariosActivos = await apiariosActivos.CountAsync(),
                 CantidadTotalDeColmenas = await ultimosControles.SumAsync(c => c.CantDeColmenas) ?? 0,
                 ApiariosConEnfermedades = await ultimosControles.CountAsync(c => c.CodEnfermedad != null)
             };
@@ -58,9 +62,9 @@ namespace GestionApiario.Controllers
         }
 
         [HttpGet("graficoEnfermedades")]
-        public async Task<ActionResult<EnfermedadesGraficoResponse>> ObtenerTodosGraficosEnfermedades()
+        public async Task<ActionResult<EnfermedadesGraficoResponse>> ObtenerTodosGraficosEnfermedades([FromQuery] string? usuarioId)
         {
-            var cantidadPorEnfermedad = await UltimoControlDeCadaApiarioActivo()
+            var cantidadPorEnfermedad = await UltimoControlDeCadaApiarioActivo(DueñoAMostrar(usuarioId))
                 .Where(c => c.CodEnfermedad != null)
                 .GroupBy(c => c.CodEnfermedadNavigation!.Nombre)
                 .Select(g => new { Nombre = g.Key, Cantidad = g.Count() })
@@ -86,13 +90,25 @@ namespace GestionApiario.Controllers
             return Ok(respuesta);
         }
 
+        // Dueño cuyos datos se muestran (null = todos). Un apicultor siempre ve solo lo suyo; la Administradora
+        // ve todo o, si indica usuarioId, los datos de ese apicultor.
+        private string? DueñoAMostrar(string? usuarioIdPedido)
+        {
+            if (EsAdministrador)
+                return string.IsNullOrEmpty(usuarioIdPedido) ? null : usuarioIdPedido;
+            return UsuarioIdActual ?? string.Empty;
+        }
+
         // El estado actual de cada apiario es su control más reciente: entre un control y el siguiente
-        // pueden morir colmenas o curarse enfermedades. Solo se consideran apiarios y controles no dados de baja.
+        // pueden morir colmenas o curarse enfermedades. Solo se consideran apiarios y controles no dados de baja
+        // y, si se indica dueño, solo los apiarios de ese dueño.
         // Se ordena por Fecha (un control sin fecha cuenta como el más antiguo) y, si hay empate, por Codigo.
-        private IQueryable<Controle> UltimoControlDeCadaApiarioActivo()
+        private IQueryable<Controle> UltimoControlDeCadaApiarioActivo(string? dueño)
         {
             var controlesActivos = _context.Controles
                 .Where(c => c.FechaBaja == null && c.CodApiario != null && c.CodApiarioNavigation!.FechaBaja == null);
+            if (dueño is not null)
+                controlesActivos = controlesActivos.Where(c => c.CodApiarioNavigation!.UsuarioId == dueño);
 
             return controlesActivos.Where(c => !controlesActivos.Any(posterior =>
                 posterior.CodApiario == c.CodApiario &&

@@ -1,4 +1,5 @@
 using GestionApiario.compartido.Dto;
+using Microsoft.AspNetCore.Authorization;
 using GestionApiario.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace GestionApiario.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<ActionResult> InsertarAlimento([FromBody] AlimentoDto nuevoAlimento)
         {
             Alimento alimento = new()
@@ -51,6 +53,7 @@ namespace GestionApiario.Controllers
         }
 
         [HttpPut("{Codigo}")]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<ActionResult> ModificarAlimento([FromRoute] int Codigo, [FromBody] AlimentoDto alimentoModificar)
         {
             var alimento = await _context.Alimentos.FirstOrDefaultAsync(a => a.Codigo == Codigo && a.FechaBaja == null);
@@ -83,6 +86,7 @@ namespace GestionApiario.Controllers
         }
 
         [HttpDelete("{Codigo}")]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<ActionResult> Eliminar([FromRoute] int Codigo)
         {
             var alimento = await _context.Alimentos.FirstOrDefaultAsync(a => a.Codigo == Codigo && a.FechaBaja == null);

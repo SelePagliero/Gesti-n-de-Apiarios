@@ -23,5 +23,10 @@
         public string? Latitud { get; set; }
 
         public string? Longitud { get; set; }
+
+        // Dueño del apiario.
+        public string? UsuarioId { get; set; }
+
+        public string? Apicultor { get; set; }
     }
 }

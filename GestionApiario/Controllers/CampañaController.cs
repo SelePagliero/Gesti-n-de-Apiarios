@@ -1,4 +1,5 @@
 using GestionApiario.compartido.Dto;
+using Microsoft.AspNetCore.Authorization;
 using GestionApiario.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace GestionApiario.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<ActionResult> InsertarCampaña([FromBody] CampañaDto nuevaCampaña)
         {
             Campaña campaña = new()
@@ -53,6 +55,7 @@ namespace GestionApiario.Controllers
         }
 
         [HttpPut("{Codigo}")]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<ActionResult> ModificarCampaña([FromRoute] int Codigo, [FromBody] CampañaDto campañaModificar)
         {
             var campaña = await _context.Campañas.FirstOrDefaultAsync(c => c.Codigo == Codigo && c.FechaBaja == null);
@@ -87,6 +90,7 @@ namespace GestionApiario.Controllers
         }
 
         [HttpDelete("{Codigo}")]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<ActionResult> Eliminar([FromRoute] int Codigo)
         {
             var campaña = await _context.Campañas.FirstOrDefaultAsync(c => c.Codigo == Codigo && c.FechaBaja == null);
