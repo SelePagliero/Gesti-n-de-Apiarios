@@ -14,7 +14,10 @@
 }
 else
 {
-    <a href="/crear-enfermedad" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Enfermedad</a>
+    @if (esAdministrador)
+    {
+        <a href="/crear-enfermedad" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Enfermedad</a>
+    }
 
     @if (enfermedades.Count == 0)
     {
@@ -29,7 +32,10 @@ else
                     <th>Nombre</th>
                     <th>Fecha de alta</th>
                     <th>Fecha de modificación</th>
-                    <th>Acciones</th>
+                    @if (esAdministrador)
+                    {
+                        <th>Acciones</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -40,10 +46,13 @@ else
                         <td>@enfermedad.Nombre</td>
                         <td>@enfermedad.FechaAlta?.ToString("g")</td>
                         <td>@((enfermedad.FechaModificacion ?? enfermedad.FechaAlta)?.ToString("g"))</td>
-                        <td>
-                            <a href="/actualizar-enfermedad/@enfermedad.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
-                            <button type="button" @onclick="() => EliminarEnfermedad(enfermedad)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-                        </td>
+                        @if (esAdministrador)
+                        {
+                            <td>
+                                <a href="/actualizar-enfermedad/@enfermedad.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                                <button type="button" @onclick="() => EliminarEnfermedad(enfermedad)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -54,9 +63,14 @@ else
 @code {
     List<EnfermedadGrillaDto>? enfermedades = null;
     string? mensajeError;
+    bool esAdministrador;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
         await CargarEnfermedades();
     }
 

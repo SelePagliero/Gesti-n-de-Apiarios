@@ -12,6 +12,8 @@ namespace GestionApiario.web.Servicios
         {
             if (respuesta.StatusCode == HttpStatusCode.NotFound)
                 return "El registro no existe o fue eliminado.";
+            if (respuesta.StatusCode == HttpStatusCode.Forbidden)
+                return "No tenés permiso para realizar esta acción.";
 
             var contenido = await respuesta.Content.ReadAsStringAsync();
             if (string.IsNullOrWhiteSpace(contenido))

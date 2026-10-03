@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using GestionApiario.compartido.Dto;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
@@ -23,9 +24,11 @@ namespace GestionApiario.web.Servicios.Autenticacion
             if (sesion is null)
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 
-            var identidad = new ClaimsIdentity(
-                [new Claim(ClaimTypes.Name, sesion.Email), new Claim(ClaimTypes.Email, sesion.Email)],
-                authenticationType: "ApiGestionApiarios");
+            var claims = new List<Claim> { new(ClaimTypes.Name, sesion.Email), new(ClaimTypes.Email, sesion.Email) };
+            if (sesion.EsAdministrador)
+                claims.Add(new Claim(ClaimTypes.Role, RolesUsuario.Administrador));
+
+            var identidad = new ClaimsIdentity(claims, authenticationType: "ApiGestionApiarios");
             return new AuthenticationState(new ClaimsPrincipal(identidad));
         }
 

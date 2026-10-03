@@ -14,18 +14,27 @@ else
     <h3>Actualizar Producto</h3>
 }
 
-<MensajeError Mensaje="@mensajeError" />
+@* Los catálogos solo los modifica la Administradora; la API también lo exige. *@
+<AuthorizeView Roles="@RolesUsuario.Administrador" Context="autorizacion">
+    <Authorized>
+        <MensajeError Mensaje="@mensajeError" />
 
-<EditForm Model="Producto" OnValidSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
-    <div class="mb-3">
-        <label for="nombre" class="form-label">Nombre</label>
-        <InputText class="form-control" id="nombre" @bind-Value="Producto.Nombre" />
-        <ValidationMessage For="() => Producto.Nombre" />
-    </div>
-    <a href="/productos" class="btn btn-secondary">Volver</a>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-</EditForm>
+        <EditForm Model="Producto" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <InputText class="form-control" id="nombre" @bind-Value="Producto.Nombre" />
+                <ValidationMessage For="() => Producto.Nombre" />
+            </div>
+            <a href="/productos" class="btn btn-secondary">Volver</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </EditForm>
+    </Authorized>
+    <NotAuthorized>
+        <MensajeError Mensaje="No tenés permiso para realizar esta acción." />
+        <a href="/productos" class="btn btn-secondary">Volver</a>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     [Parameter]

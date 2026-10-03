@@ -55,8 +55,14 @@ namespace GestionApiario.web.Servicios.Interfaces
         #endregion
 
         #region DashBoard
-        Task<DashBoardDto> ObtenerDashBoard();
-        Task<EnfermedadesGraficoResponse> ObtenerDatosGraficoEnfermedades();
+        // usuarioId solo lo tiene en cuenta la API si consulta la Administradora.
+        Task<DashBoardDto> ObtenerDashBoard(string? usuarioId = null);
+        Task<EnfermedadesGraficoResponse> ObtenerDatosGraficoEnfermedades(string? usuarioId = null);
+        #endregion
+
+        #region Usuarios
+        // Solo para la Administradora (la API responde 403 a los apicultores).
+        Task<List<UsuarioDto>> ObtenerUsuarios();
         #endregion
     }
 }

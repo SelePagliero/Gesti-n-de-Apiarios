@@ -1,4 +1,6 @@
 using System.Net;
+using System.Net.Http.Headers;
+using GestionApiario.compartido.Dto;
 using System.Text.Json;
 
 namespace GestionApiario.web.Servicios.Autenticacion
@@ -42,11 +44,16 @@ namespace GestionApiario.web.Servicios.Autenticacion
             if (tokens is null)
                 return "La API devolvió una respuesta inesperada.";
 
+            var usuario = await ConsultarUsuarioAsync(tokens.AccessToken);
+            if (usuario is null)
+                return "La API devolvió una respuesta inesperada.";
+
             await _estado.GuardarSesionAsync(new SesionUsuario
             {
-                Email = email,
+                Email = usuario.Email,
                 AccessToken = tokens.AccessToken,
-                RefreshToken = tokens.RefreshToken
+                RefreshToken = tokens.RefreshToken,
+                EsAdministrador = usuario.EsAdministrador
             });
             return null;
         }
@@ -101,16 +108,31 @@ namespace GestionApiario.web.Servicios.Autenticacion
             if (tokens is null)
                 return false;
 
+            // Se vuelve a consultar el rol: si cambió, la web lo refleja sin tener que cerrar sesión.
+            var usuario = await ConsultarUsuarioAsync(tokens.AccessToken);
+            if (usuario is null)
+                return false;
+
             await _estado.GuardarSesionAsync(new SesionUsuario
             {
-                Email = sesion.Email,
+                Email = usuario.Email,
                 AccessToken = tokens.AccessToken,
-                RefreshToken = tokens.RefreshToken
+                RefreshToken = tokens.RefreshToken,
+                EsAdministrador = usuario.EsAdministrador
             });
             return true;
         }
 
         public Task CerrarSesionAsync() => _estado.CerrarSesionAsync();
+
+        // GET /cuenta/yo con el token recién obtenido: devuelve el email y si es la Administradora.
+        private async Task<UsuarioActualDto?> ConsultarUsuarioAsync(string accessToken)
+        {
+            using var solicitud = new HttpRequestMessage(HttpMethod.Get, "cuenta/yo");
+            solicitud.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            using var respuesta = await _httpClient.SendAsync(solicitud);
+            return respuesta.IsSuccessStatusCode ? await respuesta.Content.ReadFromJsonAsync<UsuarioActualDto>() : null;
+        }
 
         private static string TraducirErrorIdentity(string codigo, JsonElement mensajesOriginales) => codigo switch
         {

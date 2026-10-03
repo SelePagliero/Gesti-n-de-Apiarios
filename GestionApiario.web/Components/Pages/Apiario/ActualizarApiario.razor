@@ -27,6 +27,23 @@ else
 
 <EditForm Model="Apiario" OnValidSubmit="HandleSubmit">
     <DataAnnotationsValidator />
+    @if (esAdministrador)
+    {
+        @* Solo la Administradora elige el dueño; sus controles pasan con el apiario. La API también lo exige. *@
+        <div class="mb-3">
+            <label for="dueño" class="form-label">Dueño (apicultor)</label>
+            <InputSelect id="dueño" class="form-control" @bind-Value="Apiario.UsuarioId" disabled="@EsSoloLectura">
+                @foreach (var usuario in usuarios)
+                {
+                    <option value="@usuario.Id">@usuario.Email</option>
+                }
+            </InputSelect>
+            @if (Codigo is not null && !EsSoloLectura && Apiario.UsuarioId != dueñoOriginal)
+            {
+                <small class="form-text text-warning">Al guardar, el apiario y todos sus controles pasan al nuevo dueño.</small>
+            }
+        </div>
+    }
     <div class="mb-3">
         <label for="nombre" class="form-label">Nombre</label>
         <InputText class="form-control" id="nombre" @bind-Value="Apiario.Nombre" disabled="@EsSoloLectura" />
@@ -59,6 +76,19 @@ else
     public int? Codigo { get; set; }
     public ApiarioDto Apiario { get; set; } = new ApiarioDto();
     string? mensajeError;
+    bool esAdministrador;
+    List<UsuarioDto> usuarios = new();
+    string? dueñoOriginal;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
+        if (esAdministrador)
+            usuarios = await _servicio.ObtenerUsuarios();
+    }
 
     protected async Task HandleSubmit()
     {
@@ -93,8 +123,16 @@ else
                 Nombre = apiarioDetalle.Nombre,
                 Empresa = apiarioDetalle.Empresa,
                 Longitud = apiarioDetalle.Longitud,
-                Latitud = apiarioDetalle.Latitud
+                Latitud = apiarioDetalle.Latitud,
+                UsuarioId = apiarioDetalle.UsuarioId
             };
+            dueñoOriginal = apiarioDetalle.UsuarioId;
+        }
+        else if (esAdministrador && string.IsNullOrEmpty(Apiario.UsuarioId))
+        {
+            // Al crear, la Administradora queda como dueña salvo que elija otro apicultor.
+            var email = (await Autenticacion!).User.Identity?.Name;
+            Apiario.UsuarioId = usuarios.FirstOrDefault(u => u.Email == email)?.Id;
         }
     }
 }

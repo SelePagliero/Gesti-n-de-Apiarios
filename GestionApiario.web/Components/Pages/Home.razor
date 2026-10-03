@@ -4,6 +4,22 @@
 
 <PageTitle>Principal</PageTitle>
 
+@if (esAdministrador)
+{
+    <div class="row mb-3">
+        <div class="col-12 col-md-6 col-lg-4">
+            <label for="tableroApicultor" class="form-label">Mostrar datos de</label>
+            <select id="tableroApicultor" class="form-control" value="@(usuarioSeleccionado ?? "")" @onchange="CambiarApicultor">
+                <option value="">Todos los apicultores</option>
+                @foreach (var usuario in usuarios)
+                {
+                    <option value="@usuario.Id">@usuario.Email</option>
+                }
+            </select>
+        </div>
+    </div>
+}
+
 <div class="row">
     <div class="col-xl-4 col-md-6 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
@@ -107,10 +123,35 @@
 
     private bool HayEnfermedades => datosGrafico?.datasets.Any(d => d.data.Count > 0) == true;
 
+    private bool esAdministrador;
+    private List<UsuarioDto> usuarios = new();
+    private string? usuarioSeleccionado;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        DashBoard = await _servicio.ObtenerDashBoard();
-        datosGrafico = await _servicio.ObtenerDatosGraficoEnfermedades();
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
+        if (esAdministrador)
+            usuarios = await _servicio.ObtenerUsuarios();
+
+        await CargarTablero();
+    }
+
+    // Un apicultor ve solo sus datos; la Administradora ve todos o los de un apicultor (lo resuelve la API).
+    private async Task CargarTablero()
+    {
+        DashBoard = await _servicio.ObtenerDashBoard(usuarioSeleccionado);
+        datosGrafico = await _servicio.ObtenerDatosGraficoEnfermedades(usuarioSeleccionado);
+        graficoDibujado = false;
+    }
+
+    private async Task CambiarApicultor(ChangeEventArgs e)
+    {
+        var valor = e.Value?.ToString();
+        usuarioSeleccionado = string.IsNullOrEmpty(valor) ? null : valor;
+        await CargarTablero();
     }
 
     // El gráfico se dibuja después de que el <canvas> ya está en la página.

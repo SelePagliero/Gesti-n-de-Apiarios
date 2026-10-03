@@ -27,6 +27,10 @@ else
                 <tr>
                     <th>Código</th>
                     <th>Nombre</th>
+                    @if (esAdministrador)
+                    {
+                        <th>Apicultor</th>
+                    }
                     <th>Fecha de alta</th>
                     <th>Fecha de modificación</th>
                     <th>Acciones</th>
@@ -38,6 +42,10 @@ else
                     <tr>
                         <td>@apiario.Codigo</td>
                         <td>@apiario.Nombre</td>
+                        @if (esAdministrador)
+                        {
+                            <td>@apiario.Apicultor</td>
+                        }
                         <td>@apiario.FechaAlta?.ToString("g")</td>
                         <td>@((apiario.FechaModificacion ?? apiario.FechaAlta)?.ToString("g"))</td>
                         <td>
@@ -55,9 +63,14 @@ else
 @code {
     List<ApiarioGrillaDto>? apiarios = null;
     string? mensajeError;
+    bool esAdministrador;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
         await CargarApiarios();
     }
 

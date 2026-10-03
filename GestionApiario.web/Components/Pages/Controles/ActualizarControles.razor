@@ -52,7 +52,7 @@ else
                         <option value="0">Seleccione un Apiario</option>
                         @foreach (var apiario in listaDeApiarios)
                         {
-                            <option value="@apiario.Codigo">@apiario.Nombre</option>
+                            <option value="@apiario.Codigo">@apiario.Nombre@(esAdministrador ? $" ({apiario.Apicultor})" : "")</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="() => Control.CodApiario" />
@@ -143,6 +143,10 @@ else
     List<EnfermedadGrillaDto> listaDeEnfermedades = new();
     List<ApiarioGrillaDto> listaDeApiarios = new();
     string? mensajeError;
+    bool esAdministrador;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
 
     protected async Task HandleSubmit()
     {
@@ -169,6 +173,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
         listaDeCampañas = await _servicio.ObtenerTodasCampañas();
         listaDeApiarios = await _servicio.ObtenerTodosApiarios();
         listaDeAlimentos = await _servicio.ObtenerTodosAlimentos();

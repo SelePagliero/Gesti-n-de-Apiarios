@@ -16,6 +16,24 @@
 <div class="card mb-3">
     <div class="card-body pb-1">
         <div class="row">
+            @if (esAdministrador)
+            {
+                <div class="col-12 col-md-6 col-lg-3 mb-3">
+                    <label for="filtroApicultor" class="form-label">Apicultor</label>
+                    <select id="filtroApicultor" class="form-control" value="@(filtro.UsuarioId ?? "")"
+                            @onchange='e => CambiarFiltro("apicultor", e.Value?.ToString())'>
+                        <option value="">Todos</option>
+                        @foreach (var usuario in usuarios)
+                        {
+                            <option value="@usuario.Id">@usuario.Email</option>
+                        }
+                        @if (filtro.UsuarioId is not null && usuarios.All(u => u.Id != filtro.UsuarioId))
+                        {
+                            <option value="@filtro.UsuarioId">(no disponible)</option>
+                        }
+                    </select>
+                </div>
+            }
             <div class="col-12 col-md-6 col-lg-3 mb-3">
                 <label for="filtroApiario" class="form-label">Apiario</label>
                 <select id="filtroApiario" class="form-control" value="@(filtro.CodApiario?.ToString() ?? "")"
@@ -107,6 +125,10 @@ else
                 <th>Código</th>
                 <th>Campaña</th>
                 <th>Apiario</th>
+                @if (esAdministrador)
+                {
+                    <th>Apicultor</th>
+                }
                 <th>Fecha</th>
                 <th>Colmenas</th>
                 <th>Enfermedad</th>
@@ -120,6 +142,10 @@ else
                     <td>@control.Codigo</td>
                     <td>@control.Campaña</td>
                     <td>@control.Apiario</td>
+                    @if (esAdministrador)
+                    {
+                        <td>@control.Apicultor</td>
+                    }
                     <td>@control.Fecha.ToString("d")</td>
                     <td>@control.CantDeColmenas</td>
                     <td>@(control.Enfermedad ?? "—")</td>
@@ -138,6 +164,7 @@ else
     private const string ConAlgunaEnfermedad = "alguna";
 
     // Parámetros de la URL. Se leen como texto: un valor inválido se ignora en lugar de romper la página.
+    [SupplyParameterFromQuery(Name = "apicultor")] public string? ParamApicultor { get; set; }
     [SupplyParameterFromQuery(Name = "apiario")] public string? ParamApiario { get; set; }
     [SupplyParameterFromQuery(Name = "campania")] public string? ParamCampaña { get; set; }
     [SupplyParameterFromQuery(Name = "enfermedad")] public string? ParamEnfermedad { get; set; }
@@ -151,8 +178,13 @@ else
     FiltroControlesDto filtro = new();
     string? mensajeError;
     string? mensajeFiltro;
+    bool esAdministrador;
+    List<UsuarioDto> usuarios = new();
 
-    private bool HayFiltros => filtro.CodApiario is not null || filtro.CodCampaña is not null || filtro.CodEnfermedad is not null
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
+
+    private bool HayFiltros => !string.IsNullOrEmpty(filtro.UsuarioId) || filtro.CodApiario is not null || filtro.CodCampaña is not null || filtro.CodEnfermedad is not null
                                || filtro.ConAlgunaEnfermedad == true || filtro.FechaDesde is not null || filtro.FechaHasta is not null;
 
     private string ValorFiltroEnfermedad =>
@@ -163,6 +195,10 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
+        if (esAdministrador)
+            usuarios = await _servicio.ObtenerUsuarios();
+
         // Los endpoints vertodos solo devuelven registros activos.
         listaDeApiarios = await _servicio.ObtenerTodosApiarios();
         listaDeCampañas = await _servicio.ObtenerTodasCampañas();
@@ -218,6 +254,8 @@ else
 
     private FiltroControlesDto LeerFiltroDeLaUrl() => new()
     {
+        // El filtro por apicultor solo se usa si es la Administradora (la API también lo ignora para los demás).
+        UsuarioId = esAdministrador && !string.IsNullOrWhiteSpace(ParamApicultor) ? ParamApicultor : null,
         CodApiario = LeerEntero(ParamApiario),
         CodCampaña = LeerEntero(ParamCampaña),
         CodEnfermedad = ParamEnfermedad == ConAlgunaEnfermedad ? null : LeerEntero(ParamEnfermedad),

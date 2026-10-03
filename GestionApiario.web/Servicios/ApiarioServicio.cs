@@ -70,8 +70,17 @@ namespace GestionApiario.web.Servicios
         #endregion
 
         #region DashBoard
-        public Task<DashBoardDto> ObtenerDashBoard() => ObtenerAsync<DashBoardDto>("dashBoard");
-        public Task<EnfermedadesGraficoResponse> ObtenerDatosGraficoEnfermedades() => ObtenerAsync<EnfermedadesGraficoResponse>("dashBoard/graficoEnfermedades");
+        public Task<DashBoardDto> ObtenerDashBoard(string? usuarioId = null) =>
+            ObtenerAsync<DashBoardDto>("dashBoard" + QueryUsuario(usuarioId));
+        public Task<EnfermedadesGraficoResponse> ObtenerDatosGraficoEnfermedades(string? usuarioId = null) =>
+            ObtenerAsync<EnfermedadesGraficoResponse>("dashBoard/graficoEnfermedades" + QueryUsuario(usuarioId));
+
+        private static string QueryUsuario(string? usuarioId) =>
+            string.IsNullOrEmpty(usuarioId) ? string.Empty : $"?usuarioId={Uri.EscapeDataString(usuarioId)}";
+        #endregion
+
+        #region Usuarios
+        public Task<List<UsuarioDto>> ObtenerUsuarios() => ObtenerListaAsync<UsuarioDto>("usuarios");
         #endregion
 
         // Arma "?CodApiario=3&FechaDesde=2026-03-01..." solo con los filtros que tienen valor.
@@ -82,6 +91,7 @@ namespace GestionApiario.web.Servicios
 
             var parametros = new List<(string Nombre, string? Valor)>
             {
+                (nameof(FiltroControlesDto.UsuarioId), string.IsNullOrEmpty(filtro.UsuarioId) ? null : filtro.UsuarioId),
                 (nameof(FiltroControlesDto.CodApiario), filtro.CodApiario?.ToString(CultureInfo.InvariantCulture)),
                 (nameof(FiltroControlesDto.CodCampaña), filtro.CodCampaña?.ToString(CultureInfo.InvariantCulture)),
                 (nameof(FiltroControlesDto.CodEnfermedad), filtro.CodEnfermedad?.ToString(CultureInfo.InvariantCulture)),

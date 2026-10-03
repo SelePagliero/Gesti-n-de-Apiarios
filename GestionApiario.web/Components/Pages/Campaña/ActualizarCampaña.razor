@@ -14,23 +14,32 @@ else
     <h3>Actualizar Campaña</h3>
 }
 
-<MensajeError Mensaje="@mensajeError" />
+@* Los catálogos solo los modifica la Administradora; la API también lo exige. *@
+<AuthorizeView Roles="@RolesUsuario.Administrador" Context="autorizacion">
+    <Authorized>
+        <MensajeError Mensaje="@mensajeError" />
 
-<EditForm Model="Campaña" OnValidSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
-    <div class="mb-3">
-        <label for="año" class="form-label">Año</label>
-        <InputNumber class="form-control" id="año" @bind-Value="Campaña.Año" />
-        <ValidationMessage For="() => Campaña.Año" />
-    </div>
-    <div class="mb-3">
-        <label for="responsable" class="form-label">Responsable</label>
-        <InputText class="form-control" id="responsable" @bind-Value="Campaña.Responsable" />
-        <ValidationMessage For="() => Campaña.Responsable" />
-    </div>
-    <a href="/campanias" class="btn btn-secondary">Volver</a>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-</EditForm>
+        <EditForm Model="Campaña" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <div class="mb-3">
+                <label for="año" class="form-label">Año</label>
+                <InputNumber class="form-control" id="año" @bind-Value="Campaña.Año" />
+                <ValidationMessage For="() => Campaña.Año" />
+            </div>
+            <div class="mb-3">
+                <label for="responsable" class="form-label">Responsable</label>
+                <InputText class="form-control" id="responsable" @bind-Value="Campaña.Responsable" />
+                <ValidationMessage For="() => Campaña.Responsable" />
+            </div>
+            <a href="/campanias" class="btn btn-secondary">Volver</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </EditForm>
+    </Authorized>
+    <NotAuthorized>
+        <MensajeError Mensaje="No tenés permiso para realizar esta acción." />
+        <a href="/campanias" class="btn btn-secondary">Volver</a>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     [Parameter]

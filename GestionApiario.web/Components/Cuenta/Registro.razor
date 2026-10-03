@@ -59,10 +59,9 @@
 
     public class DatosRegistro
     {
-        // El email se guarda como usuario en las columnas de auditoría, que admiten hasta 50 caracteres.
         [Required(ErrorMessage = "Ingresá tu email.")]
         [EmailAddress(ErrorMessage = "El email no es válido.")]
-        [StringLength(50, ErrorMessage = "El email no puede superar los 50 caracteres.")]
+        [StringLength(256, ErrorMessage = "El email no puede superar los 256 caracteres.")]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Ingresá una contraseña.")]

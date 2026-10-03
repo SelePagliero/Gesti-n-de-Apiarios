@@ -14,7 +14,10 @@
 }
 else
 {
-    <a href="/crear-campaña" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Campaña</a>
+    @if (esAdministrador)
+    {
+        <a href="/crear-campaña" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Campaña</a>
+    }
 
     @if (campañas.Count == 0)
     {
@@ -30,7 +33,10 @@ else
                     <th>Responsable</th>
                     <th>Fecha de alta</th>
                     <th>Fecha de modificación</th>
-                    <th>Acciones</th>
+                    @if (esAdministrador)
+                    {
+                        <th>Acciones</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -42,10 +48,13 @@ else
                         <td>@campaña.Responsable</td>
                         <td>@campaña.FechaAlta?.ToString("g")</td>
                         <td>@((campaña.FechaModificacion ?? campaña.FechaAlta)?.ToString("g"))</td>
-                        <td>
-                            <a href="/actualizar-campaña/@campaña.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
-                            <button type="button" @onclick="() => EliminarCampaña(campaña)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-                        </td>
+                        @if (esAdministrador)
+                        {
+                            <td>
+                                <a href="/actualizar-campaña/@campaña.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                                <button type="button" @onclick="() => EliminarCampaña(campaña)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -56,9 +65,14 @@ else
 @code {
     List<CampañaGrillaDto>? campañas = null;
     string? mensajeError;
+    bool esAdministrador;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
         await CargarCampañas();
     }
 
