@@ -38,8 +38,12 @@ Thumbs.db
 # Logs
 *.log
 
-# Entity Framework
-Migrations/
+# Archivos comprimidos
+*.rar
+*.zip
+
+# Resultados de pruebas
+TestResults/
 
 # Publish
 wwwroot/dist/
