@@ -1,5 +1,6 @@
 @page "/campanias"
 @inject IApiariosServicio _servicio
+@inject NavigationManager _navegationmanager
 @inject IJSRuntime JS
 
 <PageTitle>Campañas</PageTitle>
@@ -10,15 +11,51 @@
 
 <MensajeError Mensaje="@mensajeError" />
 
+@* Los filtros se aplican en pantalla sobre la lista cargada y se guardan en la URL (?anio=2026&responsable=...). *@
+<TarjetaFiltros Resumen="@TarjetaFiltros.Mostrando(Filtradas?.Count, "campaña", "campañas")" HayFiltros="HayFiltros" AlLimpiar="LimpiarFiltros">
+    <div>
+        <label for="filtroAnio" class="form-label">Año</label>
+        <select id="filtroAnio" class="form-select" value="@(año?.ToString() ?? "")"
+                @onchange='e => CambiarAño(e.Value?.ToString())'>
+            <option value="">Todos</option>
+            @foreach (var opcion in Años)
+            {
+                <option value="@opcion">@opcion</option>
+            }
+        </select>
+    </div>
+    <div>
+        <label for="filtroResponsable" class="form-label">Responsable</label>
+        <input id="filtroResponsable" type="search" class="form-control" placeholder="Buscar..." value="@responsable"
+               @oninput='e => CambiarTexto(ref responsable, "responsable", e.Value?.ToString())' />
+    </div>
+    @if (esAdministrador)
+    {
+        <div>
+            <label for="filtroApicultor" class="form-label">Apicultor</label>
+            <select id="filtroApicultor" class="form-select" value="@(apicultor ?? "")"
+                    @onchange='e => CambiarTexto(ref apicultor, "apicultor", e.Value?.ToString())'>
+                <option value="">Todos</option>
+                @foreach (var (id, email) in Apicultores)
+                {
+                    <option value="@id">@email</option>
+                }
+            </select>
+        </div>
+    }
+</TarjetaFiltros>
+
 @if (campañas == null)
 {
     <p><em>Cargando...</em></p>
 }
 else
 {
-    @if (campañas.Count == 0)
+    @if (Filtradas!.Count == 0)
     {
-        <p class="text-muted">Todavía no hay campañas cargadas.</p>
+        <p class="text-muted">
+            @(HayFiltros ? "No hay campañas que coincidan con los filtros." : "Todavía no hay campañas cargadas.")
+        </p>
     }
     else
     {
@@ -39,7 +76,7 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var campaña in campañas)
+                    @foreach (var campaña in Filtradas)
                     {
                         <tr>
                             <td class="numero">@campaña.Codigo</td>
@@ -70,14 +107,65 @@ else
     string? mensajeError;
     bool esAdministrador;
 
+    // Filtros (se leen de la URL al entrar).
+    [SupplyParameterFromQuery(Name = "anio")] public string? ParamAño { get; set; }
+    [SupplyParameterFromQuery(Name = "responsable")] public string? ParamResponsable { get; set; }
+    [SupplyParameterFromQuery(Name = "apicultor")] public string? ParamApicultor { get; set; }
+    int? año;
+    string? responsable;
+    string? apicultor;
+
     [CascadingParameter]
     Task<AuthenticationState>? Autenticacion { get; set; }
+
+    bool HayFiltros => año is not null || !string.IsNullOrWhiteSpace(responsable) || !string.IsNullOrEmpty(apicultor);
+
+    List<CampañaGrillaDto>? Filtradas => campañas?
+        .Where(c => año is null || c.Año == año)
+        .Where(c => FiltrosLista.Contiene(c.Responsable, responsable))
+        .Where(c => string.IsNullOrEmpty(apicultor) || c.UsuarioId == apicultor)
+        .ToList();
+
+    // Los años y los apicultores que aparecen en las campañas, para los desplegables.
+    IEnumerable<int> Años => (campañas ?? new())
+        .Where(c => c.Año is not null)
+        .Select(c => c.Año!.Value)
+        .Distinct()
+        .OrderByDescending(a => a);
+
+    IEnumerable<(string Id, string Email)> Apicultores => (campañas ?? new())
+        .Where(c => c.UsuarioId is not null)
+        .GroupBy(c => c.UsuarioId!)
+        .Select(g => (g.Key, g.First().Apicultor ?? g.Key))
+        .OrderBy(a => a.Item2);
 
     // Cada apicultor ve solo sus campañas (lo resuelve la API); la Administradora ve todas con su dueño.
     protected override async Task OnInitializedAsync()
     {
+        año = FiltrosLista.LeerEntero(ParamAño);
+        responsable = ParamResponsable;
         esAdministrador = await Autenticacion.EsAdministradorAsync();
+        apicultor = esAdministrador ? ParamApicultor : null;
         await CargarCampañas();
+    }
+
+    void CambiarAño(string? valor)
+    {
+        año = FiltrosLista.LeerEntero(valor);
+        _navegationmanager.CambiarParametro("anio", año?.ToString());
+    }
+
+    void CambiarTexto(ref string? campo, string parametro, string? valor)
+    {
+        campo = valor;
+        _navegationmanager.CambiarParametro(parametro, valor);
+    }
+
+    void LimpiarFiltros()
+    {
+        año = null;
+        responsable = apicultor = null;
+        _navegationmanager.NavigateTo("/campanias", replace: true);
     }
 
     async Task EliminarCampaña(CampañaGrillaDto campaña)
