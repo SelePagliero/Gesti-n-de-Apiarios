@@ -64,7 +64,7 @@ SistemaGestionApiarios/
 │   │   └── UsuariosController.cs         # Lista de usuarios (solo la Administradora)
 │   ├── Migrations/                       # Migraciones de Entity Framework Core
 │   ├── Models/                           # Entidades y GestionApiariosContext
-│   ├── Servicios/EnviadorCorreo.cs        # Envío de correos por SMTP
+│   ├── Servicios/EnviadorCorreo.cs       # Envío de correos por SMTP
 │   └── Program.cs                        # Configuración de la API, Identity y Swagger
 │
 ├── GestionApiario.web/                   # Frontend (Blazor Server)
