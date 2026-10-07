@@ -22,41 +22,43 @@ else
     }
     else
     {
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    @if (esAdministrador)
-                    {
-                        <th>Apicultor</th>
-                    }
-                    <th>Fecha de alta</th>
-                    <th>Fecha de modificación</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var apiario in apiarios)
-                {
+        <div class="tabla-tarjeta table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead>
                     <tr>
-                        <td>@apiario.Codigo</td>
-                        <td>@apiario.Nombre</td>
+                        <th>Código</th>
+                        <th>Nombre</th>
                         @if (esAdministrador)
                         {
-                            <td>@apiario.Apicultor</td>
+                            <th>Apicultor</th>
                         }
-                        <td>@apiario.FechaAlta?.ToString("g")</td>
-                        <td>@((apiario.FechaModificacion ?? apiario.FechaAlta)?.ToString("g"))</td>
-                        <td>
-                            <a href="/ver-apiario/@apiario.Codigo" class="btn btn-success"><i class="bi bi-eye"></i> Ver</a>
-                            <a href="/actualizar-apiario/@apiario.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
-                            <button type="button" @onclick="() => EliminarApiario(apiario)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-                        </td>
+                        <th>Fecha de alta</th>
+                        <th>Fecha de modificación</th>
+                        <th>Acciones</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var apiario in apiarios)
+                    {
+                        <tr>
+                            <td>@apiario.Codigo</td>
+                            <td>@apiario.Nombre</td>
+                            @if (esAdministrador)
+                            {
+                                <td>@apiario.Apicultor</td>
+                            }
+                            <td>@apiario.FechaAlta?.ToString("g")</td>
+                            <td>@((apiario.FechaModificacion ?? apiario.FechaAlta)?.ToString("g"))</td>
+                            <td>
+                                <a href="/ver-apiario/@apiario.Codigo" class="btn btn-success"><i class="bi bi-eye"></i> Ver</a>
+                                <a href="/actualizar-apiario/@apiario.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                                <button type="button" @onclick="() => EliminarApiario(apiario)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 }
 

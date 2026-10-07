@@ -1,15 +1,19 @@
-@page "/"
+﻿@page "/"
 @inject IApiariosServicio _servicio
 @inject IJSRuntime JSRuntime
 
-<PageTitle>Principal</PageTitle>
+<PageTitle>Inicio</PageTitle>
 
-@if (esAdministrador)
-{
-    <div class="row mb-3">
-        <div class="col-12 col-md-6 col-lg-4">
+<div class="encabezado-tablero">
+    <div>
+        <h1 class="mb-1">Inicio</h1>
+        <p class="text-muted mb-0">@(esAdministrador ? "Resumen de los apiarios de todos los apicultores." : "Resumen de tus apiarios según el último control de cada uno.")</p>
+    </div>
+    @if (esAdministrador)
+    {
+        <div class="selector-apicultor">
             <label for="tableroApicultor" class="form-label">Mostrar datos de</label>
-            <select id="tableroApicultor" class="form-control" value="@(usuarioSeleccionado ?? "")" @onchange="CambiarApicultor">
+            <select id="tableroApicultor" class="form-select" value="@(usuarioSeleccionado ?? "")" @onchange="CambiarApicultor">
                 <option value="">Todos los apicultores</option>
                 @foreach (var usuario in usuarios)
                 {
@@ -17,104 +21,76 @@
                 }
             </select>
         </div>
+    }
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+        <div class="card indicador indicador-ambar h-100">
+            <div class="card-body">
+                <div class="indicador-icono"><i class="bi bi-hexagon-fill" aria-hidden="true"></i></div>
+                <div>
+                    <div class="indicador-titulo">Apiarios activos</div>
+                    <div id="tablero-apiarios" class="indicador-valor">@DashBoard.ApiariosActivos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <div class="card indicador indicador-verde h-100">
+            <div class="card-body">
+                <div class="indicador-icono"><i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i></div>
+                <div>
+                    <div class="indicador-titulo">Colmenas en total</div>
+                    <div id="tablero-colmenas" class="indicador-valor">@DashBoard.CantidadTotalDeColmenas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <div class="card indicador indicador-rojo h-100">
+            <div class="card-body">
+                <div class="indicador-icono"><i class="bi bi-virus" aria-hidden="true"></i></div>
+                <div>
+                    <div class="indicador-titulo">Apiarios con enfermedades</div>
+                    <div id="tablero-enfermos" class="indicador-valor">@DashBoard.ApiariosConEnfermedades</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (datosGrafico is null)
+{
+    <p class="text-muted"><em>Cargando...</em></p>
+}
+else if (HayEnfermedades)
+{
+    <div class="card">
+        <div class="card-header py-3">
+            <h6 class="m-0 fw-bold">Enfermedades encontradas</h6>
+            <small class="text-muted">Porcentaje de apiarios según la enfermedad de su último control</small>
+        </div>
+        <div class="card-body">
+            <div class="grafico-contenedor">
+                <canvas id="enfermedadesGrafico"></canvas>
+            </div>
+        </div>
     </div>
 }
-
-<div class="row">
-    <div class="col-xl-4 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            Apiarios Activos
-                        </div>
-                        <div id="tablero-apiarios" class="h5 mb-0 font-weight-bold text-gray-800">@DashBoard.ApiariosActivos</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="bi bi-geo-alt-fill text-gray-300" style="font-size: 2rem;"></i>
-                    </div>
-                </div>
-            </div>
+else
+{
+    <div class="card estado-sano">
+        <div class="card-body text-center py-5">
+            <div class="estado-sano-icono"><i class="bi bi-check-circle-fill" aria-hidden="true"></i></div>
+            <h4 class="mb-2">¡Excelente!</h4>
+            <p class="mb-0">No se han registrado enfermedades en los apiarios</p>
+            <p class="text-muted small mb-0">Todos los apiarios se encuentran en estado óptimo</p>
         </div>
     </div>
-
-    <div class="col-xl-4 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                            Cantidad Total de Colmenas
-                        </div>
-                        <div id="tablero-colmenas" class="h5 mb-0 font-weight-bold text-gray-800">@DashBoard.CantidadTotalDeColmenas</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="bi bi-hexagon-fill text-gray-300" style="font-size: 2rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-4 col-md-6 mb-4">
-        <div class="card border-left-danger shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                            Apiarios con Enfermedades
-                        </div>
-                        <div id="tablero-enfermos" class="h5 mb-0 font-weight-bold text-gray-800">@DashBoard.ApiariosConEnfermedades</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="bi bi-virus text-gray-300" style="font-size: 2rem;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    @if (datosGrafico is null)
-    {
-        <div class="col-12"><p><em>Cargando...</em></p></div>
-    }
-    else if (HayEnfermedades)
-    {
-        <div class="col-xl-12 col-lg-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Porcentaje de enfermedades encontradas</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-pie pt-4">
-                        <canvas id="enfermedadesGrafico"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="col-xl-12 col-lg-12">
-            <div class="card shadow mb-4 border-left-success">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-success">Estado Sanitario</h6>
-                </div>
-                <div class="card-body text-center py-5">
-                    <div class="mb-3">
-                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-                    </div>
-                    <h4 class="font-weight-bold text-success mb-2">¡Excelente!</h4>
-                    <p class="text-gray-600 mb-0">No se han registrado enfermedades en los apiarios</p>
-                    <p class="text-gray-500 small">Todos los apiarios se encuentran en estado óptimo</p>
-                </div>
-            </div>
-        </div>
-    }
-</div>
+}
 
 @code {
     public DashBoardDto DashBoard { get; set; } = new DashBoardDto();

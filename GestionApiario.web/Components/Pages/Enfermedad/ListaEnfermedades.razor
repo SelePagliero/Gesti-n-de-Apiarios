@@ -25,38 +25,40 @@ else
     }
     else
     {
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <th>Fecha de alta</th>
-                    <th>Fecha de modificación</th>
-                    @if (esAdministrador)
-                    {
-                        <th>Acciones</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var enfermedad in enfermedades)
-                {
+        <div class="tabla-tarjeta table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead>
                     <tr>
-                        <td>@enfermedad.Codigo</td>
-                        <td>@enfermedad.Nombre</td>
-                        <td>@enfermedad.FechaAlta?.ToString("g")</td>
-                        <td>@((enfermedad.FechaModificacion ?? enfermedad.FechaAlta)?.ToString("g"))</td>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Fecha de alta</th>
+                        <th>Fecha de modificación</th>
                         @if (esAdministrador)
                         {
-                            <td>
-                                <a href="/actualizar-enfermedad/@enfermedad.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
-                                <button type="button" @onclick="() => EliminarEnfermedad(enfermedad)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-                            </td>
+                            <th>Acciones</th>
                         }
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var enfermedad in enfermedades)
+                    {
+                        <tr>
+                            <td>@enfermedad.Codigo</td>
+                            <td>@enfermedad.Nombre</td>
+                            <td>@enfermedad.FechaAlta?.ToString("g")</td>
+                            <td>@((enfermedad.FechaModificacion ?? enfermedad.FechaAlta)?.ToString("g"))</td>
+                            @if (esAdministrador)
+                            {
+                                <td>
+                                    <a href="/actualizar-enfermedad/@enfermedad.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                                    <button type="button" @onclick="() => EliminarEnfermedad(enfermedad)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 }
 

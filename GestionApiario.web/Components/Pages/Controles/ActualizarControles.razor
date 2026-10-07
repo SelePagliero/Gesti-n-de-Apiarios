@@ -33,7 +33,7 @@ else
             <div class="col-12 col-md-6">
                 <div class="mb-3">
                     <label for="selectCampaña" class="form-label">Campaña</label>
-                    <InputSelect id="selectCampaña" class="form-control" @bind-Value="Control.CodCampaña" disabled="@EsSoloLectura">
+                    <InputSelect id="selectCampaña" class="form-select" @bind-Value="Control.CodCampaña" disabled="@EsSoloLectura">
                         <option value="0">Seleccione una Campaña</option>
                         @foreach (var campaña in CampañasDisponibles)
                         {
@@ -52,7 +52,7 @@ else
                 </div>
                 <div class="mb-3">
                     <label for="selectApiario" class="form-label">Apiario</label>
-                    <InputSelect id="selectApiario" class="form-control" @bind-Value="Control.CodApiario" disabled="@EsSoloLectura">
+                    <InputSelect id="selectApiario" class="form-select" @bind-Value="Control.CodApiario" disabled="@EsSoloLectura">
                         <option value="0">Seleccione un Apiario</option>
                         @foreach (var apiario in listaDeApiarios)
                         {
@@ -68,7 +68,7 @@ else
                 </div>
                 <div class="mb-3">
                     <label for="selectAlimentos" class="form-label">Alimento</label>
-                    <InputSelect id="selectAlimentos" class="form-control" @bind-Value="Control.CodAlimento" disabled="@EsSoloLectura">
+                    <InputSelect id="selectAlimentos" class="form-select" @bind-Value="Control.CodAlimento" disabled="@EsSoloLectura">
                         <option value="0">Sin alimento</option>
                         @foreach (var alimento in listaDeAlimentos)
                         {
@@ -86,7 +86,7 @@ else
             <div class="col-12 col-md-6">
                 <div class="mb-3">
                     <label for="selectEnfermedad" class="form-label">Enfermedad</label>
-                    <InputSelect id="selectEnfermedad" class="form-control" @bind-Value="Control.CodEnfermedad" disabled="@EsSoloLectura">
+                    <InputSelect id="selectEnfermedad" class="form-select" @bind-Value="Control.CodEnfermedad" disabled="@EsSoloLectura">
                         <option value="0">Sin enfermedad</option>
                         @foreach (var enfermedad in listaDeEnfermedades)
                         {
@@ -96,7 +96,7 @@ else
                 </div>
                 <div class="mb-3">
                     <label for="selectProducto" class="form-label">Producto</label>
-                    <InputSelect id="selectProducto" class="form-control" @bind-Value="Control.CodProductos" disabled="@EsSoloLectura">
+                    <InputSelect id="selectProducto" class="form-select" @bind-Value="Control.CodProductos" disabled="@EsSoloLectura">
                         <option value="0">Sin producto</option>
                         @foreach (var producto in listaDeProductos)
                         {

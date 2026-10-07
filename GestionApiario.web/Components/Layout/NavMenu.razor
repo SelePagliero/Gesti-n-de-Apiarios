@@ -1,54 +1,58 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Gestión de Apiarios</a>
-    </div>
+<div class="top-row marca">
+    <a class="marca-enlace" href="">
+        <img src="icons8-farming-96.png" alt="" class="marca-logo" />
+        <span class="marca-texto">Gestión de<br /><strong>Apiarios</strong></span>
+    </a>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<input type="checkbox" title="Menú" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <img src="icons8-casa-50.png" alt="Principal" class="icono-menu"/> Inicio
+                <i class="bi bi-house-door" aria-hidden="true"></i> Inicio
             </NavLink>
         </div>
 
+        <div class="nav-seccion px-3">Mi producción</div>
+
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="apiarios">
-                <img src="icons8-colmena-66.png" alt="Apiarios" class="icono-menu" /> Apiarios
+                <i class="bi bi-hexagon" aria-hidden="true"></i> Apiarios
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="campanias">
-                <img src="icons8-calendario-más-50.png" alt="Campañas" class="icono-menu" /> Campañas
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="enfermedades">
-                <img src="icons8-virus-50.png" alt="Enfermedades" class="icono-menu" /> Enfermedades
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="alimentos">
-                <img src="icons8-miel-48.png" alt="Alimentos" class="icono-menu" /> Alimento
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="productos">
-                <img src="icons8-jarabe-64.png" alt="Productos" class="icono-menu" /> Productos
+                <i class="bi bi-calendar3" aria-hidden="true"></i> Campañas
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="controles">
-                <img src="icons8-verificación-30.png" alt="Controles" class="icono-menu" /> Controles
+                <i class="bi bi-clipboard2-check" aria-hidden="true"></i> Controles
+            </NavLink>
+        </div>
+
+        <div class="nav-seccion px-3">Catálogos</div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="enfermedades">
+                <i class="bi bi-virus" aria-hidden="true"></i> Enfermedades
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="alimentos">
+                <i class="bi bi-droplet-half" aria-hidden="true"></i> Alimentos
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="productos">
+                <i class="bi bi-capsule" aria-hidden="true"></i> Productos
             </NavLink>
         </div>
     </nav>
 </div>
-
