@@ -22,6 +22,7 @@ Sistema para la gestión de apiarios, campañas, controles, enfermedades, alimen
 - Inicio de sesión con usuario y contraseña (ASP.NET Core Identity). Cada alta, modificación y baja registra qué usuario la hizo.
 - Varios apicultores: cada uno ve y modifica solo sus apiarios y controles. La Administradora ve y modifica todo, administra Alimentos, Enfermedades y Productos, y puede transferir apiarios y campañas entre apicultores. Cada apicultor tiene sus propias campañas.
 - Filtros de controles por apiario, campaña, enfermedad (o "con alguna enfermedad") y rango de fechas. Los aplica la API y quedan en la URL.
+- Filtros en los demás listados: Apiarios (nombre, apicultor y fecha de alta), Campañas (año, responsable y apicultor), Enfermedades, Alimentos y Productos (nombre y fecha de alta) y Usuarios (email, rol y contraseña). Se aplican en pantalla, sin distinguir mayúsculas ni tildes, y también quedan en la URL.
 - Tablero con indicadores (apiarios activos, colmenas, apiarios con enfermedades) y gráfico de enfermedades.
 - Validaciones en los formularios y en la API, con mensajes en español.
 - Pruebas automatizadas de la API.
