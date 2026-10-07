@@ -23,7 +23,7 @@ else
         @* Solo la Administradora elige el dueño. La API también lo exige. *@
         <div class="mb-3">
             <label for="dueño" class="form-label">Dueño (apicultor)</label>
-            <InputSelect id="dueño" class="form-control" @bind-Value="Campaña.UsuarioId">
+            <InputSelect id="dueño" class="form-select" @bind-Value="Campaña.UsuarioId">
                 @foreach (var usuario in usuarios)
                 {
                     <option value="@usuario.Id">@usuario.Email</option>

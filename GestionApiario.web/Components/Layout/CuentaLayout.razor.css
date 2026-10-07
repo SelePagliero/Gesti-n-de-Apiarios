@@ -1,13 +1,67 @@
 .cuenta-fondo {
     min-height: 100vh;
     display: flex;
+    background-color: var(--miel-crema);
+}
+
+/* Mitad izquierda: foto con un degradé cálido para que el texto se lea. */
+.cuenta-foto {
+    flex: 1 1 55%;
+    display: none;
+    position: relative;
+    background:
+        linear-gradient(180deg, rgba(62, 36, 22, .05) 30%, rgba(62, 36, 22, .85) 100%),
+        url("apicultor.jpg") center / cover no-repeat;
+}
+
+.cuenta-foto-texto {
+    position: absolute;
+    left: 3rem;
+    right: 3rem;
+    bottom: 3rem;
+    color: #fff;
+}
+
+    .cuenta-foto-texto h2 {
+        color: #fff;
+        font-size: 2.25rem;
+        font-weight: 800;
+        line-height: 1.15;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, .35);
+    }
+
+    .cuenta-foto-texto p {
+        font-size: 1.1rem;
+        color: #F6E7C8;
+        margin: 0;
+    }
+
+/* Mitad derecha: el formulario. */
+.cuenta-panel {
+    flex: 1 1 45%;
+    display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #FFB703;
-    padding: 1rem;
+    padding: 1.5rem;
+    background: radial-gradient(circle at 20% 10%, #FDF1D6 0%, var(--miel-crema) 45%);
 }
 
 .cuenta-tarjeta {
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
+    border: 1px solid var(--miel-borde);
+}
+
+.cuenta-logo {
+    width: 72px;
+    height: 72px;
+    background: var(--miel-ambar-suave);
+    border-radius: 20px;
+    padding: 8px;
+}
+
+@media (min-width: 992px) {
+    .cuenta-foto {
+        display: block;
+    }
 }

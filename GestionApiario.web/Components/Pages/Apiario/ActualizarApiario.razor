@@ -32,7 +32,7 @@ else
         @* Solo la Administradora elige el dueño; sus controles pasan con el apiario. La API también lo exige. *@
         <div class="mb-3">
             <label for="dueño" class="form-label">Dueño (apicultor)</label>
-            <InputSelect id="dueño" class="form-control" @bind-Value="Apiario.UsuarioId" disabled="@EsSoloLectura">
+            <InputSelect id="dueño" class="form-select" @bind-Value="Apiario.UsuarioId" disabled="@EsSoloLectura">
                 @foreach (var usuario in usuarios)
                 {
                     <option value="@usuario.Id">@usuario.Email</option>

@@ -1,14 +1,22 @@
 @inherits LayoutComponentBase
 
-@* Layout de las pantallas de ingreso y registro: sin menú lateral. *@
+@* Layout de las pantallas de ingreso y registro: sin menú lateral, con la foto del apicultor al costado. *@
 <div class="cuenta-fondo">
-    <div class="cuenta-tarjeta card shadow">
-        <div class="card-body p-4">
-            <div class="text-center mb-4">
-                <img src="icons8-farming-96.png" alt="" width="64" height="64" />
-                <h4 class="mt-2 mb-0">Gestión de Apiarios</h4>
+    <div class="cuenta-foto" role="img" aria-label="Apicultor revisando un cuadro de una colmena en el campo">
+        <div class="cuenta-foto-texto">
+            <h2>Tus colmenas,<br />siempre a mano.</h2>
+            <p>Apiarios, campañas y controles sanitarios en un solo lugar.</p>
+        </div>
+    </div>
+    <div class="cuenta-panel">
+        <div class="cuenta-tarjeta card">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <img src="icons8-farming-96.png" alt="" class="cuenta-logo" />
+                    <h4 class="mt-3 mb-0">Gestión de Apiarios</h4>
+                </div>
+                @Body
             </div>
-            @Body
         </div>
     </div>
 </div>
