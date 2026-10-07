@@ -184,7 +184,7 @@ Hay dos proyectos de pruebas. Ninguno usa la base de datos real.
 
 | Proyecto | Qué prueba | Base de datos | Duración |
 |---|---|---|---|
-| `GestionApiario.Pruebas` | La API: permisos, campañas, reasignación, auditoría, filtros y tablero | En memoria (InMemory) | ~40 s |
+| `GestionApiario.Pruebas` | La API: permisos, campañas, reasignación, auditoría, filtros, tablero y contraseñas | En memoria (InMemory) | ~40 s |
 | `GestionApiario.PruebasE2E` | La web completa en Microsoft Edge, siguiendo los pasos de la lista de pruebas manuales | `GestionApiarios_PruebasE2E` en LocalDB | ~2 min |
 
 ```
