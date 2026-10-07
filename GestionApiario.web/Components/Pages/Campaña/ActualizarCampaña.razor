@@ -5,14 +5,7 @@
 
 <PageTitle>Campaña</PageTitle>
 
-@if (Codigo is null)
-{
-    <h3>Crear Campaña</h3>
-}
-else
-{
-    <h3>Actualizar Campaña</h3>
-}
+<EncabezadoPagina Titulo="@(Codigo is null ? "Nueva campaña" : "Editar campaña")" />
 
 <MensajeError Mensaje="@mensajeError" />
 
@@ -23,7 +16,7 @@ else
         @* Solo la Administradora elige el dueño. La API también lo exige. *@
         <div class="mb-3">
             <label for="dueño" class="form-label">Dueño (apicultor)</label>
-            <InputSelect id="dueño" class="form-control" @bind-Value="Campaña.UsuarioId">
+            <InputSelect id="dueño" class="form-select" @bind-Value="Campaña.UsuarioId">
                 @foreach (var usuario in usuarios)
                 {
                     <option value="@usuario.Id">@usuario.Email</option>
@@ -45,8 +38,10 @@ else
         <InputText class="form-control" id="responsable" @bind-Value="Campaña.Responsable" />
         <ValidationMessage For="() => Campaña.Responsable" />
     </div>
-    <a href="/campanias" class="btn btn-secondary">Volver</a>
-    <button type="submit" class="btn btn-primary">Guardar</button>
+    <div class="acciones-formulario">
+        <button type="submit" class="btn btn-guardar">Guardar</button>
+        <a href="/campanias" class="btn btn-cancelar">Cancelar</a>
+    </div>
 </EditForm>
 
 @code {

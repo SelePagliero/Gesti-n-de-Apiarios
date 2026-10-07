@@ -9,30 +9,30 @@ namespace GestionApiario.Controllers
     {
         private static readonly List<string> Colores =
         [
-            "#4e73df", // azul
-            "#1cc88a", // verde
-            "#36b9cc", // celeste
-            "#f6c23e", // amarillo
-            "#e74a3b", // rojo
-            "#858796", // gris
-            "#5a5c69", // gris oscuro
-            "#20c9a6", // verde agua
-            "#fd7e14", // naranja
-            "#6f42c1"  // violeta
+            "#E9A825", // ámbar
+            "#6B4226", // marrón
+            "#5E8B3A", // verde oliva
+            "#C2412D", // terracota
+            "#F2C66D", // miel clara
+            "#A9805B", // café con leche
+            "#94B47A", // verde salvia
+            "#E07B39", // naranja
+            "#8E4E6B", // ciruela
+            "#8C8174"  // gris piedra
         ];
 
         private static readonly List<string> ColoresHover =
         [
-            "#2e59d9", // azul oscuro
-            "#17a673", // verde oscuro
-            "#2c9faf", // celeste oscuro
-            "#dda20a", // amarillo oscuro
-            "#be2617", // rojo oscuro
-            "#6c757d", // gris medio
-            "#343a40", // gris más oscuro
-            "#169b7b", // verde agua oscuro
-            "#e8590c", // naranja oscuro
-            "#4e2a84"  // violeta oscuro
+            "#CF8F12", // ámbar oscuro
+            "#4F2F1A", // marrón oscuro
+            "#4C7430", // verde oliva oscuro
+            "#A33423", // terracota oscuro
+            "#E3AE3F", // miel oscura
+            "#8C6847", // café oscuro
+            "#7A9A61", // salvia oscuro
+            "#C4652A", // naranja oscuro
+            "#723D55", // ciruela oscuro
+            "#6F655A"  // piedra oscuro
         ];
 
         private readonly GestionApiariosContext _context;
@@ -84,7 +84,7 @@ namespace GestionApiario.Controllers
                     .ToList(),
                 backgroundColor = Colores,
                 hoverBackgroundColor = ColoresHover,
-                hoverBorderColor = "rgba(234, 236, 244, 1)"
+                hoverBorderColor = "#FFFFFF"
             });
 
             return Ok(respuesta);

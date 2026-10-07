@@ -1,50 +1,94 @@
+/* Marco general: menú lateral marrón oscuro, encabezado claro y contenido sobre fondo crema. */
+
 .page {
     position: relative;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    /* Debajo del menú, en páginas largas, sigue el fondo marrón. */
+    background-color: var(--miel-menu);
 }
 
 main {
     flex: 1;
+    min-width: 0;
+    background-color: var(--miel-fondo);
 }
 
 .sidebar {
-    background-color: #FFB703; 
-    color: #FAF3E0; 
+    background-color: var(--miel-menu);
+    color: var(--miel-menu-texto);
 }
 
+/* Encabezado: usuario y "Cerrar sesión" a la derecha. */
 .top-row {
-    background-color: #8B4513;
-    border-bottom: 1px solid #6B8E23; 
-    color: #FAF3E0; 
+    background-color: var(--miel-superficie);
+    border-bottom: 1px solid var(--miel-borde);
     justify-content: flex-end;
-    height: 3.5rem;
+    gap: 1rem;
+    height: 4rem;
     display: flex;
     align-items: center;
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
-        text-decoration: none;
-    }
+.usuario {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    min-width: 0;
+}
 
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
-    }
+/* Círculo con la inicial del usuario. */
+.usuario-inicial {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--miel-menu);
+    color: var(--miel);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+    font-size: 1rem;
+}
 
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+.usuario-email {
+    color: var(--miel-texto);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.usuario-rol {
+    flex: 0 0 auto;
+    background: var(--miel-suave);
+    color: #7A4D0B;
+    border: 1px solid #F0D49B;
+    border-radius: 999px;
+    padding: .1rem .6rem;
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.usuario-salir {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding-left: 1rem;
+    border-left: 1px solid var(--miel-borde);
+    border-radius: 0;
+}
 
 @media (max-width: 640.98px) {
     .top-row {
         justify-content: space-between;
+        height: 3.5rem;
     }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        margin-left: 0;
+    .usuario-rol {
+        display: none;
     }
 }
 
@@ -66,25 +110,20 @@ main {
         z-index: 1;
     }
 
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
-
     .top-row, article {
         padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
+        padding-right: 2rem !important;
     }
 }
 
 #blazor-error-ui {
-    background: lightyellow;
+    background: #FFF6DB;
+    border-top: 1px solid #F0D49B;
     bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 -1px 4px rgba(0, 0, 0, .1);
     display: none;
     left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    padding: .6rem 1.25rem .7rem 1.25rem;
     position: fixed;
     width: 100%;
     z-index: 1000;
@@ -93,13 +132,6 @@ main {
     #blazor-error-ui .dismiss {
         cursor: pointer;
         position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
+        right: .75rem;
+        top: .5rem;
     }
-
-
-
-
-.usuario-salir {
-    color: #FAF3E0;
-}

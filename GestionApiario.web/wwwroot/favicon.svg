@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Favicon de Gestión de Apiarios: cuadrado miel con un hexágono marrón (el mismo logo del menú). -->
+  <rect width="32" height="32" rx="8" fill="#E9A93A"/>
+  <polygon points="16,6.5 24.2,11.25 24.2,20.75 16,25.5 7.8,20.75 7.8,11.25"
+           fill="none" stroke="#2E1F14" stroke-width="2.4" stroke-linejoin="round"/>
+</svg>

@@ -1,14 +1,16 @@
 @inherits LayoutComponentBase
 
-@* Layout de las pantallas de ingreso y registro: sin menú lateral. *@
+@* Layout de las pantallas de ingreso y registro: una tarjeta centrada sobre el fondo crema, sin menú lateral. *@
 <div class="cuenta-fondo">
-    <div class="cuenta-tarjeta card shadow">
-        <div class="card-body p-4">
-            <div class="text-center mb-4">
-                <img src="icons8-farming-96.png" alt="" width="64" height="64" />
-                <h4 class="mt-2 mb-0">Gestión de Apiarios</h4>
+    <div class="cuenta-contenido">
+        <div class="cuenta-marca">
+            <span class="cuenta-logo" aria-hidden="true"><i class="bi bi-hexagon"></i></span>
+            <span class="cuenta-nombre">Gestión de Apiarios</span>
+        </div>
+        <div class="cuenta-tarjeta card">
+            <div class="card-body">
+                @Body
             </div>
-            @Body
         </div>
     </div>
 </div>

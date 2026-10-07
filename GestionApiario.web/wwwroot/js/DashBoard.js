@@ -1,4 +1,4 @@
-﻿window.renderGraficoEnfermedades = function (dataEnfermedades) {
+window.renderGraficoEnfermedades = function (dataEnfermedades) {
     var ctx = document.getElementById("enfermedadesGrafico");
     if (!ctx) return;
 
@@ -7,25 +7,47 @@
         window.graficoEnfermedades.destroy();
     }
 
+    // Misma tipografía y colores de texto que el resto del sistema (tema "miel cálido").
+    Chart.defaults.global.defaultFontFamily = "'Figtree', 'Segoe UI', system-ui, sans-serif";
+    Chart.defaults.global.defaultFontColor = "#6E5A45";
+
     window.graficoEnfermedades = new Chart(ctx, {
         type: 'doughnut',
         data: dataEnfermedades,
         options: {
             maintainAspectRatio: false,
             tooltips: {
-                backgroundColor: "rgb(255,255,255)",
-                bodyFontColor: "#858796",
-                borderColor: '#dddfeb',
-                borderWidth: 1,
-                xPadding: 15,
-                yPadding: 15,
-                displayColors: false,
-                caretPadding: 10,
+                backgroundColor: "#2E1F14",
+                titleFontColor: "#FBF6EC",
+                bodyFontColor: "#FBF6EC",
+                xPadding: 12,
+                yPadding: 10,
+                cornerRadius: 8,
+                displayColors: true,
+                caretPadding: 8,
+                callbacks: {
+                    label: function (item, datos) {
+                        return " " + datos.labels[item.index] + ": " + datos.datasets[0].data[item.index] + "%";
+                    }
+                }
             },
             legend: {
-                display: true
+                display: true,
+                // En pantallas chicas la leyenda va abajo para que el gráfico no quede angosto.
+                position: window.innerWidth < 768 ? 'bottom' : 'right',
+                labels: {
+                    boxWidth: 14,
+                    padding: 16,
+                    fontSize: 13
+                }
             },
-            cutoutPercentage: 80,
+            cutoutPercentage: 65,
+            elements: {
+                arc: {
+                    borderWidth: 3,
+                    borderColor: "#FFFFFF"
+                }
+            }
         },
     });
 };

@@ -1,13 +1,83 @@
+/* Ingreso y registro: tarjeta centrada sobre el fondo crema (colores de app.css). */
+
 .cuenta-fondo {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #FFB703;
-    padding: 1rem;
+    padding: 2rem 1rem;
+    background-color: var(--miel-fondo);
+}
+
+.cuenta-contenido {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+/* Logo del hexágono y nombre del sistema, arriba de la tarjeta. */
+.cuenta-marca {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
+}
+
+.cuenta-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--miel);
+    color: var(--miel-menu);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .12);
+}
+
+.cuenta-nombre {
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+    font-size: 1.6rem;
+    color: var(--miel-texto);
+    letter-spacing: -.01em;
 }
 
 .cuenta-tarjeta {
     width: 100%;
-    max-width: 420px;
 }
+
+    .cuenta-tarjeta .card-body {
+        padding: 1.75rem;
+    }
+
+    /* Mismo alto de campos que el resto del sistema; el botón principal en marrón oscuro. */
+    .cuenta-tarjeta ::deep .form-control {
+        height: 42px;
+    }
+
+    .cuenta-tarjeta ::deep h5 {
+        font-family: var(--fuente-titulos);
+        font-size: 1.3rem;
+        margin-bottom: 1.1rem !important;
+    }
+
+    .cuenta-tarjeta ::deep .btn-primary {
+        --bs-btn-color: #FFF8EC;
+        --bs-btn-bg: var(--miel-menu);
+        --bs-btn-border-color: var(--miel-menu);
+        --bs-btn-hover-color: #fff;
+        --bs-btn-hover-bg: #47321F;
+        --bs-btn-hover-border-color: #47321F;
+        --bs-btn-active-color: #fff;
+        --bs-btn-active-bg: #47321F;
+        --bs-btn-active-border-color: #47321F;
+        --bs-btn-disabled-color: #FFF8EC;
+        --bs-btn-disabled-bg: #8A7765;
+        --bs-btn-disabled-border-color: #8A7765;
+        height: 44px;
+    }

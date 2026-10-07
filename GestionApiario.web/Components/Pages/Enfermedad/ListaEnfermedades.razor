@@ -4,7 +4,12 @@
 
 <PageTitle>Enfermedades</PageTitle>
 
-<h1>Enfermedades</h1>
+<EncabezadoPagina Titulo="Enfermedades" Descripcion="Enfermedades que se pueden registrar en los controles.">
+    @if (esAdministrador)
+    {
+        <a href="/crear-enfermedad" class="btn btn-nuevo"><i class="bi bi-plus-lg" aria-hidden="true"></i>Nueva enfermedad</a>
+    }
+</EncabezadoPagina>
 
 <MensajeError Mensaje="@mensajeError" />
 
@@ -14,49 +19,48 @@
 }
 else
 {
-    @if (esAdministrador)
-    {
-        <a href="/crear-enfermedad" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Enfermedad</a>
-    }
-
     @if (enfermedades.Count == 0)
     {
         <p class="text-muted">Todavía no hay enfermedades cargadas.</p>
     }
     else
     {
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <th>Fecha de alta</th>
-                    <th>Fecha de modificación</th>
-                    @if (esAdministrador)
-                    {
-                        <th>Acciones</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var enfermedad in enfermedades)
-                {
+        <div class="tabla-tarjeta">
+            <table class="table table-hover align-middle">
+                <thead>
                     <tr>
-                        <td>@enfermedad.Codigo</td>
-                        <td>@enfermedad.Nombre</td>
-                        <td>@enfermedad.FechaAlta?.ToString("g")</td>
-                        <td>@((enfermedad.FechaModificacion ?? enfermedad.FechaAlta)?.ToString("g"))</td>
+                        <th class="numero">Código</th>
+                        <th>Nombre</th>
+                        <th>Fecha de alta</th>
+                        <th>Fecha de modificación</th>
                         @if (esAdministrador)
                         {
-                            <td>
-                                <a href="/actualizar-enfermedad/@enfermedad.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
-                                <button type="button" @onclick="() => EliminarEnfermedad(enfermedad)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-                            </td>
+                            <th class="col-acciones"><span class="visually-hidden">Acciones</span></th>
                         }
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var enfermedad in enfermedades)
+                    {
+                        <tr>
+                            <td class="numero">@enfermedad.Codigo</td>
+                            <td>@enfermedad.Nombre</td>
+                            <td>@enfermedad.FechaAlta?.ToString("g")</td>
+                            <td>@((enfermedad.FechaModificacion ?? enfermedad.FechaAlta)?.ToString("g"))</td>
+                            @if (esAdministrador)
+                            {
+                                <td class="col-acciones">
+                                    <AccionesFila Tipo="enfermedad"
+                                                  Nombre="@enfermedad.Nombre"
+                                                  UrlEditar="@($"/actualizar-enfermedad/{enfermedad.Codigo}")"
+                                                  AlEliminar="() => EliminarEnfermedad(enfermedad)" />
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 }
 

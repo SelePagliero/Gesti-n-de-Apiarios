@@ -10,9 +10,16 @@
 
             <main>
                 <div class="top-row px-4">
-                    <span><i class="bi bi-person-circle"></i> @context.User.Identity?.Name</span>
-                    <button type="button" class="btn btn-link usuario-salir" @onclick="CerrarSesion">
-                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                    <div class="usuario">
+                        <span class="usuario-inicial" aria-hidden="true">@Inicial(context.User.Identity?.Name)</span>
+                        <span class="usuario-email">@context.User.Identity?.Name</span>
+                        @if (context.User.IsInRole(RolesUsuario.Administrador))
+                        {
+                            <span class="usuario-rol">Administradora</span>
+                        }
+                    </div>
+                    <button type="button" class="btn-texto usuario-salir" @onclick="CerrarSesion">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Cerrar sesión
                     </button>
                 </div>
 
@@ -49,6 +56,10 @@
 
 @code {
     private ErrorBoundary? errorBoundary;
+
+    // Primera letra del email, en mayúscula, para el círculo del encabezado.
+    private static string Inicial(string? email) =>
+        string.IsNullOrWhiteSpace(email) ? "?" : email.Trim()[..1].ToUpperInvariant();
 
     // Al navegar a otra página se limpia el error anterior.
     protected override void OnParametersSet()
