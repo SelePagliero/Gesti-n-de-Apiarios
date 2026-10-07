@@ -32,7 +32,7 @@ namespace GestionApiario.web.Servicios
                     if (raiz.TryGetProperty("errors", out var errores) && errores.ValueKind == JsonValueKind.Object)
                     {
                         var mensajes = errores.EnumerateObject()
-                            .SelectMany(e => e.Value.EnumerateArray().Select(m => m.GetString()))
+                            .Select(e => TraducirErrorIdentity(e.Name, e.Value))
                             .Where(m => !string.IsNullOrWhiteSpace(m));
                         return string.Join(" ", mensajes);
                     }
@@ -49,5 +49,20 @@ namespace GestionApiario.web.Servicios
 
             return contenido;
         }
+
+        // ASP.NET Core Identity devuelve un código por cada problema (por ejemplo "PasswordTooShort");
+        // los conocidos se traducen y el resto (por ejemplo, errores de validación de un campo) se muestra tal cual.
+        public static string TraducirErrorIdentity(string codigo, JsonElement mensajesOriginales) => codigo switch
+        {
+            "DuplicateUserName" or "DuplicateEmail" => "Ya existe un usuario con ese email.",
+            "InvalidEmail" or "InvalidUserName" => "El email no es válido.",
+            "PasswordTooShort" => "La contraseña debe tener al menos 8 caracteres.",
+            "PasswordRequiresDigit" => "La contraseña debe tener al menos un número.",
+            "PasswordRequiresLower" => "La contraseña debe tener al menos una letra minúscula.",
+            "PasswordRequiresUpper" => "La contraseña debe tener al menos una letra mayúscula.",
+            "PasswordRequiresUniqueChars" => "La contraseña debe tener más caracteres distintos.",
+            "PasswordMismatch" => "La contraseña actual no es correcta.",
+            _ => string.Join(" ", mensajesOriginales.EnumerateArray().Select(m => m.GetString()))
+        };
     }
 }
