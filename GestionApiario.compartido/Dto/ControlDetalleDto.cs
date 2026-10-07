@@ -2,6 +2,7 @@
 {
     public class ControlDetalleDto
     {
+        public int Codigo { get; set; }
 
         public int CodCampaña { get; set; }
 
@@ -21,7 +22,6 @@
 
         public decimal CantProducto { get; set; }
 
-        public string Obsevaciones { get; set; }
-
+        public string? Observaciones { get; set; }
     }
 }

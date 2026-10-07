@@ -1,44 +1,158 @@
-﻿@page "/controles"
-@using GestionApiario.compartido.Dto
-@using GestionApiario.web.Servicios.Interfaces
-@inject IApiariosServicio _servicio;
-@inject NavigationManager _navegationmanager;
-
-@rendermode InteractiveServer
+@page "/controles"
+@using System.Globalization
+@inject IApiariosServicio _servicio
+@inject NavigationManager _navegationmanager
+@inject IJSRuntime JS
 
 <PageTitle>Controles</PageTitle>
 
 <h1>Controles</h1>
 
+<MensajeError Mensaje="@mensajeError" />
+
+<a href="/crear-control?volver=@UrlVolver" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Control</a>
+
+@* Los filtros viven en la URL (?apiario=3&desde=2026-03-01...): se conservan al recargar y al volver de Ver o Editar. *@
+<div class="card mb-3">
+    <div class="card-body pb-1">
+        <div class="row">
+            @if (esAdministrador)
+            {
+                <div class="col-12 col-md-6 col-lg-3 mb-3">
+                    <label for="filtroApicultor" class="form-label">Apicultor</label>
+                    <select id="filtroApicultor" class="form-control" value="@(filtro.UsuarioId ?? "")"
+                            @onchange='e => CambiarFiltro("apicultor", e.Value?.ToString())'>
+                        <option value="">Todos</option>
+                        @foreach (var usuario in usuarios)
+                        {
+                            <option value="@usuario.Id">@usuario.Email</option>
+                        }
+                        @if (filtro.UsuarioId is not null && usuarios.All(u => u.Id != filtro.UsuarioId))
+                        {
+                            <option value="@filtro.UsuarioId">(no disponible)</option>
+                        }
+                    </select>
+                </div>
+            }
+            <div class="col-12 col-md-6 col-lg-3 mb-3">
+                <label for="filtroApiario" class="form-label">Apiario</label>
+                <select id="filtroApiario" class="form-control" value="@(filtro.CodApiario?.ToString() ?? "")"
+                        @onchange='e => CambiarFiltro("apiario", e.Value?.ToString())'>
+                    <option value="">Todos</option>
+                    @foreach (var apiario in listaDeApiarios)
+                    {
+                        <option value="@apiario.Codigo">@apiario.Nombre</option>
+                    }
+                    @if (filtro.CodApiario is not null && listaDeApiarios.All(a => a.Codigo != filtro.CodApiario))
+                    {
+                        <option value="@filtro.CodApiario">(no disponible)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-md-6 col-lg-2 mb-3">
+                <label for="filtroCampaña" class="form-label">Campaña</label>
+                <select id="filtroCampaña" class="form-control" value="@(filtro.CodCampaña?.ToString() ?? "")"
+                        @onchange='e => CambiarFiltro("campania", e.Value?.ToString())'>
+                    <option value="">Todas</option>
+                    @foreach (var campaña in listaDeCampañas)
+                    {
+                        <option value="@campaña.Codigo">@campaña.Año@(esAdministrador ? $" ({campaña.Apicultor})" : "")</option>
+                    }
+                    @if (filtro.CodCampaña is not null && listaDeCampañas.All(c => c.Codigo != filtro.CodCampaña))
+                    {
+                        <option value="@filtro.CodCampaña">(no disponible)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3 mb-3">
+                <label for="filtroEnfermedad" class="form-label">Enfermedad</label>
+                <select id="filtroEnfermedad" class="form-control" value="@ValorFiltroEnfermedad"
+                        @onchange='e => CambiarFiltro("enfermedad", e.Value?.ToString())'>
+                    <option value="">Todas</option>
+                    <option value="@ConAlgunaEnfermedad">Con alguna enfermedad</option>
+                    @foreach (var enfermedad in listaDeEnfermedades)
+                    {
+                        <option value="@enfermedad.Codigo">@enfermedad.Nombre</option>
+                    }
+                    @if (filtro.CodEnfermedad is not null && listaDeEnfermedades.All(en => en.Codigo != filtro.CodEnfermedad))
+                    {
+                        <option value="@filtro.CodEnfermedad">(no disponible)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6 col-lg-2 mb-3">
+                <label for="filtroDesde" class="form-label">Desde</label>
+                <input id="filtroDesde" type="date" class="form-control" value="@FormatoUrl(filtro.FechaDesde)"
+                       @onchange='e => CambiarFiltro("desde", e.Value?.ToString())' />
+            </div>
+            <div class="col-6 col-lg-2 mb-3">
+                <label for="filtroHasta" class="form-label">Hasta</label>
+                <input id="filtroHasta" type="date" class="form-control" value="@FormatoUrl(filtro.FechaHasta)"
+                       @onchange='e => CambiarFiltro("hasta", e.Value?.ToString())' />
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <small class="text-muted">
+                @if (Controles is not null)
+                {
+                    @(Controles.Count == 1 ? "Mostrando 1 control" : $"Mostrando {Controles.Count} controles")
+                }
+            </small>
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="LimpiarFiltros" disabled="@(!HayFiltros)">
+                <i class="bi bi-x-circle"></i> Limpiar filtros
+            </button>
+        </div>
+    </div>
+</div>
+
+<MensajeError Mensaje="@mensajeFiltro" />
+
 @if (Controles == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Cargando...</em></p>
+}
+else if (Controles.Count == 0)
+{
+    <p class="text-muted">
+        @(HayFiltros ? "No hay controles que coincidan con los filtros." : "Todavía no hay controles cargados.")
+    </p>
 }
 else
 {
-    <a href="/crear-control" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Crear Control</a>
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Código</th>
                 <th>Campaña</th>
                 <th>Apiario</th>
+                @if (esAdministrador)
+                {
+                    <th>Apicultor</th>
+                }
                 <th>Fecha</th>
+                <th>Colmenas</th>
+                <th>Enfermedad</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var Control in Controles)
+            @foreach (var control in Controles)
             {
                 <tr>
-                    <td>@Control.Codigo</td>
-                    <td>@Control.Campaña</td>
-                    <td>@Control.Apiario</td>
-                    <td>@Control.Fecha</td>
+                    <td>@control.Codigo</td>
+                    <td>@control.Campaña</td>
+                    <td>@control.Apiario</td>
+                    @if (esAdministrador)
+                    {
+                        <td>@control.Apicultor</td>
+                    }
+                    <td>@control.Fecha.ToString("d")</td>
+                    <td>@control.CantDeColmenas</td>
+                    <td>@(control.Enfermedad ?? "—")</td>
                     <td>
-                        <a href="/ver-Control/@Control.Codigo" class="btn btn-success"><i class="bi bi-eye"></i>Ver</a>
-                        <a href="/actualizar-Control/@Control.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i>Editar</a>
-                        <button onclick="@(() => EliminarControl(@Control.Codigo))" class="btn btn-danger"><i class="bi bi-trash"></i>Eliminar</button>
+                        <a href="/ver-control/@control.Codigo?volver=@UrlVolver" class="btn btn-success"><i class="bi bi-eye"></i> Ver</a>
+                        <a href="/actualizar-control/@control.Codigo?volver=@UrlVolver" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                        <button type="button" @onclick="() => EliminarControl(control)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
                     </td>
                 </tr>
             }
@@ -47,21 +161,114 @@ else
 }
 
 @code {
+    private const string ConAlgunaEnfermedad = "alguna";
+
+    // Parámetros de la URL. Se leen como texto: un valor inválido se ignora en lugar de romper la página.
+    [SupplyParameterFromQuery(Name = "apicultor")] public string? ParamApicultor { get; set; }
+    [SupplyParameterFromQuery(Name = "apiario")] public string? ParamApiario { get; set; }
+    [SupplyParameterFromQuery(Name = "campania")] public string? ParamCampaña { get; set; }
+    [SupplyParameterFromQuery(Name = "enfermedad")] public string? ParamEnfermedad { get; set; }
+    [SupplyParameterFromQuery(Name = "desde")] public string? ParamDesde { get; set; }
+    [SupplyParameterFromQuery(Name = "hasta")] public string? ParamHasta { get; set; }
+
     List<ControlGrillaDto>? Controles = null;
+    List<ApiarioGrillaDto> listaDeApiarios = new();
+    List<CampañaGrillaDto> listaDeCampañas = new();
+    List<EnfermedadGrillaDto> listaDeEnfermedades = new();
+    FiltroControlesDto filtro = new();
+    string? mensajeError;
+    string? mensajeFiltro;
+    bool esAdministrador;
+    List<UsuarioDto> usuarios = new();
+
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
+
+    private bool HayFiltros => !string.IsNullOrEmpty(filtro.UsuarioId) || filtro.CodApiario is not null || filtro.CodCampaña is not null || filtro.CodEnfermedad is not null
+                               || filtro.ConAlgunaEnfermedad == true || filtro.FechaDesde is not null || filtro.FechaHasta is not null;
+
+    private string ValorFiltroEnfermedad =>
+        filtro.ConAlgunaEnfermedad == true ? ConAlgunaEnfermedad : filtro.CodEnfermedad?.ToString() ?? "";
+
+    // Dirección actual (con filtros) para que Ver, Editar y Crear vuelvan a la misma lista.
+    private string UrlVolver => Uri.EscapeDataString(_navegationmanager.ToBaseRelativePath(_navegationmanager.Uri));
 
     protected override async Task OnInitializedAsync()
     {
-        await CargarControles();
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
+        if (esAdministrador)
+            usuarios = await _servicio.ObtenerUsuarios();
+
+        // Los endpoints vertodos solo devuelven registros activos.
+        listaDeApiarios = await _servicio.ObtenerTodosApiarios();
+        listaDeCampañas = await _servicio.ObtenerTodasCampañas();
+        listaDeEnfermedades = await _servicio.ObtenerTodasEnfermedades();
     }
 
-    async Task EliminarControl(int codigo)
+    // Se ejecuta al entrar y cada vez que cambian los parámetros de la URL.
+    protected override async Task OnParametersSetAsync()
     {
-        await _servicio.EliminarControl(codigo);
-        _navegationmanager.Refresh(true);
+        filtro = LeerFiltroDeLaUrl();
+        await CargarControles();
     }
 
     async Task CargarControles()
     {
-        Controles = await _servicio.ObtenerTodosControles();
+        mensajeFiltro = null;
+        if (!filtro.RangoDeFechasValido)
+        {
+            mensajeFiltro = FiltroControlesDto.MensajeRangoInvalido;
+            Controles = new();
+            return;
+        }
+
+        Controles = await _servicio.ObtenerTodosControles(filtro);
     }
+
+    // Cambia un parámetro de la URL; la página se vuelve a cargar con OnParametersSetAsync.
+    // replace: true evita llenar el historial del navegador con cada cambio de filtro.
+    void CambiarFiltro(string parametro, string? valor)
+    {
+        var url = _navegationmanager.GetUriWithQueryParameter(parametro, string.IsNullOrEmpty(valor) ? null : valor);
+        _navegationmanager.NavigateTo(url, replace: true);
+    }
+
+    void LimpiarFiltros() => _navegationmanager.NavigateTo("/controles", replace: true);
+
+    async Task EliminarControl(ControlGrillaDto control)
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", $"¿Eliminar el control del apiario \"{control.Apiario}\" del {control.Fecha:d}?"))
+            return;
+
+        mensajeError = null;
+        try
+        {
+            await _servicio.EliminarControl(control.Codigo);
+            await CargarControles();
+        }
+        catch (HttpRequestException ex)
+        {
+            mensajeError = ex.Message;
+        }
+    }
+
+    private FiltroControlesDto LeerFiltroDeLaUrl() => new()
+    {
+        // El filtro por apicultor solo se usa si es la Administradora (la API también lo ignora para los demás).
+        UsuarioId = esAdministrador && !string.IsNullOrWhiteSpace(ParamApicultor) ? ParamApicultor : null,
+        CodApiario = LeerEntero(ParamApiario),
+        CodCampaña = LeerEntero(ParamCampaña),
+        CodEnfermedad = ParamEnfermedad == ConAlgunaEnfermedad ? null : LeerEntero(ParamEnfermedad),
+        ConAlgunaEnfermedad = ParamEnfermedad == ConAlgunaEnfermedad ? true : null,
+        FechaDesde = LeerFecha(ParamDesde),
+        FechaHasta = LeerFecha(ParamHasta)
+    };
+
+    private static int? LeerEntero(string? valor) =>
+        int.TryParse(valor, NumberStyles.None, CultureInfo.InvariantCulture, out var numero) && numero > 0 ? numero : null;
+
+    private static DateOnly? LeerFecha(string? valor) =>
+        DateOnly.TryParseExact(valor, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var fecha) ? fecha : null;
+
+    private static string FormatoUrl(DateOnly? fecha) => fecha?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? "";
 }

@@ -16,5 +16,11 @@ namespace GestionApiario.compartido.Dto
         public DateTime? FechaAlta { get; set; }
 
         public DateTime? FechaModificacion { get; set; }
+
+        // Dueño del apiario.
+        public string? UsuarioId { get; set; }
+
+        // Email del dueño del apiario.
+        public string? Apicultor { get; set; }
     }
 }

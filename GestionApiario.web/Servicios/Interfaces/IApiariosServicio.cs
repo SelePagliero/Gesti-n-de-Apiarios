@@ -1,11 +1,13 @@
-﻿using GestionApiario.compartido.Dto;
+using GestionApiario.compartido.Dto;
 
 namespace GestionApiario.web.Servicios.Interfaces
 {
+    // Todas las operaciones lanzan HttpRequestException con un mensaje en español si la API responde con error,
+    // o SesionExpiradaException si la sesión ya no es válida.
     public interface IApiariosServicio
     {
         #region Apiarios
-        Task<List<ApiarioGrillaDto>?> ObtenerTodosApiarios();
+        Task<List<ApiarioGrillaDto>> ObtenerTodosApiarios();
         Task<ApiarioDetalleDto> ObtenerApiario(int codigo);
         Task EliminarApiario(int codigo);
         Task CrearApiario(ApiarioDto apiario);
@@ -13,7 +15,7 @@ namespace GestionApiario.web.Servicios.Interfaces
         #endregion
 
         #region Alimentos
-        Task<List<AlimentoGrillaDto>?> ObtenerTodosAlimentos();
+        Task<List<AlimentoGrillaDto>> ObtenerTodosAlimentos();
         Task<AlimentoDetalleDto> ObtenerAlimento(int codigo);
         Task EliminarAlimento(int codigo);
         Task CrearAlimento(AlimentoDto alimento);
@@ -21,34 +23,31 @@ namespace GestionApiario.web.Servicios.Interfaces
         #endregion
 
         #region Productos
-        Task<List<ProductoGrillaDto>?> ObtenerTodosProductos();
+        Task<List<ProductoGrillaDto>> ObtenerTodosProductos();
         Task<ProductoDetalleDto> ObtenerProducto(int codigo);
         Task EliminarProducto(int codigo);
         Task CrearProducto(ProductoDto producto);
-        Task ModificarProducto(int codigo,ProductoDto producto);
+        Task ModificarProducto(int codigo, ProductoDto producto);
         #endregion
 
         #region Enfermedades
-        Task<List<EnfermedadGrillaDto>?> ObtenerTodasEnfermedades();
-        Task<EnfermedadDetalleDto> ObtenerEnfermedades(int codigo);
+        Task<List<EnfermedadGrillaDto>> ObtenerTodasEnfermedades();
+        Task<EnfermedadDetalleDto> ObtenerEnfermedad(int codigo);
         Task EliminarEnfermedad(int codigo);
         Task CrearEnfermedad(EnfermedadDto enfermedad);
-        Task ModificarEnfermedad(int codigo,EnfermedadDto enfermedad);
-
+        Task ModificarEnfermedad(int codigo, EnfermedadDto enfermedad);
         #endregion
 
         #region Campañas
-        Task<List<CampañaGrillaDto>?> ObtenerTodasCampañas();
-        Task<CampañaDetalleDto> ObtenerCampañas(int codigo);
+        Task<List<CampañaGrillaDto>> ObtenerTodasCampañas();
+        Task<CampañaDetalleDto> ObtenerCampaña(int codigo);
         Task EliminarCampaña(int codigo);
         Task CrearCampaña(CampañaDto campaña);
-        Task ModificarCamapaña(int codigo, CampañaDto campaña);
-
-
+        Task ModificarCampaña(int codigo, CampañaDto campaña);
         #endregion
 
         #region Controles
-        Task<List<ControlGrillaDto>?> ObtenerTodosControles();
+        Task<List<ControlGrillaDto>> ObtenerTodosControles(FiltroControlesDto? filtro = null);
         Task<ControlDetalleDto> ObtenerControl(int codigo);
         Task EliminarControl(int codigo);
         Task CrearControl(ControlDto control);
@@ -56,8 +55,14 @@ namespace GestionApiario.web.Servicios.Interfaces
         #endregion
 
         #region DashBoard
-        Task<DashBoardDto> ObtenerDashBoard();
-        Task<EnfermedadesGraficoResponse> ObtenerDatosGraficoEnfermedades(); 
+        // usuarioId solo lo tiene en cuenta la API si consulta la Administradora.
+        Task<DashBoardDto> ObtenerDashBoard(string? usuarioId = null);
+        Task<EnfermedadesGraficoResponse> ObtenerDatosGraficoEnfermedades(string? usuarioId = null);
+        #endregion
+
+        #region Usuarios
+        // Solo para la Administradora (la API responde 403 a los apicultores).
+        Task<List<UsuarioDto>> ObtenerUsuarios();
         #endregion
     }
 }

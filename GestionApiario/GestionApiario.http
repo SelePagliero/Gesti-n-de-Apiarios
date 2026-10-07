@@ -1,6 +1,16 @@
-@GestionApiario_HostAddress = http://localhost:5283
+@GestionApiario_HostAddress = https://localhost:7035
 
-GET {{GestionApiario_HostAddress}}/weatherforecast/
-Accept: application/json
+### Iniciar sesión (copiá el accessToken de la respuesta)
+POST {{GestionApiario_HostAddress}}/cuenta/login
+Content-Type: application/json
+
+{
+  "email": "usuario@ejemplo.com",
+  "password": "Contrasenia1"
+}
+
+### Listar apiarios (reemplazá TOKEN por el accessToken)
+GET {{GestionApiario_HostAddress}}/apiario/vertodos
+Authorization: Bearer TOKEN
 
 ###

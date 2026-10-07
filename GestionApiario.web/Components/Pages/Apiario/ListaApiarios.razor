@@ -1,72 +1,94 @@
-﻿@page "/apiarios"
-@using GestionApiario.compartido.Dto
-@using GestionApiario.web.Servicios.Interfaces
-@inject IApiariosServicio _servicio;
-@inject NavigationManager _navegationmanager;
-
-@rendermode InteractiveServer
+@page "/apiarios"
+@inject IApiariosServicio _servicio
+@inject IJSRuntime JS
 
 <PageTitle>Apiarios</PageTitle>
 
 <h1>Apiarios</h1>
 
+<MensajeError Mensaje="@mensajeError" />
+
 @if (apiarios == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Cargando...</em></p>
 }
 else
 {
-    <a href="/crear-apiario" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Crear Apiario</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Fecha de alta</th>
-                <th>Fecha de modificación</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var apiario in apiarios)
-            {
+    <a href="/crear-apiario" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Apiario</a>
+
+    @if (apiarios.Count == 0)
+    {
+        <p class="text-muted">Todavía no hay apiarios cargados.</p>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>@apiario.Codigo</td>
-                    <td>@apiario.Nombre</td>
-                    <td>@apiario.FechaAlta</td>
-                    <td>
-                        @if (apiario.FechaModificacion.HasValue)
-                        {
-                            @apiario.FechaModificacion
-                        }
-                        else
-                        {
-                            @apiario.FechaAlta
-                        }
-                    </td>
-                    <td>
-                        <a href="/ver-apiario/@apiario.Codigo" class="btn btn-success"><i class="bi bi-eye"></i> Ver</a>
-                        <a href="/actualizar-apiario/@apiario.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
-                        <button onclick="@(() => EliminarApiario(@apiario.Codigo))" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-                    </td>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    @if (esAdministrador)
+                    {
+                        <th>Apicultor</th>
+                    }
+                    <th>Fecha de alta</th>
+                    <th>Fecha de modificación</th>
+                    <th>Acciones</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var apiario in apiarios)
+                {
+                    <tr>
+                        <td>@apiario.Codigo</td>
+                        <td>@apiario.Nombre</td>
+                        @if (esAdministrador)
+                        {
+                            <td>@apiario.Apicultor</td>
+                        }
+                        <td>@apiario.FechaAlta?.ToString("g")</td>
+                        <td>@((apiario.FechaModificacion ?? apiario.FechaAlta)?.ToString("g"))</td>
+                        <td>
+                            <a href="/ver-apiario/@apiario.Codigo" class="btn btn-success"><i class="bi bi-eye"></i> Ver</a>
+                            <a href="/actualizar-apiario/@apiario.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                            <button type="button" @onclick="() => EliminarApiario(apiario)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 }
 
 @code {
     List<ApiarioGrillaDto>? apiarios = null;
+    string? mensajeError;
+    bool esAdministrador;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
         await CargarApiarios();
     }
 
-    async Task EliminarApiario(int codigo)
+    async Task EliminarApiario(ApiarioGrillaDto apiario)
     {
-        await _servicio.EliminarApiario(codigo);
-        _navegationmanager.Refresh(forceReload: true);
+        if (!await JS.InvokeAsync<bool>("confirm", $"¿Eliminar el apiario \"{apiario.Nombre}\"?"))
+            return;
+
+        mensajeError = null;
+        try
+        {
+            await _servicio.EliminarApiario(apiario.Codigo);
+            await CargarApiarios();
+        }
+        catch (HttpRequestException ex)
+        {
+            mensajeError = ex.Message;
+        }
     }
 
     async Task CargarApiarios()

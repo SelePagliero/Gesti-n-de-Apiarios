@@ -1,14 +1,11 @@
-﻿
+using GestionApiario.compartido.Dto;
 using GestionApiario.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using GestionApiario.compartido.Dto;
 
 namespace GestionApiario.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class ControlesController : Controller
+    public class ControlesController : ControladorBase
     {
         private readonly GestionApiariosContext _context;
         public ControlesController(GestionApiariosContext context)
@@ -17,138 +14,178 @@ namespace GestionApiario.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> InsertarControl([FromBody] ControlDto NuevoControl)
+        public async Task<ActionResult> InsertarControl([FromBody] ControlDto nuevoControl)
         {
-            ValidarCampaña(NuevoControl.CodCampaña);
-            ValidarApiario(NuevoControl.CodApiario);
-            ValidarAlimento(NuevoControl.CodAlimento);
-            ValidarEnfermeadad(NuevoControl.CodEnfermedad);
-            ValidarProducto(NuevoControl.CodProductos);
+            var error = await ValidarReferencias(nuevoControl);
+            if (error != null) { return BadRequest(error); }
 
-            Controle controles = new()
+            Controle control = new()
             {
-                CodCampaña = NuevoControl.CodCampaña,
-                CodApiario = NuevoControl.CodApiario,
-                Fecha = NuevoControl.Fecha,
-                CantDeColmenas = NuevoControl.CantDeColmenas,
-                CodAlimento = NuevoControl.CodAlimento == 0 ? null : NuevoControl.CodAlimento,
-                CantidadAlimento=NuevoControl.CodAlimento== 0 ? null : NuevoControl.CantidadAlimento,
-                CodEnfermedad = NuevoControl.CodEnfermedad==0?null:NuevoControl.CodEnfermedad,
-                CodProductos = NuevoControl.CodProductos==0?null:NuevoControl.CodProductos,
-                CantProducto = NuevoControl.CodProductos==0?null:NuevoControl.CantProducto,
-                Obsevaciones = NuevoControl.Obsevaciones,
-                FechaAlta = DateTime.Now
+                FechaAlta = DateTime.Now,
+                UsuarioAlta = UsuarioActual
             };
+            CopiarDatos(nuevoControl, control);
 
-            _context.Controles.Add(controles);
+            _context.Controles.Add(control);
             await _context.SaveChangesAsync();
-            return Created();
-        }
-
-        private void ValidarProducto(int codProductos)
-        {
-            if (codProductos == 0)
-                return;
-            bool existe = _context.Productos.Any(p => p.Codigo == codProductos);
-            if (!existe) { throw new Exception("El producto no existe"); }
-        }
-
-        private void ValidarEnfermeadad(int codEnfermedad)
-        {
-            if (codEnfermedad == 0)
-                return;
-            bool existe = _context.Enfermedads.Any(e => e.Codigo == codEnfermedad);
-            if (!existe) { throw new Exception("La enfermedad no existe."); }
-        }
-
-        private void ValidarAlimento(int codAlimento)
-        {
-            if (codAlimento == 0)
-                return;
-            bool existe = _context.Alimentos.Any(al => al.Codigo == codAlimento);
-            if (!existe) { throw new Exception("El alimento no existe."); }
-        }
-
-        private void ValidarApiario(int codApiario)
-        {
-            bool existe = _context.Apiarios.Any(a => a.Codigo == codApiario);
-            if (!existe) { throw new Exception("El apiario no existe."); }
-        }
-
-        private void ValidarCampaña(int codCampaña)
-        {
-           bool existe = _context.Campañas.Any(c => c.Codigo == codCampaña);
-            if (!existe) { throw new Exception("La campaña no existe."); }
+            return CreatedAtAction(nameof(ObtenerControles), new { Codigo = control.Codigo }, null);
         }
 
         [HttpGet("{Codigo}")]
-        public async Task<ActionResult<Controle>> ObtenerControles([FromRoute] int Codigo)
+        public async Task<ActionResult<ControlDetalleDto>> ObtenerControles([FromRoute] int Codigo)
         {
-
-            var control = await _context.Controles.Where(a => a.Codigo == Codigo).FirstOrDefaultAsync();
+            var control = await ControlesVisibles()
+                .Where(c => c.Codigo == Codigo)
+                .Select(c => new ControlDetalleDto()
+                {
+                    Codigo = c.Codigo,
+                    CodCampaña = c.CodCampaña ?? 0,
+                    CodApiario = c.CodApiario ?? 0,
+                    Fecha = c.Fecha ?? DateOnly.FromDateTime(DateTime.Today),
+                    CantDeColmenas = c.CantDeColmenas ?? 0,
+                    CodAlimento = c.CodAlimento,
+                    CantidadAlimento = c.CantidadAlimento ?? 0,
+                    CodEnfermedad = c.CodEnfermedad,
+                    CodProductos = c.CodProductos,
+                    CantProducto = c.CantProducto ?? 0,
+                    Observaciones = c.Observaciones
+                })
+                .FirstOrDefaultAsync();
 
             if (control == null) { return NotFound(); }
-            control.CantidadAlimento = control.CantidadAlimento ?? 0;
-            control.CantProducto = control.CantProducto ?? 0;
             return Ok(control);
         }
 
         [HttpPut("{Codigo}")]
         public async Task<ActionResult> ModificarControl([FromRoute] int Codigo, [FromBody] ControlDto controlModificar)
         {
-            var control = await _context.Controles.Where(a => a.Codigo == Codigo).FirstOrDefaultAsync();
+            var control = await ControlesVisibles().FirstOrDefaultAsync(c => c.Codigo == Codigo);
 
             if (control == null) { return NotFound(); }
 
-            control.CodCampaña = controlModificar.CodCampaña;
-            control.CodApiario = controlModificar.CodApiario;
-            control.Fecha = controlModificar.Fecha;
-            control.CantDeColmenas = controlModificar.CantDeColmenas;
-            control.CodAlimento = controlModificar.CodAlimento == 0 ? null : controlModificar.CodAlimento;
-            control.CantidadAlimento = controlModificar.CodAlimento == 0 ? null : controlModificar.CantidadAlimento;
-            control.CodEnfermedad = controlModificar.CodEnfermedad == 0 ? null : controlModificar.CodEnfermedad;
-            control.CodProductos = controlModificar.CodProductos == 0 ? null : controlModificar.CodProductos;
-            control.CantProducto = controlModificar.CodProductos == 0 ? null : controlModificar.CantProducto;
+            var error = await ValidarReferencias(controlModificar);
+            if (error != null) { return BadRequest(error); }
+
+            CopiarDatos(controlModificar, control);
             control.FechaModificacion = DateTime.Now;
+            control.UsuarioModificacion = UsuarioActual;
             await _context.SaveChangesAsync();
             return Ok();
         }
 
-
         [HttpGet("vertodos")]
-        public async Task<ActionResult<List<ControlGrillaDto>>> ObtenerTodos()
+        public async Task<ActionResult<List<ControlGrillaDto>>> ObtenerTodos([FromQuery] FiltroControlesDto filtro)
         {
-            var listaControles = await _context.Controles.Where(a => a.FechaBaja == null)
-                                                         .Select(c => new ControlGrillaDto() 
-                                                         { 
-                                                            Codigo = c.Codigo,
-                                                            Campaña = c.CodCampañaNavigation.Año,
-                                                            Apiario = c.CodApiarioNavigation.Nombre,
-                                                             Fecha = c.Fecha.Value,
-                                                             CantDeColmenas = c.CantDeColmenas,
-                                                             Alimento = c.CodAlimentoNavigation.Nombre,
-                                                             CantidadAlimento = c.CantidadAlimento,
-                                                             Enfermedad = c.CodEnfermedadNavigation.Nombre,
-                                                             Producto = c.CodProductosNavigation.Nombre,
-                                                             CantProducto = c.CantProducto
-                                                         })
-                                                         .ToListAsync();
+            // Los controles de apiarios dados de baja o ajenos no se muestran, aunque se filtre por ese apiario.
+            var consulta = ControlesVisibles();
+
+            // El filtro por apicultor solo vale para la Administradora; un apicultor ya ve únicamente lo suyo.
+            if (EsAdministrador && !string.IsNullOrEmpty(filtro.UsuarioId))
+                consulta = consulta.Where(c => c.CodApiarioNavigation!.UsuarioId == filtro.UsuarioId);
+
+            // El rango de fechas inválido ya lo rechaza [ApiController] con un 400 (FiltroControlesDto.Validate).
+            if (filtro.CodApiario is not null)
+                consulta = consulta.Where(c => c.CodApiario == filtro.CodApiario);
+            if (filtro.CodCampaña is not null)
+                consulta = consulta.Where(c => c.CodCampaña == filtro.CodCampaña);
+            if (filtro.CodEnfermedad is not null)
+                consulta = consulta.Where(c => c.CodEnfermedad == filtro.CodEnfermedad);
+            if (filtro.ConAlgunaEnfermedad == true)
+                consulta = consulta.Where(c => c.CodEnfermedad != null);
+            if (filtro.FechaDesde is not null)
+                consulta = consulta.Where(c => c.Fecha >= filtro.FechaDesde);
+            if (filtro.FechaHasta is not null)
+                consulta = consulta.Where(c => c.Fecha <= filtro.FechaHasta);
+
+            var listaControles = await consulta
+                .OrderByDescending(c => c.Fecha)
+                .ThenByDescending(c => c.Codigo)
+                .Select(c => new ControlGrillaDto()
+                {
+                    Codigo = c.Codigo,
+                    Campaña = c.CodCampañaNavigation!.Año,
+                    Apiario = c.CodApiarioNavigation!.Nombre,
+                    Fecha = c.Fecha ?? DateOnly.MinValue,
+                    CantDeColmenas = c.CantDeColmenas,
+                    Alimento = c.CodAlimentoNavigation!.Nombre,
+                    CantidadAlimento = c.CantidadAlimento,
+                    Enfermedad = c.CodEnfermedadNavigation!.Nombre,
+                    Producto = c.CodProductosNavigation!.Nombre,
+                    CantProducto = c.CantProducto,
+                    Apicultor = c.CodApiarioNavigation!.Usuario!.Email
+                })
+                .ToListAsync();
             return Ok(listaControles);
         }
 
         [HttpDelete("{Codigo}")]
         public async Task<ActionResult> Eliminar([FromRoute] int Codigo)
         {
+            var control = await ControlesVisibles().FirstOrDefaultAsync(c => c.Codigo == Codigo);
 
-            var borrarControles = await _context.Controles.Where(a => a.Codigo == Codigo).FirstOrDefaultAsync();
+            if (control == null) { return NotFound(); }
 
-            if (borrarControles == null) { return NotFound(); }
-
-            borrarControles.FechaBaja = DateTime.Now;
-            borrarControles.FechaModificacion = DateTime.Now;
-            _context.SaveChanges();
+            control.FechaBaja = DateTime.Now;
+            control.UsuarioBaja = UsuarioActual;
+            await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        // Controles activos de apiarios activos que el usuario puede ver: la Administradora ve todos y cada
+        // apicultor solo los de sus apiarios. Un control ajeno responde 404, como si no existiera.
+        private IQueryable<Controle> ControlesVisibles()
+        {
+            var activos = _context.Controles.Where(c => c.FechaBaja == null && c.CodApiarioNavigation!.FechaBaja == null);
+            return EsAdministrador ? activos : activos.Where(c => c.CodApiarioNavigation!.UsuarioId == UsuarioIdActual);
+        }
+
+        // En los DTO, el código 0 significa "sin seleccionar"; en la base se guarda como null.
+        private static void CopiarDatos(ControlDto origen, Controle destino)
+        {
+            destino.CodCampaña = origen.CodCampaña;
+            destino.CodApiario = origen.CodApiario;
+            destino.Fecha = origen.Fecha;
+            destino.CantDeColmenas = origen.CantDeColmenas;
+            destino.CodAlimento = origen.CodAlimento == 0 ? null : origen.CodAlimento;
+            destino.CantidadAlimento = origen.CodAlimento == 0 ? null : origen.CantidadAlimento;
+            destino.CodEnfermedad = origen.CodEnfermedad == 0 ? null : origen.CodEnfermedad;
+            destino.CodProductos = origen.CodProductos == 0 ? null : origen.CodProductos;
+            destino.CantProducto = origen.CodProductos == 0 ? null : origen.CantProducto;
+            destino.Observaciones = origen.Observaciones;
+        }
+
+        // Devuelve el mensaje de error si alguna referencia no existe o está dada de baja; null si todo es válido.
+        private async Task<string?> ValidarReferencias(ControlDto control)
+        {
+            // Un apicultor solo puede usar sus propias campañas y cargar controles en sus propios apiarios.
+            var campaña = await _context.Campañas
+                .Where(c => c.Codigo == control.CodCampaña && c.FechaBaja == null && (EsAdministrador || c.UsuarioId == UsuarioIdActual))
+                .Select(c => new { c.UsuarioId })
+                .FirstOrDefaultAsync();
+            if (campaña is null)
+                return "La campaña no existe.";
+
+            var apiario = await _context.Apiarios
+                .Where(a => a.Codigo == control.CodApiario && a.FechaBaja == null && (EsAdministrador || a.UsuarioId == UsuarioIdActual))
+                .Select(a => new { a.UsuarioId })
+                .FirstOrDefaultAsync();
+            if (apiario is null)
+                return "El apiario no existe.";
+
+            // La campaña tiene que ser del dueño del apiario (relevante para la Administradora, que ve todo).
+            if (campaña.UsuarioId != apiario.UsuarioId)
+                return "La campaña tiene que ser del mismo apicultor que el apiario.";
+
+            if (control.CodAlimento != 0 && !await _context.Alimentos.AnyAsync(al => al.Codigo == control.CodAlimento && al.FechaBaja == null))
+                return "El alimento no existe.";
+
+            if (control.CodEnfermedad != 0 && !await _context.Enfermedades.AnyAsync(e => e.Codigo == control.CodEnfermedad && e.FechaBaja == null))
+                return "La enfermedad no existe.";
+
+            if (control.CodProductos != 0 && !await _context.Productos.AnyAsync(p => p.Codigo == control.CodProductos && p.FechaBaja == null))
+                return "El producto no existe.";
+
+            return null;
         }
     }
 }
-

@@ -25,7 +25,7 @@ public partial class Controle
 
     public decimal? CantProducto { get; set; }
 
-    public string? Obsevaciones { get; set; }
+    public string? Observaciones { get; set; }
 
     public string? UsuarioAlta { get; set; }
 

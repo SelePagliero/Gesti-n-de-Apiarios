@@ -1,0 +1,75 @@
+@page "/registro"
+@layout CuentaLayout
+@using System.ComponentModel.DataAnnotations
+@inject CuentaServicio _cuenta
+@inject NavigationManager _navegationmanager
+
+<PageTitle>Crear cuenta</PageTitle>
+
+<h5 class="mb-3">Crear cuenta</h5>
+
+<MensajeError Mensaje="@mensajeError" />
+
+<EditForm Model="Datos" OnValidSubmit="Registrar">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" type="email" class="form-control" @bind-Value="Datos.Email" autocomplete="username" />
+        <ValidationMessage For="() => Datos.Email" />
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="Datos.Password" autocomplete="new-password" />
+        <small class="form-text text-muted">Mínimo 8 caracteres, con mayúscula, minúscula y número.</small>
+        <ValidationMessage For="() => Datos.Password" />
+    </div>
+    <div class="mb-3">
+        <label for="confirmacion" class="form-label">Repetí la contraseña</label>
+        <InputText id="confirmacion" type="password" class="form-control" @bind-Value="Datos.Confirmacion" autocomplete="new-password" />
+        <ValidationMessage For="() => Datos.Confirmacion" />
+    </div>
+    <button type="submit" class="btn btn-primary w-100" disabled="@procesando">
+        @(procesando ? "Creando cuenta..." : "Crear cuenta")
+    </button>
+</EditForm>
+
+<p class="mt-3 mb-0 text-center">
+    ¿Ya tenés cuenta? <a href="login">Iniciá sesión</a>
+</p>
+
+@code {
+    public DatosRegistro Datos { get; set; } = new();
+    private string? mensajeError;
+    private bool procesando;
+
+    private async Task Registrar()
+    {
+        procesando = true;
+        var email = Datos.Email.Trim();
+        mensajeError = await _cuenta.RegistrarAsync(email, Datos.Password);
+
+        // Si la cuenta se creó, se inicia sesión directamente.
+        if (mensajeError is null)
+            mensajeError = await _cuenta.IniciarSesionAsync(email, Datos.Password);
+
+        procesando = false;
+        if (mensajeError is null)
+            _navegationmanager.NavigateTo("");
+    }
+
+    public class DatosRegistro
+    {
+        [Required(ErrorMessage = "Ingresá tu email.")]
+        [EmailAddress(ErrorMessage = "El email no es válido.")]
+        [StringLength(256, ErrorMessage = "El email no puede superar los 256 caracteres.")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Ingresá una contraseña.")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
+        public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Repetí la contraseña.")]
+        [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden.")]
+        public string Confirmacion { get; set; } = string.Empty;
+    }
+}

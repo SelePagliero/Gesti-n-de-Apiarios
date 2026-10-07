@@ -1,19 +1,68 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
+@inject CuentaServicio _cuenta
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<AuthorizeView>
+    <Authorized>
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
 
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+            <main>
+                <div class="top-row px-4">
+                    <span><i class="bi bi-person-circle"></i> @context.User.Identity?.Name</span>
+                    <button type="button" class="btn btn-link usuario-salir" @onclick="CerrarSesion">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                    </button>
+                </div>
+
+                <article class="content px-4">
+                    <ErrorBoundary @ref="errorBoundary">
+                        <ChildContent>
+                            @Body
+                        </ChildContent>
+                        <ErrorContent Context="error">
+                            <div class="alert alert-danger mt-3" role="alert">
+                                <h5 class="alert-heading">No se pudo completar la operación</h5>
+                                <p class="mb-2">@MensajeDe(error)</p>
+                                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="Reintentar">Reintentar</button>
+                            </div>
+                        </ErrorContent>
+                    </ErrorBoundary>
+                </article>
+            </main>
+        </div>
+    </Authorized>
+    <Authorizing>
+        <p class="p-4"><em>Cargando...</em></p>
+    </Authorizing>
+    <NotAuthorized>
+        <RedirigirALogin />
+    </NotAuthorized>
+</AuthorizeView>
 
 <div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
+    Ocurrió un error inesperado.
+    <a href="" class="reload">Recargar</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private ErrorBoundary? errorBoundary;
+
+    // Al navegar a otra página se limpia el error anterior.
+    protected override void OnParametersSet()
+    {
+        errorBoundary?.Recover();
+    }
+
+    private void Reintentar() => errorBoundary?.Recover();
+
+    private async Task CerrarSesion() => await _cuenta.CerrarSesionAsync();
+
+    private static string MensajeDe(Exception error) => error switch
+    {
+        HttpRequestException or SesionExpiradaException => error.Message,
+        _ => "Ocurrió un error inesperado. Si se repite, revisá la consola de la aplicación."
+    };
+}

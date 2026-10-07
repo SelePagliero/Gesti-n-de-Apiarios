@@ -1,71 +1,94 @@
-﻿@page "/alimentos"
-@using GestionApiario.compartido.Dto
-@using GestionApiario.web.Servicios.Interfaces
-@inject IApiariosServicio _servicio;
-@inject NavigationManager _navigationManager;
-
-@rendermode InteractiveServer
+@page "/alimentos"
+@inject IApiariosServicio _servicio
+@inject IJSRuntime JS
 
 <PageTitle>Alimentos</PageTitle>
 
 <h1>Alimentos</h1>
 
+<MensajeError Mensaje="@mensajeError" />
+
 @if (alimentos == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Cargando...</em></p>
 }
 else
 {
-    <a href="/crear-alimento" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Crear Alimento</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Fecha de alta</th>
-                <th>Fecha de modificación</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var alimento in alimentos)
-            {
+    @if (esAdministrador)
+    {
+        <a href="/crear-alimento" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Alimento</a>
+    }
+
+    @if (alimentos.Count == 0)
+    {
+        <p class="text-muted">Todavía no hay alimentos cargados.</p>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>@alimento.Codigo</td>
-                    <td>@alimento.Nombre</td>
-                    <td>@alimento.FechaAlta</td>
-                    <td>
-                        @if (alimento.FechaModificacion.HasValue)
-                        {
-                            @alimento.FechaModificacion
-                        }
-                        else
-                        {
-                            @alimento.FechaAlta
-                        }
-                    </td>
-                    <td>
-                        <a href="/actualizar-alimento/@alimento.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i>Editar</a>
-                        <button onclick="@(() => EliminarAlimento(@alimento.Codigo))" class="btn btn-danger"><i class="bi bi-trash"></i>Eliminar</button>
-                    </td>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Fecha de alta</th>
+                    <th>Fecha de modificación</th>
+                    @if (esAdministrador)
+                    {
+                        <th>Acciones</th>
+                    }
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var alimento in alimentos)
+                {
+                    <tr>
+                        <td>@alimento.Codigo</td>
+                        <td>@alimento.Nombre</td>
+                        <td>@alimento.FechaAlta?.ToString("g")</td>
+                        <td>@((alimento.FechaModificacion ?? alimento.FechaAlta)?.ToString("g"))</td>
+                        @if (esAdministrador)
+                        {
+                            <td>
+                                <a href="/actualizar-alimento/@alimento.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                                <button type="button" @onclick="() => EliminarAlimento(alimento)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 }
 
 @code {
     List<AlimentoGrillaDto>? alimentos = null;
+    string? mensajeError;
+    bool esAdministrador;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
         await CargarAlimentos();
     }
 
-    async Task EliminarAlimento(int codigo)
+    async Task EliminarAlimento(AlimentoGrillaDto alimento)
     {
-        await _servicio.EliminarAlimento(codigo);
-        _navigationManager.Refresh(forceReload: true);
+        if (!await JS.InvokeAsync<bool>("confirm", $"¿Eliminar el alimento \"{alimento.Nombre}\"?"))
+            return;
+
+        mensajeError = null;
+        try
+        {
+            await _servicio.EliminarAlimento(alimento.Codigo);
+            await CargarAlimentos();
+        }
+        catch (HttpRequestException ex)
+        {
+            mensajeError = ex.Message;
+        }
     }
 
     async Task CargarAlimentos()

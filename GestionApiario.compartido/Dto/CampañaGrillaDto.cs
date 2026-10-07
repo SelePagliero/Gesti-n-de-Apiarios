@@ -17,5 +17,10 @@ namespace GestionApiario.compartido.Dto
         public DateTime? FechaAlta { get; set; }
 
         public DateTime? FechaModificacion { get; set; }
+
+        // Dueño de la campaña.
+        public string? UsuarioId { get; set; }
+
+        public string? Apicultor { get; set; }
     }
 }

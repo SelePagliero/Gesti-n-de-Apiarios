@@ -1,6 +1,13 @@
 ﻿window.renderGraficoEnfermedades = function (dataEnfermedades) {
     var ctx = document.getElementById("enfermedadesGrafico");
-    var myPieChart = new Chart(ctx, {
+    if (!ctx) return;
+
+    // Si ya había un gráfico (por ejemplo, al cambiar de apicultor en el tablero), se reemplaza.
+    if (window.graficoEnfermedades) {
+        window.graficoEnfermedades.destroy();
+    }
+
+    window.graficoEnfermedades = new Chart(ctx, {
         type: 'doughnut',
         data: dataEnfermedades,
         options: {

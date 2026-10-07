@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestionApiario.Models;
 
-public partial class GestionApiariosContext : DbContext
+public partial class GestionApiariosContext : IdentityDbContext<IdentityUser>
 {
     public GestionApiariosContext()
     {
@@ -23,12 +25,14 @@ public partial class GestionApiariosContext : DbContext
 
     public virtual DbSet<Controle> Controles { get; set; }
 
-    public virtual DbSet<Enfermedad> Enfermedads { get; set; }
+    public virtual DbSet<Enfermedad> Enfermedades { get; set; }
 
     public virtual DbSet<Producto> Productos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<Alimento>(entity =>
         {
             entity.HasKey(e => e.Codigo).HasName("PK__ALIMENTO__06370DAD793DF6FA");
@@ -42,14 +46,11 @@ public partial class GestionApiariosContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
         });
 
         modelBuilder.Entity<Apiario>(entity =>
@@ -70,14 +71,16 @@ public partial class GestionApiariosContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
+
+            // No se puede borrar un usuario que todavía es dueño de apiarios.
+            entity.HasOne(d => d.Usuario).WithMany()
+                .HasForeignKey(d => d.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Campaña>(entity =>
@@ -93,14 +96,16 @@ public partial class GestionApiariosContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
+
+            // No se puede borrar un usuario que todavía es dueño de campañas.
+            entity.HasOne(d => d.Usuario).WithMany()
+                .HasForeignKey(d => d.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Controle>(entity =>
@@ -114,18 +119,16 @@ public partial class GestionApiariosContext : DbContext
             entity.Property(e => e.FechaAlta).HasColumnType("datetime");
             entity.Property(e => e.FechaBaja).HasColumnType("datetime");
             entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
-            entity.Property(e => e.Obsevaciones)
+            entity.Property(e => e.Observaciones)
+                .HasColumnName("Obsevaciones")
                 .HasMaxLength(500)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
 
             entity.HasOne(d => d.CodAlimentoNavigation).WithMany(p => p.Controles)
                 .HasForeignKey(d => d.CodAlimento)
@@ -161,14 +164,11 @@ public partial class GestionApiariosContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
         });
 
         modelBuilder.Entity<Producto>(entity =>
@@ -184,14 +184,11 @@ public partial class GestionApiariosContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.UsuarioAlta)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioBaja)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+                .HasMaxLength(256);
         });
         OnModelCreatingPartial(modelBuilder);
     }
