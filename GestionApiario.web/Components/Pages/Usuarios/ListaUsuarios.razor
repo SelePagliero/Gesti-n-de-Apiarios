@@ -1,5 +1,6 @@
 @page "/usuarios"
 @inject IApiariosServicio _servicio
+@inject NavigationManager _navegationmanager
 @inject IJSRuntime JS
 
 <PageTitle>Usuarios</PageTitle>
@@ -35,9 +36,40 @@
             </div>
         }
 
+        @* Los filtros se aplican en pantalla sobre la lista cargada y se guardan en la URL (?email=...&rol=...). *@
+        <TarjetaFiltros Resumen="@TarjetaFiltros.Mostrando(Filtrados?.Count, "usuario", "usuarios")" HayFiltros="HayFiltros" AlLimpiar="LimpiarFiltros">
+            <div>
+                <label for="filtroEmail" class="form-label">Email</label>
+                <input id="filtroEmail" type="search" class="form-control" placeholder="Buscar..." value="@email"
+                       @oninput='e => CambiarFiltro(ref email, "email", e.Value?.ToString())' />
+            </div>
+            <div>
+                <label for="filtroRol" class="form-label">Rol</label>
+                <select id="filtroRol" class="form-select" value="@(rol ?? "")"
+                        @onchange='e => CambiarFiltro(ref rol, "rol", e.Value?.ToString())'>
+                    <option value="">Todos</option>
+                    <option value="@RolAdministradora">Administradora</option>
+                    <option value="@RolApicultor">Apicultor</option>
+                </select>
+            </div>
+            <div>
+                <label for="filtroContrasena" class="form-label">Contraseña</label>
+                <select id="filtroContrasena" class="form-select" value="@(contraseña ?? "")"
+                        @onchange='e => CambiarFiltro(ref contraseña, "contrasena", e.Value?.ToString())'>
+                    <option value="">Todas</option>
+                    <option value="@ContraseñaPropia">Propia</option>
+                    <option value="@ContraseñaTemporal">Temporal</option>
+                </select>
+            </div>
+        </TarjetaFiltros>
+
         @if (usuarios == null)
         {
             <p><em>Cargando...</em></p>
+        }
+        else if (Filtrados!.Count == 0)
+        {
+            <p class="text-muted">No hay usuarios que coincidan con los filtros.</p>
         }
         else
         {
@@ -53,7 +85,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var usuario in usuarios)
+                        @foreach (var usuario in Filtrados)
                         {
                             var esYo = usuario.Email == emailActual;
                             <tr>
@@ -117,16 +149,63 @@
     string? procesando;
     bool copiada;
 
+    // Filtros (se leen de la URL al entrar).
+    private const string RolAdministradora = "administradora";
+    private const string RolApicultor = "apicultor";
+    private const string ContraseñaPropia = "propia";
+    private const string ContraseñaTemporal = "temporal";
+    [SupplyParameterFromQuery(Name = "email")] public string? ParamEmail { get; set; }
+    [SupplyParameterFromQuery(Name = "rol")] public string? ParamRol { get; set; }
+    [SupplyParameterFromQuery(Name = "contrasena")] public string? ParamContraseña { get; set; }
+    string? email;
+    string? rol;
+    string? contraseña;
+
     [CascadingParameter]
     Task<AuthenticationState>? Autenticacion { get; set; }
 
+    bool HayFiltros => !string.IsNullOrWhiteSpace(email) || !string.IsNullOrEmpty(rol) || !string.IsNullOrEmpty(contraseña);
+
+    List<UsuarioGrillaDto>? Filtrados => usuarios?
+        .Where(u => FiltrosLista.Contiene(u.Email, email))
+        .Where(u => rol switch
+        {
+            RolAdministradora => u.EsAdministrador,
+            RolApicultor => !u.EsAdministrador,
+            _ => true
+        })
+        .Where(u => contraseña switch
+        {
+            ContraseñaPropia => !u.TieneContraseñaTemporal,
+            ContraseñaTemporal => u.TieneContraseñaTemporal,
+            _ => true
+        })
+        .ToList();
+
     protected override async Task OnInitializedAsync()
     {
+        email = ParamEmail;
+        // Un valor desconocido en la URL se ignora.
+        rol = ParamRol is RolAdministradora or RolApicultor ? ParamRol : null;
+        contraseña = ParamContraseña is ContraseñaPropia or ContraseñaTemporal ? ParamContraseña : null;
+
         if (!await Autenticacion.EsAdministradorAsync())
             return;
 
         emailActual = (await Autenticacion!).User.Identity?.Name;
         await CargarUsuarios();
+    }
+
+    void CambiarFiltro(ref string? campo, string parametro, string? valor)
+    {
+        campo = string.IsNullOrEmpty(valor) ? null : valor;
+        _navegationmanager.CambiarParametro(parametro, valor);
+    }
+
+    void LimpiarFiltros()
+    {
+        email = rol = contraseña = null;
+        _navegationmanager.NavigateTo("/usuarios", replace: true);
     }
 
     async Task Restablecer(UsuarioGrillaDto usuario)
