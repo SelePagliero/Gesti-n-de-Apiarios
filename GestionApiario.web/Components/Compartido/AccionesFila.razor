@@ -1,0 +1,41 @@
+@* Botones de acción de una fila de grilla: cuadrados, solo con ícono, con texto de ayuda y aria-label.
+   Cada botón aparece solo si se le pasa su dirección o su acción. *@
+<div class="acciones-fila">
+    @if (UrlVer is not null)
+    {
+        <a href="@UrlVer" class="btn-icono" title="Ver @Tipo" aria-label="Ver @Tipo @Nombre">
+            <i class="bi bi-eye" aria-hidden="true"></i>
+        </a>
+    }
+    @if (UrlEditar is not null)
+    {
+        <a href="@UrlEditar" class="btn-icono" title="Editar @Tipo" aria-label="Editar @Tipo @Nombre">
+            <i class="bi bi-pencil" aria-hidden="true"></i>
+        </a>
+    }
+    @if (AlEliminar.HasDelegate)
+    {
+        <button type="button" class="btn-icono btn-icono-peligro" title="Eliminar @Tipo" aria-label="Eliminar @Tipo @Nombre" @onclick="AlEliminar">
+            <i class="bi bi-trash3" aria-hidden="true"></i>
+        </button>
+    }
+</div>
+
+@code {
+    // Qué es el registro, para los textos de ayuda: "apiario", "control", "campaña"...
+    [Parameter, EditorRequired]
+    public string Tipo { get; set; } = string.Empty;
+
+    // Cómo se llama el registro, para que el lector de pantalla diga cuál es (por ejemplo "El Algarrobo").
+    [Parameter]
+    public string? Nombre { get; set; }
+
+    [Parameter]
+    public string? UrlVer { get; set; }
+
+    [Parameter]
+    public string? UrlEditar { get; set; }
+
+    [Parameter]
+    public EventCallback AlEliminar { get; set; }
+}

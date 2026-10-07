@@ -1,7 +1,7 @@
 .cuenta-fondo {
     min-height: 100vh;
     display: flex;
-    background-color: var(--miel-crema);
+    background-color: var(--miel-fondo);
 }
 
 /* Mitad izquierda: foto con un degradé cálido para que el texto se lea. */
@@ -43,7 +43,7 @@
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    background: radial-gradient(circle at 20% 10%, #FDF1D6 0%, var(--miel-crema) 45%);
+    background: radial-gradient(circle at 20% 10%, #FDF1D6 0%, var(--miel-fondo) 45%);
 }
 
 .cuenta-tarjeta {
@@ -55,7 +55,7 @@
 .cuenta-logo {
     width: 72px;
     height: 72px;
-    background: var(--miel-ambar-suave);
+    background: var(--miel-suave);
     border-radius: 20px;
     padding: 8px;
 }

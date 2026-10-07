@@ -4,70 +4,70 @@
     height: 4.25rem;
     display: flex;
     align-items: center;
-    padding: 0 1rem;
-    background: rgba(0, 0, 0, .18);
-    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    padding: 0 1.25rem;
+    border-bottom: 1px solid rgba(229, 215, 192, .1);
 }
 
 .marca-enlace {
     display: flex;
     align-items: center;
     gap: .75rem;
-    color: var(--miel-crema);
     text-decoration: none;
 }
 
+/* Logo: cuadrado redondeado color miel con un hexágono adentro. */
 .marca-logo {
-    width: 40px;
-    height: 40px;
-    background: var(--miel-crema);
-    border-radius: 12px;
-    padding: 4px;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 11px;
+    background: var(--miel);
+    color: var(--miel-menu);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .12);
 }
 
 .marca-texto {
-    font-size: .85rem;
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+    font-size: 1.12rem;
     line-height: 1.15;
-    color: #E9D9BE;
+    color: #FBF3E4;
 }
-
-    .marca-texto strong {
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: #fff;
-    }
 
 .navbar-toggler {
     appearance: none;
     cursor: pointer;
-    width: 3.5rem;
+    width: 3.25rem;
     height: 2.5rem;
-    color: white;
     position: absolute;
-    top: .9rem;
+    top: .875rem;
     right: 1rem;
-    border: 1px solid rgba(255, 255, 255, .15);
-    border-radius: .5rem;
-    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, .08);
+    border: 1px solid rgba(229, 215, 192, .25);
+    border-radius: 10px;
+    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28229, 215, 192, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.6rem transparent;
 }
 
 .navbar-toggler:checked {
-    background-color: rgba(255, 255, 255, .25);
+    background-color: rgba(229, 215, 192, .15);
 }
 
 .nav-seccion {
     margin: 1.25rem 0 .35rem;
-    padding-left: 1.75rem !important;
-    font-size: .7rem;
-    font-weight: 800;
-    letter-spacing: .08em;
+    padding-left: 1.85rem !important;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .1em;
     text-transform: uppercase;
-    color: rgba(233, 217, 190, .55);
+    color: rgba(229, 215, 192, .5);
 }
 
 .nav-item {
     font-size: .95rem;
-    padding-bottom: .2rem;
+    padding-bottom: .15rem;
 }
 
     .nav-item:first-of-type {
@@ -75,42 +75,46 @@
     }
 
     .nav-item ::deep .nav-link {
-        color: #E9D9BE;
-        border-radius: .6rem;
+        color: var(--miel-menu-texto);
+        border-radius: 10px;
         height: 2.75rem;
         display: flex;
         align-items: center;
         gap: .75rem;
-        padding: 0 .9rem;
-        font-weight: 600;
+        padding: 0 .85rem;
+        font-weight: 500;
         transition: background-color .15s ease, color .15s ease;
     }
 
+    /* Íconos de línea fina, todos de 20 px y alineados con el texto. */
     .nav-item ::deep .nav-link .bi {
-        font-size: 1.15rem;
-        width: 1.25rem;
-        text-align: center;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .nav-item ::deep .nav-link:hover {
-        background-color: rgba(255, 255, 255, .08);
-        color: #fff;
+        background-color: rgba(229, 215, 192, .08);
+        color: #FFF8EC;
     }
 
     .nav-item ::deep a.active {
-        background-color: var(--miel-ambar);
-        color: #2B1A0B;
-        font-weight: 800;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+        background-color: var(--miel);
+        color: var(--miel-menu);
+        font-weight: 700;
     }
-
-.navbar-toggler:checked ~ .nav-scrollable {
-    display: block;
-}
 
 .nav-scrollable {
     display: none;
     padding-bottom: 1rem;
+}
+
+.navbar-toggler:checked ~ .nav-scrollable {
+    display: block;
 }
 
 @media (min-width: 641px) {

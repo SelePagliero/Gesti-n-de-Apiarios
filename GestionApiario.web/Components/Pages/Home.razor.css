@@ -43,11 +43,11 @@
     font-size: 2rem;
     font-weight: 800;
     line-height: 1.1;
-    color: var(--miel-marron);
+    color: var(--miel-texto);
 }
 
 .indicador-ambar .indicador-icono {
-    background: var(--miel-ambar-suave);
+    background: var(--miel-suave);
     color: #C98A0C;
 }
 

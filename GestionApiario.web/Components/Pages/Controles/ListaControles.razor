@@ -1,4 +1,4 @@
-@page "/controles"
+﻿@page "/controles"
 @using System.Globalization
 @inject IApiariosServicio _servicio
 @inject NavigationManager _navegationmanager
@@ -6,19 +6,20 @@
 
 <PageTitle>Controles</PageTitle>
 
-<h1>Controles</h1>
+<EncabezadoPagina Titulo="Controles" Descripcion="Revisiones de cada apiario: colmenas, alimentación y sanidad.">
+    <a href="/crear-control?volver=@UrlVolver" class="btn btn-nuevo"><i class="bi bi-plus-lg" aria-hidden="true"></i>Nuevo control</a>
+</EncabezadoPagina>
 
 <MensajeError Mensaje="@mensajeError" />
 
-<a href="/crear-control?volver=@UrlVolver" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Control</a>
-
 @* Los filtros viven en la URL (?apiario=3&desde=2026-03-01...): se conservan al recargar y al volver de Ver o Editar. *@
-<div class="card mb-3">
-    <div class="card-body pb-1">
-        <div class="row">
+<div class="card tarjeta-filtros">
+    <div class="card-body">
+        <div class="filtros-titulo"><i class="bi bi-funnel" aria-hidden="true"></i> Filtrar</div>
+        <div class="grilla-filtros">
             @if (esAdministrador)
             {
-                <div class="col-12 col-md-6 col-lg-3 mb-3">
+                <div>
                     <label for="filtroApicultor" class="form-label">Apicultor</label>
                     <select id="filtroApicultor" class="form-select" value="@(filtro.UsuarioId ?? "")"
                             @onchange='e => CambiarFiltro("apicultor", e.Value?.ToString())'>
@@ -34,7 +35,7 @@
                     </select>
                 </div>
             }
-            <div class="col-12 col-md-6 col-lg-3 mb-3">
+            <div>
                 <label for="filtroApiario" class="form-label">Apiario</label>
                 <select id="filtroApiario" class="form-select" value="@(filtro.CodApiario?.ToString() ?? "")"
                         @onchange='e => CambiarFiltro("apiario", e.Value?.ToString())'>
@@ -49,7 +50,7 @@
                     }
                 </select>
             </div>
-            <div class="col-12 col-md-6 col-lg-2 mb-3">
+            <div>
                 <label for="filtroCampaña" class="form-label">Campaña</label>
                 <select id="filtroCampaña" class="form-select" value="@(filtro.CodCampaña?.ToString() ?? "")"
                         @onchange='e => CambiarFiltro("campania", e.Value?.ToString())'>
@@ -64,7 +65,7 @@
                     }
                 </select>
             </div>
-            <div class="col-12 col-md-6 col-lg-3 mb-3">
+            <div>
                 <label for="filtroEnfermedad" class="form-label">Enfermedad</label>
                 <select id="filtroEnfermedad" class="form-select" value="@ValorFiltroEnfermedad"
                         @onchange='e => CambiarFiltro("enfermedad", e.Value?.ToString())'>
@@ -80,26 +81,26 @@
                     }
                 </select>
             </div>
-            <div class="col-6 col-lg-2 mb-3">
+            <div>
                 <label for="filtroDesde" class="form-label">Desde</label>
                 <input id="filtroDesde" type="date" class="form-control" value="@FormatoUrl(filtro.FechaDesde)"
                        @onchange='e => CambiarFiltro("desde", e.Value?.ToString())' />
             </div>
-            <div class="col-6 col-lg-2 mb-3">
+            <div>
                 <label for="filtroHasta" class="form-label">Hasta</label>
                 <input id="filtroHasta" type="date" class="form-control" value="@FormatoUrl(filtro.FechaHasta)"
                        @onchange='e => CambiarFiltro("hasta", e.Value?.ToString())' />
             </div>
         </div>
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <small class="text-muted">
+        <div class="pie-filtros">
+            <span class="text-muted">
                 @if (Controles is not null)
                 {
                     @(Controles.Count == 1 ? "Mostrando 1 control" : $"Mostrando {Controles.Count} controles")
                 }
-            </small>
-            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="LimpiarFiltros" disabled="@(!HayFiltros)">
-                <i class="bi bi-x-circle"></i> Limpiar filtros
+            </span>
+            <button type="button" class="btn-texto" @onclick="LimpiarFiltros" disabled="@(!HayFiltros)">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>Limpiar filtros
             </button>
         </div>
     </div>
@@ -119,41 +120,51 @@ else if (Controles.Count == 0)
 }
 else
 {
-    <div class="tabla-tarjeta table-responsive">
-        <table class="table table-striped table-hover align-middle">
+    <div class="tabla-tarjeta">
+        <table class="table table-hover align-middle">
             <thead>
                 <tr>
-                    <th>Código</th>
-                    <th>Campaña</th>
+                    <th class="numero">Código</th>
+                    <th class="numero">Campaña</th>
                     <th>Apiario</th>
                     @if (esAdministrador)
                     {
                         <th>Apicultor</th>
                     }
                     <th>Fecha</th>
-                    <th>Colmenas</th>
+                    <th class="numero">Colmenas</th>
                     <th>Enfermedad</th>
-                    <th>Acciones</th>
+                    <th class="col-acciones"><span class="visually-hidden">Acciones</span></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var control in Controles)
                 {
                     <tr>
-                        <td>@control.Codigo</td>
-                        <td>@control.Campaña</td>
+                        <td class="numero">@control.Codigo</td>
+                        <td class="numero">@control.Campaña</td>
                         <td>@control.Apiario</td>
                         @if (esAdministrador)
                         {
                             <td>@control.Apicultor</td>
                         }
                         <td>@control.Fecha.ToString("d")</td>
-                        <td>@control.CantDeColmenas</td>
-                        <td>@(control.Enfermedad ?? "—")</td>
+                        <td class="numero">@control.CantDeColmenas</td>
                         <td>
-                            <a href="/ver-control/@control.Codigo?volver=@UrlVolver" class="btn btn-success" title="Ver" aria-label="Ver"><i class="bi bi-eye" aria-hidden="true"></i><span class="d-none d-xxl-inline"> Ver</span></a>
-                            <a href="/actualizar-control/@control.Codigo?volver=@UrlVolver" class="btn btn-dark" title="Editar" aria-label="Editar"><i class="bi bi-pencil-square" aria-hidden="true"></i><span class="d-none d-xxl-inline"> Editar</span></a>
-                            <button type="button" @onclick="() => EliminarControl(control)" class="btn btn-danger" title="Eliminar" aria-label="Eliminar"><i class="bi bi-trash" aria-hidden="true"></i><span class="d-none d-xxl-inline"> Eliminar</span></button>
+                            @if (control.Enfermedad is null)
+                            {
+                                <span class="etiqueta etiqueta-sana">Sin enfermedad</span>
+                            }
+                            else
+                            {
+                                <span class="etiqueta etiqueta-enferma">@control.Enfermedad</span>
+                            }
+                        </td>
+                        <td class="col-acciones">
+                            <AccionesFila Tipo="control" Nombre="@($"{control.Codigo} ({control.Apiario})")"
+                                          UrlVer="@($"/ver-control/{control.Codigo}?volver={UrlVolver}")"
+                                          UrlEditar="@($"/actualizar-control/{control.Codigo}?volver={UrlVolver}")"
+                                          AlEliminar="() => EliminarControl(control)" />
                         </td>
                     </tr>
                 }

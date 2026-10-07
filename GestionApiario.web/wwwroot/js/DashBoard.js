@@ -8,8 +8,8 @@ window.renderGraficoEnfermedades = function (dataEnfermedades) {
     }
 
     // Misma tipografía y colores de texto que el resto del sistema (tema "miel cálido").
-    Chart.defaults.global.defaultFontFamily = "'Nunito', 'Segoe UI', system-ui, sans-serif";
-    Chart.defaults.global.defaultFontColor = "#7D6A5C";
+    Chart.defaults.global.defaultFontFamily = "'Figtree', 'Segoe UI', system-ui, sans-serif";
+    Chart.defaults.global.defaultFontColor = "#6E5A45";
 
     window.graficoEnfermedades = new Chart(ctx, {
         type: 'doughnut',
@@ -17,7 +17,7 @@ window.renderGraficoEnfermedades = function (dataEnfermedades) {
         options: {
             maintainAspectRatio: false,
             tooltips: {
-                backgroundColor: "#3E2416",
+                backgroundColor: "#2E1F14",
                 titleFontColor: "#FBF6EC",
                 bodyFontColor: "#FBF6EC",
                 xPadding: 12,
