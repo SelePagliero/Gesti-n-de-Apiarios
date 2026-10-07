@@ -77,12 +77,12 @@ namespace GestionApiario.Pruebas
             var editada = await ana.GetFromJsonAsync<CampañaDetalleDto>($"/campaña/{campañaAna}");
             Assert.Equal("Corregido", editada!.Responsable);
             Assert.Equal(idAna, editada.UsuarioId);
-            Assert.Equal(FabricaApi.EmailPrueba, editada.UsuarioModificacion);
-
-            // "Creado por" solo lo ve la Administradora.
+            // Los emails de auditoría solo los ve la Administradora.
             Assert.Null(editada.UsuarioAlta);
+            Assert.Null(editada.UsuarioModificacion);
             var vistaAdministradora = await administradora.GetFromJsonAsync<CampañaDetalleDto>($"/campaña/{campañaAna}");
             Assert.Equal(EmailAna, vistaAdministradora!.UsuarioAlta);
+            Assert.Equal(FabricaApi.EmailPrueba, vistaAdministradora.UsuarioModificacion);
         }
 
         [Fact]
