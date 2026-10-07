@@ -4,7 +4,12 @@
 
 <PageTitle>Alimentos</PageTitle>
 
-<h1>Alimentos</h1>
+<EncabezadoPagina Titulo="Alimentos" Descripcion="Alimentos que se pueden registrar en los controles.">
+    @if (esAdministrador)
+    {
+        <a href="/crear-alimento" class="btn btn-nuevo"><i class="bi bi-plus-lg" aria-hidden="true"></i>Nuevo alimento</a>
+    }
+</EncabezadoPagina>
 
 <MensajeError Mensaje="@mensajeError" />
 
@@ -14,28 +19,23 @@
 }
 else
 {
-    @if (esAdministrador)
-    {
-        <a href="/crear-alimento" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Alimento</a>
-    }
-
     @if (alimentos.Count == 0)
     {
         <p class="text-muted">Todavía no hay alimentos cargados.</p>
     }
     else
     {
-        <div class="tabla-tarjeta table-responsive">
-            <table class="table table-striped table-hover align-middle">
+        <div class="tabla-tarjeta">
+            <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th>Código</th>
+                        <th class="numero">Código</th>
                         <th>Nombre</th>
                         <th>Fecha de alta</th>
                         <th>Fecha de modificación</th>
                         @if (esAdministrador)
                         {
-                            <th>Acciones</th>
+                            <th class="col-acciones"><span class="visually-hidden">Acciones</span></th>
                         }
                     </tr>
                 </thead>
@@ -43,15 +43,17 @@ else
                     @foreach (var alimento in alimentos)
                     {
                         <tr>
-                            <td>@alimento.Codigo</td>
+                            <td class="numero">@alimento.Codigo</td>
                             <td>@alimento.Nombre</td>
                             <td>@alimento.FechaAlta?.ToString("g")</td>
                             <td>@((alimento.FechaModificacion ?? alimento.FechaAlta)?.ToString("g"))</td>
                             @if (esAdministrador)
                             {
-                                <td>
-                                    <a href="/actualizar-alimento/@alimento.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
-                                    <button type="button" @onclick="() => EliminarAlimento(alimento)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                                <td class="col-acciones">
+                                    <AccionesFila Tipo="alimento"
+                                                  Nombre="@alimento.Nombre"
+                                                  UrlEditar="@($"/actualizar-alimento/{alimento.Codigo}")"
+                                                  AlEliminar="() => EliminarAlimento(alimento)" />
                                 </td>
                             }
                         </tr>

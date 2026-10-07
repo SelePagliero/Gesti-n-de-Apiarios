@@ -4,7 +4,9 @@
 
 <PageTitle>Campañas</PageTitle>
 
-<h1>Campañas</h1>
+<EncabezadoPagina Titulo="Campañas" Descripcion="Temporadas de trabajo para organizar los controles.">
+    <a href="/crear-campaña" class="btn btn-nuevo"><i class="bi bi-plus-lg" aria-hidden="true"></i>Nueva campaña</a>
+</EncabezadoPagina>
 
 <MensajeError Mensaje="@mensajeError" />
 
@@ -14,20 +16,18 @@
 }
 else
 {
-    <a href="/crear-campaña" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Campaña</a>
-
     @if (campañas.Count == 0)
     {
         <p class="text-muted">Todavía no hay campañas cargadas.</p>
     }
     else
     {
-        <div class="tabla-tarjeta table-responsive">
-            <table class="table table-striped table-hover align-middle">
+        <div class="tabla-tarjeta">
+            <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th>Código</th>
-                        <th>Año</th>
+                        <th class="numero">Código</th>
+                        <th class="numero">Año</th>
                         <th>Responsable</th>
                         @if (esAdministrador)
                         {
@@ -35,15 +35,15 @@ else
                         }
                         <th>Fecha de alta</th>
                         <th>Fecha de modificación</th>
-                        <th>Acciones</th>
+                        <th class="col-acciones"><span class="visually-hidden">Acciones</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var campaña in campañas)
                     {
                         <tr>
-                            <td>@campaña.Codigo</td>
-                            <td>@campaña.Año</td>
+                            <td class="numero">@campaña.Codigo</td>
+                            <td class="numero">@campaña.Año</td>
                             <td>@campaña.Responsable</td>
                             @if (esAdministrador)
                             {
@@ -51,9 +51,11 @@ else
                             }
                             <td>@campaña.FechaAlta?.ToString("g")</td>
                             <td>@((campaña.FechaModificacion ?? campaña.FechaAlta)?.ToString("g"))</td>
-                            <td>
-                                <a href="/actualizar-campaña/@campaña.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
-                                <button type="button" @onclick="() => EliminarCampaña(campaña)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                            <td class="col-acciones">
+                                <AccionesFila Tipo="campaña"
+                                              Nombre="@campaña.Responsable"
+                                              UrlEditar="@($"/actualizar-campaña/{campaña.Codigo}")"
+                                              AlEliminar="() => EliminarCampaña(campaña)" />
                             </td>
                         </tr>
                     }

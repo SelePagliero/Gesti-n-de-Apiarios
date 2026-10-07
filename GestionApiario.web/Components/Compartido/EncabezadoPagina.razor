@@ -1,0 +1,25 @@
+@* Encabezado de las páginas de listado: título grande y descripción a la izquierda, acciones (por ejemplo "Nuevo apiario") a la derecha. *@
+<div class="encabezado-pagina">
+    <div>
+        <h1>@Titulo</h1>
+        @if (!string.IsNullOrEmpty(Descripcion))
+        {
+            <p class="encabezado-descripcion">@Descripcion</p>
+        }
+    </div>
+    @if (ChildContent is not null)
+    {
+        <div class="encabezado-acciones">@ChildContent</div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Titulo { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Descripcion { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

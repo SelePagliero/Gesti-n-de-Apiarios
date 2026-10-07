@@ -1,62 +1,75 @@
 /* =========================================================================
-   Tema "miel cálido" para Gestión de Apiarios (sobre Bootstrap 5.3).
-   Los colores se definen una sola vez acá; para ajustar el tema alcanza con
-   cambiar estas variables.
+   Diseño visual de Gestión de Apiarios (sobre Bootstrap 5.3).
+   Los colores, tipografías y radios se definen una sola vez acá.
    ========================================================================= */
 
 :root {
     /* Paleta */
-    --miel-ambar: #E9A825;          /* color principal: botones, activo, acentos */
-    --miel-ambar-oscuro: #CF8F12;   /* hover del ámbar */
-    --miel-ambar-suave: #FDF1D6;    /* fondos de acento */
-    --miel-marron: #3E2416;         /* menú lateral y títulos */
-    --miel-marron-medio: #6B4226;
-    --miel-crema: #FBF6EC;          /* fondo de la aplicación */
-    --miel-borde: #EADFC9;
-    --miel-texto: #3B2F28;
-    --miel-texto-suave: #7D6A5C;
-    --miel-verde: #5E8B3A;          /* éxito / ver */
-    --miel-rojo: #C2412D;           /* peligro / eliminar */
-    --miel-sombra: 0 1px 2px rgba(62, 36, 22, .06), 0 6px 16px rgba(62, 36, 22, .06);
+    --miel-menu: #2E1F14;           /* menú lateral y botón "Nuevo" */
+    --miel-menu-texto: #E5D7C0;     /* texto del menú */
+    --miel: #E9A93A;                /* opción activa del menú, acentos */
+    --miel-oscura: #D08F1E;
+    --miel-suave: #FBEBC9;
+    --miel-fondo: #F7F2E8;          /* fondo de la página */
+    --miel-superficie: #FFFDF8;     /* tarjetas y encabezado */
+    --miel-borde: #E8DCC6;
+    --miel-encabezado-tabla: #F3EADB;
+    --miel-texto: #2E1F14;          /* texto principal */
+    --miel-texto-suave: #6E5A45;    /* texto secundario */
+    --miel-verde: #3F7A3A;
+    --miel-verde-suave: #E6F1E2;
+    --miel-rojo: #B5402A;
+    --miel-rojo-suave: #FBE7E2;
+    --miel-radio: 14px;
+    --miel-sombra: 0 1px 2px rgba(46, 31, 20, .05), 0 4px 14px rgba(46, 31, 20, .05);
+
+    /* Tipografías */
+    --fuente-texto: 'Figtree', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --fuente-titulos: 'Fraunces', Georgia, 'Times New Roman', serif;
 
     /* Bootstrap */
-    --bs-body-font-family: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
-    --bs-body-bg: var(--miel-crema);
+    --bs-body-font-family: var(--fuente-texto);
+    --bs-body-bg: var(--miel-fondo);
     --bs-body-color: var(--miel-texto);
     --bs-secondary-color: var(--miel-texto-suave);
-    --bs-primary: #E9A825;
-    --bs-primary-rgb: 233, 168, 37;
-    --bs-success: #5E8B3A;
-    --bs-success-rgb: 94, 139, 58;
-    --bs-danger: #C2412D;
-    --bs-danger-rgb: 194, 65, 45;
-    --bs-link-color: #9A5B13;
-    --bs-link-color-rgb: 154, 91, 19;
-    --bs-link-hover-color: #6E3F0B;
-    --bs-link-hover-color-rgb: 110, 63, 11;
+    --bs-primary: #E9A93A;
+    --bs-primary-rgb: 233, 169, 58;
+    --bs-success: #3F7A3A;
+    --bs-success-rgb: 63, 122, 58;
+    --bs-danger: #B5402A;
+    --bs-danger-rgb: 181, 64, 42;
+    --bs-link-color: #8A5A12;
+    --bs-link-color-rgb: 138, 90, 18;
+    --bs-link-hover-color: #5E3C0A;
+    --bs-link-hover-color-rgb: 94, 60, 10;
     --bs-border-color: var(--miel-borde);
-    --bs-border-radius: .6rem;
-    --bs-border-radius-lg: .9rem;
-    --bs-focus-ring-color: rgba(233, 168, 37, .35);
+    --bs-border-radius: 10px;
+    --bs-border-radius-lg: var(--miel-radio);
 }
 
 html, body {
-    font-family: var(--bs-body-font-family);
+    font-family: var(--fuente-texto);
+    color: var(--miel-texto);
 }
 
-h1, h2, h3, h4, h5, h6 {
-    color: var(--miel-marron);
-    font-weight: 800;
+h1, h2, h3, h4, h5 {
+    font-family: var(--fuente-titulos);
+    color: var(--miel-texto);
+    font-weight: 600;
+    letter-spacing: -.01em;
 }
 
 h1 {
-    font-size: 1.75rem;
-    margin-bottom: 1rem;
+    font-size: 2.1rem;
 }
 
 h3 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     margin-bottom: 1rem;
+}
+
+h6 {
+    font-weight: 700;
 }
 
 h1:focus {
@@ -64,219 +77,351 @@ h1:focus {
 }
 
 .content {
-    padding-top: 1.5rem;
-    padding-bottom: 2rem;
+    padding-top: 1.75rem;
+    padding-bottom: 2.5rem;
+}
+
+.text-muted {
+    color: var(--miel-texto-suave) !important;
+}
+
+/* ---------- Encabezado de las páginas de listado ---------- */
+
+.encabezado-pagina {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+    .encabezado-pagina h1 {
+        margin-bottom: .2rem;
+        line-height: 1.1;
+    }
+
+.encabezado-descripcion {
+    color: var(--miel-texto-suave);
+    margin: 0;
 }
 
 /* ---------- Botones ---------- */
 
 .btn {
-    font-weight: 700;
-    border-radius: .6rem;
+    font-weight: 600;
+    border-radius: 10px;
 }
 
-.btn-primary {
-    --bs-btn-color: #3A2410;
-    --bs-btn-bg: var(--miel-ambar);
-    --bs-btn-border-color: var(--miel-ambar);
-    --bs-btn-hover-color: #2B1A0B;
-    --bs-btn-hover-bg: var(--miel-ambar-oscuro);
-    --bs-btn-hover-border-color: var(--miel-ambar-oscuro);
-    --bs-btn-active-color: #2B1A0B;
-    --bs-btn-active-bg: var(--miel-ambar-oscuro);
-    --bs-btn-active-border-color: var(--miel-ambar-oscuro);
-    --bs-btn-disabled-color: #3A2410;
-    --bs-btn-disabled-bg: #F0CD84;
-    --bs-btn-disabled-border-color: #F0CD84;
-    --bs-btn-focus-shadow-rgb: 233, 168, 37;
-}
-
-.btn-secondary {
-    --bs-btn-color: var(--miel-marron-medio);
-    --bs-btn-bg: #fff;
-    --bs-btn-border-color: var(--miel-borde);
-    --bs-btn-hover-color: var(--miel-marron);
-    --bs-btn-hover-bg: var(--miel-ambar-suave);
-    --bs-btn-hover-border-color: #E3CFA5;
-    --bs-btn-active-color: var(--miel-marron);
-    --bs-btn-active-bg: var(--miel-ambar-suave);
-    --bs-btn-active-border-color: #E3CFA5;
-}
-
-.btn-dark {
-    --bs-btn-bg: var(--miel-marron-medio);
-    --bs-btn-border-color: var(--miel-marron-medio);
-    --bs-btn-hover-bg: var(--miel-marron);
-    --bs-btn-hover-border-color: var(--miel-marron);
-    --bs-btn-active-bg: var(--miel-marron);
-    --bs-btn-active-border-color: var(--miel-marron);
-}
-
-.btn-success {
-    --bs-btn-bg: var(--miel-verde);
-    --bs-btn-border-color: var(--miel-verde);
-    --bs-btn-hover-bg: #4C7430;
-    --bs-btn-hover-border-color: #4C7430;
-    --bs-btn-active-bg: #4C7430;
-    --bs-btn-active-border-color: #4C7430;
-}
-
-.btn-danger {
-    --bs-btn-bg: var(--miel-rojo);
-    --bs-btn-border-color: var(--miel-rojo);
-    --bs-btn-hover-bg: #A33423;
-    --bs-btn-hover-border-color: #A33423;
-    --bs-btn-active-bg: #A33423;
-    --bs-btn-active-border-color: #A33423;
-}
-
-.btn .bi {
-    margin-right: .25rem;
-}
-
-/* Botón cuyo texto se oculta en pantallas chicas: el ícono no lleva margen extra. */
-.btn .bi:has(+ .d-none) {
-    margin-right: 0;
-}
-
-.btn:focus-visible, .btn:active:focus, .form-control:focus, .form-select:focus, .form-check-input:focus {
-    border-color: var(--miel-ambar);
-    box-shadow: 0 0 0 .2rem rgba(233, 168, 37, .3);
-}
-
-/* ---------- Tarjetas, tablas y formularios ---------- */
-
-.card {
-    --bs-card-bg: #fff;
-    border-color: var(--miel-borde);
-    border-radius: var(--bs-border-radius-lg);
-    box-shadow: var(--miel-sombra);
-}
-
-.card-header {
-    background-color: #fff;
-    border-bottom-color: var(--miel-borde);
-    border-top-left-radius: var(--bs-border-radius-lg) !important;
-    border-top-right-radius: var(--bs-border-radius-lg) !important;
-}
-
-/* Las grillas van dentro de una "tarjeta" blanca con bordes redondeados. */
-.tabla-tarjeta {
-    background: #fff;
-    border: 1px solid var(--miel-borde);
-    border-radius: var(--bs-border-radius-lg);
-    box-shadow: var(--miel-sombra);
-    overflow: hidden;
-}
-
-.tabla-tarjeta .table {
-    --bs-table-bg: #fff;
-    --bs-table-striped-bg: #FDF9F1;
-    --bs-table-hover-bg: var(--miel-ambar-suave);
-    margin-bottom: 0;
-}
-
-.tabla-tarjeta .table > thead > tr > th {
-    background: #F8EFDD;
-    color: var(--miel-marron-medio);
-    font-size: .78rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    border-bottom: 1px solid var(--miel-borde);
-    padding-top: .8rem;
-    padding-bottom: .8rem;
-    white-space: nowrap;
-}
-
-.tabla-tarjeta .table > :not(caption) > * > * {
-    padding-left: .85rem;
-    padding-right: .85rem;
-    border-bottom-color: #F1E8D6;
-}
-
-/* La columna de acciones (la última) va en una sola línea; el resto puede cortar el texto. */
-.tabla-tarjeta .table > tbody > tr > td:last-child {
-    white-space: nowrap;
-    width: 1%;
-}
-
-.tabla-tarjeta .table > tbody > tr:last-child > * {
-    border-bottom: 0;
-}
-
-/* Botones de acción de las grillas: más chicos y en tonos suaves. */
-.tabla-tarjeta .btn {
-    padding: .25rem .65rem;
-    font-size: .82rem;
-    margin: 0;
-    border-width: 1px;
-}
-
-.tabla-tarjeta .btn-success {
-    --bs-btn-color: #456A28;
-    --bs-btn-bg: #EAF2E1;
-    --bs-btn-border-color: #D3E4C2;
-    --bs-btn-hover-color: #fff;
-}
-
-.tabla-tarjeta .btn-dark {
-    --bs-btn-color: var(--miel-marron-medio);
-    --bs-btn-bg: #F6ECDD;
-    --bs-btn-border-color: #E9D8BD;
-    --bs-btn-hover-color: #fff;
-}
-
-.tabla-tarjeta .btn-danger {
-    --bs-btn-color: #A33423;
-    --bs-btn-bg: #FBE7E3;
-    --bs-btn-border-color: #F3CDC6;
-    --bs-btn-hover-color: #fff;
-}
-
-/* Los formularios de alta y edición también van en una tarjeta. */
-.content form {
-    background: #fff;
-    border: 1px solid var(--miel-borde);
-    border-radius: var(--bs-border-radius-lg);
-    box-shadow: var(--miel-sombra);
-    padding: 1.5rem;
-    max-width: 960px;
-}
-
-.content form .container {
-    padding: 0;
-}
-
-.form-label, label {
-    font-weight: 700;
-    color: var(--miel-marron-medio);
-    font-size: .9rem;
-}
-
-.form-control, .form-select {
-    background-color: #fff;
-    border-color: #E3D6BF;
-    border-radius: .55rem;
-}
-
-.form-control:disabled, .form-select:disabled {
-    background-color: #F4EDE1;
-    border-color: #EADFC9;
-    color: var(--miel-texto-suave);
-}
+    .btn .bi {
+        margin-right: .35rem;
+    }
 
 /* Espacio entre botones contiguos (por ejemplo "Volver" y "Guardar"). */
 .btn + .btn {
     margin-left: .5rem;
 }
 
-.alert {
-    border-radius: var(--bs-border-radius-lg);
+.btn-primary {
+    --bs-btn-color: var(--miel-texto);
+    --bs-btn-bg: var(--miel);
+    --bs-btn-border-color: var(--miel);
+    --bs-btn-hover-color: var(--miel-texto);
+    --bs-btn-hover-bg: var(--miel-oscura);
+    --bs-btn-hover-border-color: var(--miel-oscura);
+    --bs-btn-active-color: var(--miel-texto);
+    --bs-btn-active-bg: var(--miel-oscura);
+    --bs-btn-active-border-color: var(--miel-oscura);
+    --bs-btn-disabled-color: var(--miel-texto);
+    --bs-btn-disabled-bg: #F2CE8E;
+    --bs-btn-disabled-border-color: #F2CE8E;
+    --bs-btn-focus-shadow-rgb: 233, 169, 58;
 }
 
-.text-muted {
-    color: var(--miel-texto-suave) !important;
+.btn-secondary {
+    --bs-btn-color: var(--miel-texto);
+    --bs-btn-bg: var(--miel-superficie);
+    --bs-btn-border-color: var(--miel-borde);
+    --bs-btn-hover-color: var(--miel-texto);
+    --bs-btn-hover-bg: var(--miel-encabezado-tabla);
+    --bs-btn-hover-border-color: #DCCBAE;
+    --bs-btn-active-color: var(--miel-texto);
+    --bs-btn-active-bg: var(--miel-encabezado-tabla);
+    --bs-btn-active-border-color: #DCCBAE;
+}
+
+/* Botón de alta de cada listado ("Nuevo apiario", "Nuevo control"...). */
+.btn-nuevo {
+    --bs-btn-color: #FFF8EC;
+    --bs-btn-bg: var(--miel-menu);
+    --bs-btn-border-color: var(--miel-menu);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #47321F;
+    --bs-btn-hover-border-color: #47321F;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #47321F;
+    --bs-btn-active-border-color: #47321F;
+    --bs-btn-focus-shadow-rgb: 46, 31, 20;
+    padding: .55rem 1.1rem;
+}
+
+/* Botón de texto, sin fondo (por ejemplo "Limpiar filtros"). */
+.btn-texto {
+    background: none;
+    border: 0;
+    padding: .25rem .35rem;
+    color: var(--miel-texto-suave);
+    font-weight: 600;
+    font-size: .9rem;
+    border-radius: 8px;
+}
+
+    .btn-texto:hover:not(:disabled) {
+        color: var(--miel-texto);
+        background: var(--miel-encabezado-tabla);
+    }
+
+    .btn-texto:disabled {
+        opacity: .45;
+        cursor: default;
+    }
+
+    .btn-texto .bi {
+        margin-right: .3rem;
+    }
+
+/* Botones de acción de las grillas: cuadrados de 36 px, solo con ícono. */
+.acciones-fila {
+    display: flex;
+    justify-content: flex-end;
+    gap: .4rem;
+}
+
+.btn-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 9px;
+    border: 1px solid #DDD3C3;
+    background: var(--miel-superficie);
+    color: var(--miel-texto-suave);
+    font-size: 1rem;
+    text-decoration: none;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+    .btn-icono:hover {
+        background: var(--miel-encabezado-tabla);
+        border-color: #CDBFA7;
+        color: var(--miel-texto);
+    }
+
+.btn-icono-peligro {
+    color: var(--miel-rojo);
+    border-color: #EFC9C0;
+}
+
+    .btn-icono-peligro:hover {
+        background: var(--miel-rojo-suave);
+        border-color: #E2A99C;
+        color: #942F1C;
+    }
+
+.btn:focus-visible, .btn-icono:focus-visible, .btn-texto:focus-visible,
+.form-control:focus, .form-select:focus, .form-check-input:focus {
+    outline: none;
+    border-color: var(--miel);
+    box-shadow: 0 0 0 .2rem rgba(233, 169, 58, .3);
+}
+
+/* ---------- Tarjetas ---------- */
+
+.card {
+    --bs-card-bg: var(--miel-superficie);
+    --bs-card-border-color: var(--miel-borde);
+    --bs-card-border-radius: var(--miel-radio);
+    --bs-card-inner-border-radius: calc(var(--miel-radio) - 1px);
+    box-shadow: var(--miel-sombra);
+}
+
+.card-header {
+    background-color: var(--miel-superficie);
+    border-bottom-color: var(--miel-borde);
+}
+
+/* ---------- Filtros ---------- */
+
+.tarjeta-filtros {
+    margin-bottom: 1.25rem;
+}
+
+    .tarjeta-filtros .card-body {
+        padding: 1.1rem 1.25rem 0;
+    }
+
+.filtros-titulo {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    font-weight: 700;
+    color: var(--miel-texto);
+    margin-bottom: .85rem;
+}
+
+    .filtros-titulo .bi {
+        color: var(--miel-oscura);
+    }
+
+/* Grilla que se acomoda sola según el ancho disponible. */
+.grilla-filtros {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: .85rem 1rem;
+    padding-bottom: 1rem;
+}
+
+    .grilla-filtros .form-label {
+        margin-bottom: .3rem;
+    }
+
+    .grilla-filtros .form-control, .grilla-filtros .form-select {
+        height: 42px;
+    }
+
+.pie-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    border-top: 1px dashed #DCCBAE;
+    padding: .65rem 0;
+    margin: 0;
+    font-size: .9rem;
+}
+
+/* ---------- Tablas ---------- */
+
+/* La grilla va dentro de una tarjeta y se desplaza hacia los costados si no entra. */
+.tabla-tarjeta {
+    background: var(--miel-superficie);
+    border: 1px solid var(--miel-borde);
+    border-radius: var(--miel-radio);
+    box-shadow: var(--miel-sombra);
+    overflow-x: auto;
+}
+
+    .tabla-tarjeta .table {
+        --bs-table-bg: transparent;
+        --bs-table-hover-bg: #FBF5EA;
+        margin-bottom: 0;
+    }
+
+        .tabla-tarjeta .table > thead > tr > th {
+            background: var(--miel-encabezado-tabla);
+            color: var(--miel-texto-suave);
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            border-bottom: 1px solid var(--miel-borde);
+            padding-top: .75rem;
+            padding-bottom: .75rem;
+            white-space: nowrap;
+        }
+
+        .tabla-tarjeta .table > :not(caption) > * > * {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border-bottom: 1px solid #EFE6D6;
+        }
+
+        .tabla-tarjeta .table > tbody > tr > td {
+            padding-top: .7rem;
+            padding-bottom: .7rem;
+        }
+
+        .tabla-tarjeta .table > tbody > tr:last-child > * {
+            border-bottom: 0;
+        }
+
+        /* Columnas numéricas (código, año, colmenas): alineadas a la derecha y con cifras del mismo ancho. */
+        .tabla-tarjeta .table .numero {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* La columna de acciones va en una sola línea y alineada a la derecha. */
+        .tabla-tarjeta .table .col-acciones {
+            width: 1%;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+/* ---------- Etiquetas ---------- */
+
+.etiqueta {
+    display: inline-block;
+    padding: .2rem .65rem;
+    border-radius: 999px;
+    font-size: .8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.etiqueta-sana {
+    background: var(--miel-verde-suave);
+    color: var(--miel-verde);
+    border-color: #CFE3C8;
+}
+
+.etiqueta-enferma {
+    background: var(--miel-rojo-suave);
+    color: var(--miel-rojo);
+    border-color: #F1CDC4;
+}
+
+/* ---------- Formularios ---------- */
+
+/* Los formularios de alta y edición van en una tarjeta. */
+.content form {
+    background: var(--miel-superficie);
+    border: 1px solid var(--miel-borde);
+    border-radius: var(--miel-radio);
+    box-shadow: var(--miel-sombra);
+    padding: 1.5rem;
+    max-width: 960px;
+}
+
+    .content form .container {
+        padding: 0;
+    }
+
+.form-label, label {
+    font-weight: 600;
+    color: var(--miel-texto-suave);
+    font-size: .88rem;
+}
+
+.form-control, .form-select {
+    background-color: #fff;
+    border-color: #E1D4BE;
+    border-radius: 10px;
+    color: var(--miel-texto);
+}
+
+    .form-control:disabled, .form-select:disabled {
+        background-color: #F4EEE3;
+        border-color: var(--miel-borde);
+        color: var(--miel-texto-suave);
+    }
+
+.alert {
+    border-radius: var(--miel-radio);
 }
 
 /* ---------- Validación ---------- */
