@@ -169,6 +169,8 @@ h1:focus {
 .btn-texto {
     background: none;
     border: 0;
+    text-decoration: none;
+    white-space: nowrap;
     padding: .25rem .35rem;
     color: var(--miel-texto-suave);
     font-weight: 600;

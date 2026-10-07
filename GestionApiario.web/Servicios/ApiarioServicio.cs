@@ -82,6 +82,8 @@ namespace GestionApiario.web.Servicios
         #region Usuarios
         public Task<List<UsuarioDto>> ObtenerUsuarios() => ObtenerListaAsync<UsuarioDto>("usuarios");
         public Task<List<UsuarioGrillaDto>> ObtenerGrillaUsuarios() => ObtenerListaAsync<UsuarioGrillaDto>("usuarios/grilla");
+        public Task CambiarContraseñaDeUsuario(string usuarioId, ContraseñaNuevaDto cambio) =>
+            EnviarAsync(HttpMethod.Put, $"usuarios/{Uri.EscapeDataString(usuarioId)}/contrasena", cambio);
         #endregion
 
         // Arma "?CodApiario=3&FechaDesde=2026-03-01..." solo con los filtros que tienen valor.

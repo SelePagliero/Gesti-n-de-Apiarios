@@ -3,11 +3,18 @@
 
 <PageTitle>Usuarios</PageTitle>
 
-<EncabezadoPagina Titulo="Usuarios" Descripcion="Las personas registradas en el sistema." />
+<EncabezadoPagina Titulo="Usuarios" Descripcion="Las personas registradas en el sistema. Si un apicultor olvidó su contraseña, cambiásela desde acá." />
 
 @* Solo la Administradora; la API también lo exige (responde 403 a los apicultores). *@
 <AuthorizeView Roles="@RolesUsuario.Administrador" Context="autorizacion">
     <Authorized>
+        @if (!string.IsNullOrEmpty(Cambiada))
+        {
+            <div class="alert alert-success" role="status">
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i> Se cambió la contraseña de <strong>@Cambiada</strong>. Pasásela por un medio seguro; la anterior ya no sirve.
+            </div>
+        }
+
         @if (usuarios == null)
         {
             <p><em>Cargando...</em></p>
@@ -21,6 +28,7 @@
                             <th>Email</th>
                             <th>Rol</th>
                             <th class="numero">Apiarios</th>
+                            <th class="col-acciones"><span class="visually-hidden">Acciones</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,6 +53,15 @@
                                     }
                                 </td>
                                 <td class="numero">@usuario.CantidadApiarios</td>
+                                <td class="col-acciones">
+                                    @if (!usuario.EsAdministrador)
+                                    {
+                                        <a href="@($"/usuarios/{usuario.Id}/contrasena")" class="btn-texto"
+                                           aria-label="Cambiar la contraseña de @usuario.Email">
+                                            <i class="bi bi-key" aria-hidden="true"></i> Cambiar contraseña
+                                        </a>
+                                    }
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -61,6 +78,10 @@
 @code {
     List<UsuarioGrillaDto>? usuarios = null;
     string? emailActual;
+
+    // Email del apicultor al que se le acaba de cambiar la contraseña (lo pone ContraseñaUsuario al volver).
+    [SupplyParameterFromQuery]
+    public string? Cambiada { get; set; }
 
     [CascadingParameter]
     Task<AuthenticationState>? Autenticacion { get; set; }

@@ -196,7 +196,7 @@ namespace GestionApiario.web.Servicios.Autenticacion
                 if (json.RootElement.ValueKind == JsonValueKind.Object && json.RootElement.TryGetProperty("errors", out var errores))
                 {
                     foreach (var error in errores.EnumerateObject())
-                        mensajes.Add(TraducirErrorIdentity(error.Name, error.Value));
+                        mensajes.Add(ErroresApi.TraducirErrorIdentity(error.Name, error.Value));
                 }
             }
             catch (JsonException)
@@ -214,19 +214,6 @@ namespace GestionApiario.web.Servicios.Autenticacion
             using var respuesta = await _httpClient.SendAsync(solicitud);
             return respuesta.IsSuccessStatusCode ? await respuesta.Content.ReadFromJsonAsync<UsuarioActualDto>() : null;
         }
-
-        private static string TraducirErrorIdentity(string codigo, JsonElement mensajesOriginales) => codigo switch
-        {
-            "DuplicateUserName" or "DuplicateEmail" => "Ya existe un usuario con ese email.",
-            "InvalidEmail" or "InvalidUserName" => "El email no es válido.",
-            "PasswordTooShort" => "La contraseña debe tener al menos 8 caracteres.",
-            "PasswordRequiresDigit" => "La contraseña debe tener al menos un número.",
-            "PasswordRequiresLower" => "La contraseña debe tener al menos una letra minúscula.",
-            "PasswordRequiresUpper" => "La contraseña debe tener al menos una letra mayúscula.",
-            "PasswordRequiresUniqueChars" => "La contraseña debe tener más caracteres distintos.",
-            "PasswordMismatch" => "La contraseña actual no es correcta.",
-            _ => string.Join(" ", mensajesOriginales.EnumerateArray().Select(m => m.GetString()))
-        };
 
         private class RespuestaTokens
         {
