@@ -73,6 +73,12 @@ main {
     font-weight: 700;
 }
 
+.usuario-contrasena {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
 .usuario-salir {
     flex: 0 0 auto;
     white-space: nowrap;
@@ -88,6 +94,11 @@ main {
     }
 
     .usuario-rol {
+        display: none;
+    }
+
+    /* En el celular "Cambiar contraseña" queda solo con el ícono de la llave. */
+    .usuario-accion-texto {
         display: none;
     }
 }

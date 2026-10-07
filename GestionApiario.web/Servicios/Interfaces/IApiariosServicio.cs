@@ -63,6 +63,8 @@ namespace GestionApiario.web.Servicios.Interfaces
         #region Usuarios
         // Solo para la Administradora (la API responde 403 a los apicultores).
         Task<List<UsuarioDto>> ObtenerUsuarios();
+        Task<List<UsuarioGrillaDto>> ObtenerGrillaUsuarios();
+        Task<ContraseñaTemporalDto> RestablecerContraseña(string usuarioId);
         #endregion
     }
 }

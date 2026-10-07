@@ -54,7 +54,13 @@
         procesando = false;
 
         if (mensajeError is null)
-            IrAlDestino();
+        {
+            // Con una contraseña temporal primero tiene que elegir una propia.
+            if ((await _estado.ObtenerSesionAsync())?.DebeCambiarContraseña == true)
+                _navegationmanager.NavigateTo(AutenticacionExtensiones.PaginaContraseñaTemporal);
+            else
+                IrAlDestino();
+        }
     }
 
     private void IrAlDestino()
