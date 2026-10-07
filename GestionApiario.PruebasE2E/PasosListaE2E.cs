@@ -57,9 +57,9 @@ namespace GestionApiario.PruebasE2E
             await IrAListaAsync(pagina, "/campanias");
             await Expect(pagina.GetByText("Todavía no hay campañas cargadas.")).ToBeVisibleAsync();
             // Las campañas son propias: puede crear las suyas.
-            await Expect(pagina.GetByRole(AriaRole.Link, new() { Name = "Crear Campaña" })).ToBeVisibleAsync();
+            await Expect(pagina.GetByRole(AriaRole.Link, new() { Name = "Nueva campaña" })).ToBeVisibleAsync();
 
-            foreach (var (ruta, boton) in new[] { ("/alimentos", "Crear Alimento"), ("/enfermedades", "Crear Enfermedad"), ("/productos", "Crear Producto") })
+            foreach (var (ruta, boton) in new[] { ("/alimentos", "Nuevo alimento"), ("/enfermedades", "Nueva enfermedad"), ("/productos", "Nuevo producto") })
             {
                 await IrAListaAsync(pagina, ruta);
                 await Expect(pagina.Locator("tbody tr").First).ToBeVisibleAsync();
@@ -285,7 +285,7 @@ namespace GestionApiario.PruebasE2E
             await paginaBeto.GotoAsync("/");
             await VerificarTableroAsync(paginaBeto, apiarios: 1, colmenas: 15, conEnfermedad: 1);
             await paginaBeto.GotoAsync($"/ver-control/{controlNorte}");
-            await Expect(paginaBeto.Locator("#selectCampaña option:checked")).ToHaveTextAsync($"2026 - {responsable}");
+            await Expect(paginaBeto.Locator("#detalle-campania")).ToHaveTextAsync($"2026 - {responsable}");
 
             // Ana deja de ver todo lo de "Norte": listados, desplegables, dirección y tablero.
             await IrAListaAsync(paginaAna, "/apiarios");
@@ -431,7 +431,7 @@ namespace GestionApiario.PruebasE2E
             foreach (var ruta in new[] { "/apiarios", $"/ver-apiario/{apiario}", "/controles", "/campanias" })
             {
                 await paginaBeto.GotoAsync(ruta);
-                await paginaBeto.Locator("table, form, p.text-muted").First.WaitForAsync();
+                await paginaBeto.Locator("table, form, p.text-muted, .tarjeta-detalle").First.WaitForAsync();
                 await Expect(paginaBeto.Locator("body")).Not.ToContainTextAsync(emailAna);
             }
 
