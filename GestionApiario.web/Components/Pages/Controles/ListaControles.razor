@@ -151,9 +151,9 @@ else
                         <td>@control.CantDeColmenas</td>
                         <td>@(control.Enfermedad ?? "—")</td>
                         <td>
-                            <a href="/ver-control/@control.Codigo?volver=@UrlVolver" class="btn btn-success"><i class="bi bi-eye"></i> Ver</a>
-                            <a href="/actualizar-control/@control.Codigo?volver=@UrlVolver" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
-                            <button type="button" @onclick="() => EliminarControl(control)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                            <a href="/ver-control/@control.Codigo?volver=@UrlVolver" class="btn btn-success" title="Ver" aria-label="Ver"><i class="bi bi-eye" aria-hidden="true"></i><span class="d-none d-xxl-inline"> Ver</span></a>
+                            <a href="/actualizar-control/@control.Codigo?volver=@UrlVolver" class="btn btn-dark" title="Editar" aria-label="Editar"><i class="bi bi-pencil-square" aria-hidden="true"></i><span class="d-none d-xxl-inline"> Editar</span></a>
+                            <button type="button" @onclick="() => EliminarControl(control)" class="btn btn-danger" title="Eliminar" aria-label="Eliminar"><i class="bi bi-trash" aria-hidden="true"></i><span class="d-none d-xxl-inline"> Eliminar</span></button>
                         </td>
                     </tr>
                 }

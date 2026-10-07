@@ -5,6 +5,8 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    /* Debajo del menú, en páginas largas, sigue el fondo marrón. */
+    background-color: var(--miel-marron);
 }
 
 main {
