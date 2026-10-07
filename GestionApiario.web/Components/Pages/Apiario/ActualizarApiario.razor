@@ -10,66 +10,86 @@
 
 <PageTitle>Apiario</PageTitle>
 
-@if (EsSoloLectura)
-{
-    <h3>Ver Apiario</h3>
-}
-else if (Codigo is null)
-{
-    <h3>Crear Apiario</h3>
-}
-else
-{
-    <h3>Actualizar Apiario</h3>
-}
+<EncabezadoPagina Titulo="@(EsSoloLectura ? "Ver apiario" : Codigo is null ? "Nuevo apiario" : "Editar apiario")" />
 
 <MensajeError Mensaje="@mensajeError" />
 
-<EditForm Model="Apiario" OnValidSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
-    @if (esAdministrador)
-    {
-        @* Solo la Administradora elige el dueño; sus controles pasan con el apiario. La API también lo exige. *@
-        <div class="mb-3">
-            <label for="dueño" class="form-label">Dueño (apicultor)</label>
-            <InputSelect id="dueño" class="form-select" @bind-Value="Apiario.UsuarioId" disabled="@EsSoloLectura">
-                @foreach (var usuario in usuarios)
+@if (EsSoloLectura)
+{
+    @* Pantalla de Ver: los datos en dos columnas (etiqueta y valor). *@
+    <div class="card tarjeta-detalle">
+        <div class="card-body">
+            <dl class="detalle">
+                @if (esAdministrador)
                 {
-                    <option value="@usuario.Id">@usuario.Email</option>
+                    <dt>Apicultor</dt>
+                    <dd id="detalle-apicultor">@ValorOGuion(apicultor)</dd>
                 }
-            </InputSelect>
-            @if (Codigo is not null && !EsSoloLectura && Apiario.UsuarioId != dueñoOriginal)
-            {
-                <small class="form-text text-warning">Al guardar, el apiario y todos sus controles pasan al nuevo dueño.</small>
-            }
+                <dt>Nombre</dt>
+                <dd id="detalle-nombre">@ValorOGuion(Apiario.Nombre)</dd>
+                <dt>Empresa</dt>
+                <dd>@ValorOGuion(Apiario.Empresa)</dd>
+                <dt>Latitud</dt>
+                <dd>@ValorOGuion(Apiario.Latitud)</dd>
+                <dt>Longitud</dt>
+                <dd>@ValorOGuion(Apiario.Longitud)</dd>
+            </dl>
+            <div class="acciones-formulario">
+                <a href="/actualizar-apiario/@Codigo" class="btn btn-guardar"><i class="bi bi-pencil" aria-hidden="true"></i>Editar</a>
+                <a href="/apiarios" class="btn btn-cancelar">Volver</a>
+            </div>
         </div>
-    }
-    <div class="mb-3">
-        <label for="nombre" class="form-label">Nombre</label>
-        <InputText class="form-control" id="nombre" @bind-Value="Apiario.Nombre" disabled="@EsSoloLectura" />
-        <ValidationMessage For="() => Apiario.Nombre" />
     </div>
-    <div class="mb-3">
-        <label for="empresa" class="form-label">Empresa</label>
-        <InputText class="form-control" id="empresa" @bind-Value="Apiario.Empresa" disabled="@EsSoloLectura" />
-        <ValidationMessage For="() => Apiario.Empresa" />
-    </div>
-    <div class="mb-3">
-        <label for="latitud" class="form-label">Latitud</label>
-        <InputText class="form-control" id="latitud" @bind-Value="Apiario.Latitud" disabled="@EsSoloLectura" />
-        <ValidationMessage For="() => Apiario.Latitud" />
-    </div>
-    <div class="mb-3">
-        <label for="longitud" class="form-label">Longitud</label>
-        <InputText class="form-control" id="longitud" @bind-Value="Apiario.Longitud" disabled="@EsSoloLectura" />
-        <ValidationMessage For="() => Apiario.Longitud" />
-    </div>
-    <a href="/apiarios" class="btn btn-secondary">Volver</a>
-    @if (!EsSoloLectura)
-    {
-        <button type="submit" class="btn btn-primary">Guardar</button>
-    }
-</EditForm>
+}
+else
+{
+    <EditForm Model="Apiario" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        @if (esAdministrador)
+        {
+            @* Solo la Administradora elige el dueño; sus controles pasan con el apiario. La API también lo exige. *@
+            <div class="mb-3">
+                <label for="dueño" class="form-label">Dueño (apicultor)</label>
+                <InputSelect id="dueño" class="form-select" @bind-Value="Apiario.UsuarioId">
+                    @foreach (var usuario in usuarios)
+                    {
+                        <option value="@usuario.Id">@usuario.Email</option>
+                    }
+                </InputSelect>
+                @if (Codigo is not null && Apiario.UsuarioId != dueñoOriginal)
+                {
+                    <small class="form-text text-warning">Al guardar, el apiario y todos sus controles pasan al nuevo dueño.</small>
+                }
+            </div>
+        }
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <InputText class="form-control" id="nombre" @bind-Value="Apiario.Nombre" />
+            <ValidationMessage For="() => Apiario.Nombre" />
+        </div>
+        <div class="mb-3">
+            <label for="empresa" class="form-label">Empresa</label>
+            <InputText class="form-control" id="empresa" @bind-Value="Apiario.Empresa" />
+            <ValidationMessage For="() => Apiario.Empresa" />
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                <label for="latitud" class="form-label">Latitud</label>
+                <InputText class="form-control" id="latitud" @bind-Value="Apiario.Latitud" />
+                <ValidationMessage For="() => Apiario.Latitud" />
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <label for="longitud" class="form-label">Longitud</label>
+                <InputText class="form-control" id="longitud" @bind-Value="Apiario.Longitud" />
+                <ValidationMessage For="() => Apiario.Longitud" />
+            </div>
+        </div>
+        <div class="acciones-formulario">
+            <button type="submit" class="btn btn-guardar">Guardar</button>
+            <a href="/apiarios" class="btn btn-cancelar">Cancelar</a>
+        </div>
+    </EditForm>
+}
 
 @code {
     [Parameter]
@@ -79,6 +99,9 @@ else
     bool esAdministrador;
     List<UsuarioDto> usuarios = new();
     string? dueñoOriginal;
+    string? apicultor;
+
+    private static string ValorOGuion(string? valor) => string.IsNullOrWhiteSpace(valor) ? "—" : valor;
 
     [CascadingParameter]
     Task<AuthenticationState>? Autenticacion { get; set; }
@@ -127,6 +150,7 @@ else
                 UsuarioId = apiarioDetalle.UsuarioId
             };
             dueñoOriginal = apiarioDetalle.UsuarioId;
+            apicultor = apiarioDetalle.Apicultor;
         }
         else if (esAdministrador && string.IsNullOrEmpty(Apiario.UsuarioId))
         {

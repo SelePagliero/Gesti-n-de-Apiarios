@@ -10,30 +10,59 @@
 
 <PageTitle>Control</PageTitle>
 
-@if (EsSoloLectura)
-{
-    <h3>Ver Control</h3>
-}
-else if (Codigo is null)
-{
-    <h3>Crear Control</h3>
-}
-else
-{
-    <h3>Actualizar Control</h3>
-}
+<EncabezadoPagina Titulo="@(EsSoloLectura ? "Ver control" : Codigo is null ? "Nuevo control" : "Editar control")" />
 
 <MensajeError Mensaje="@mensajeError" />
 
-<EditForm Model="Control" OnValidSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
-    <div class="container">
+@if (EsSoloLectura)
+{
+    @* Pantalla de Ver: los datos en dos columnas (etiqueta y valor). *@
+    <div class="card tarjeta-detalle">
+        <div class="card-body">
+            <dl class="detalle">
+                <dt>Campaña</dt>
+                <dd id="detalle-campania">@NombreCampaña</dd>
+                <dt>Fecha</dt>
+                <dd>@Control.Fecha.ToString("d")</dd>
+                <dt>Apiario</dt>
+                <dd id="detalle-apiario">@NombreApiario</dd>
+                <dt>Cantidad de colmenas</dt>
+                <dd class="numero">@Control.CantDeColmenas</dd>
+                <dt>Alimento</dt>
+                <dd>@(NombreAlimento is null ? "Sin alimento" : $"{NombreAlimento} ({Control.CantidadAlimento:0.##})")</dd>
+                <dt>Enfermedad</dt>
+                <dd>
+                    @if (NombreEnfermedad is null)
+                    {
+                        <span class="etiqueta etiqueta-sana">Sin enfermedad</span>
+                    }
+                    else
+                    {
+                        <span class="etiqueta etiqueta-enferma">@NombreEnfermedad</span>
+                    }
+                </dd>
+                <dt>Producto</dt>
+                <dd>@(NombreProducto is null ? "Sin producto" : $"{NombreProducto} ({Control.CantProducto:0.##})")</dd>
+                <dt>Observaciones</dt>
+                <dd class="detalle-texto">@ValorOGuion(Control.Observaciones)</dd>
+            </dl>
+            <div class="acciones-formulario">
+                <a href="@UrlEditar" class="btn btn-guardar"><i class="bi bi-pencil" aria-hidden="true"></i>Editar</a>
+                <a href="@UrlVolver" class="btn btn-cancelar">Volver</a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <EditForm Model="Control" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
         <div class="row">
             <!-- Primera columna -->
             <div class="col-12 col-md-6">
                 <div class="mb-3">
                     <label for="selectCampaña" class="form-label">Campaña</label>
-                    <InputSelect id="selectCampaña" class="form-select" @bind-Value="Control.CodCampaña" disabled="@EsSoloLectura">
+                    <InputSelect id="selectCampaña" class="form-select" @bind-Value="Control.CodCampaña">
                         <option value="0">Seleccione una Campaña</option>
                         @foreach (var campaña in CampañasDisponibles)
                         {
@@ -48,11 +77,11 @@ else
                 </div>
                 <div class="mb-3">
                     <label for="fecha" class="form-label">Fecha</label>
-                    <InputDate class="form-control" id="fecha" @bind-Value="Control.Fecha" disabled="@EsSoloLectura" />
+                    <InputDate class="form-control" id="fecha" @bind-Value="Control.Fecha" />
                 </div>
                 <div class="mb-3">
                     <label for="selectApiario" class="form-label">Apiario</label>
-                    <InputSelect id="selectApiario" class="form-select" @bind-Value="Control.CodApiario" disabled="@EsSoloLectura">
+                    <InputSelect id="selectApiario" class="form-select" @bind-Value="Control.CodApiario">
                         <option value="0">Seleccione un Apiario</option>
                         @foreach (var apiario in listaDeApiarios)
                         {
@@ -63,12 +92,12 @@ else
                 </div>
                 <div class="mb-3">
                     <label for="cantColmenas" class="form-label">Cantidad de Colmenas</label>
-                    <InputNumber class="form-control" id="cantColmenas" @bind-Value="Control.CantDeColmenas" disabled="@EsSoloLectura" />
+                    <InputNumber class="form-control" id="cantColmenas" @bind-Value="Control.CantDeColmenas" />
                     <ValidationMessage For="() => Control.CantDeColmenas" />
                 </div>
                 <div class="mb-3">
                     <label for="selectAlimentos" class="form-label">Alimento</label>
-                    <InputSelect id="selectAlimentos" class="form-select" @bind-Value="Control.CodAlimento" disabled="@EsSoloLectura">
+                    <InputSelect id="selectAlimentos" class="form-select" @bind-Value="Control.CodAlimento">
                         <option value="0">Sin alimento</option>
                         @foreach (var alimento in listaDeAlimentos)
                         {
@@ -78,7 +107,7 @@ else
                 </div>
                 <div class="mb-3">
                     <label for="cantAlimento" class="form-label">Cantidad de Alimento</label>
-                    <InputNumber class="form-control" id="cantAlimento" @bind-Value="Control.CantidadAlimento" disabled="@(EsSoloLectura || Control.CodAlimento == 0)" />
+                    <InputNumber class="form-control" id="cantAlimento" @bind-Value="Control.CantidadAlimento" disabled="@(Control.CodAlimento == 0)" />
                     <ValidationMessage For="() => Control.CantidadAlimento" />
                 </div>
             </div>
@@ -86,7 +115,7 @@ else
             <div class="col-12 col-md-6">
                 <div class="mb-3">
                     <label for="selectEnfermedad" class="form-label">Enfermedad</label>
-                    <InputSelect id="selectEnfermedad" class="form-select" @bind-Value="Control.CodEnfermedad" disabled="@EsSoloLectura">
+                    <InputSelect id="selectEnfermedad" class="form-select" @bind-Value="Control.CodEnfermedad">
                         <option value="0">Sin enfermedad</option>
                         @foreach (var enfermedad in listaDeEnfermedades)
                         {
@@ -96,7 +125,7 @@ else
                 </div>
                 <div class="mb-3">
                     <label for="selectProducto" class="form-label">Producto</label>
-                    <InputSelect id="selectProducto" class="form-select" @bind-Value="Control.CodProductos" disabled="@EsSoloLectura">
+                    <InputSelect id="selectProducto" class="form-select" @bind-Value="Control.CodProductos">
                         <option value="0">Sin producto</option>
                         @foreach (var producto in listaDeProductos)
                         {
@@ -106,25 +135,22 @@ else
                 </div>
                 <div class="mb-3">
                     <label for="cantProducto" class="form-label">Cantidad de Producto</label>
-                    <InputNumber class="form-control" id="cantProducto" @bind-Value="Control.CantProducto" disabled="@(EsSoloLectura || Control.CodProductos == 0)" />
+                    <InputNumber class="form-control" id="cantProducto" @bind-Value="Control.CantProducto" disabled="@(Control.CodProductos == 0)" />
                     <ValidationMessage For="() => Control.CantProducto" />
                 </div>
                 <div class="mb-3">
                     <label for="observaciones" class="form-label">Observaciones</label>
-                    <InputTextArea class="form-control" id="observaciones" rows="3" @bind-Value="Control.Observaciones" disabled="@EsSoloLectura" />
+                    <InputTextArea class="form-control" id="observaciones" rows="4" @bind-Value="Control.Observaciones" />
                     <ValidationMessage For="() => Control.Observaciones" />
-                </div>
-                <div class="text-end">
-                    <a href="@UrlVolver" class="btn btn-secondary">Volver</a>
-                    @if (!EsSoloLectura)
-                    {
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    }
                 </div>
             </div>
         </div>
-    </div>
-</EditForm>
+        <div class="acciones-formulario">
+            <button type="submit" class="btn btn-guardar">Guardar</button>
+            <a href="@UrlVolver" class="btn btn-cancelar">Cancelar</a>
+        </div>
+    </EditForm>
+}
 
 @code {
     [Parameter]
@@ -140,6 +166,17 @@ else
         && (Volver.Equals("controles", StringComparison.OrdinalIgnoreCase) || Volver.StartsWith("controles?", StringComparison.OrdinalIgnoreCase))
             ? "/" + Volver
             : "/controles";
+
+    // Editar desde la pantalla de Ver, conservando la lista (con filtros) a la que se vuelve.
+    private string UrlEditar => $"/actualizar-control/{Codigo}?volver={Uri.EscapeDataString(UrlVolver.TrimStart('/'))}";
+
+    // Nombres para la pantalla de Ver (se buscan en las listas que ya carga el formulario).
+    private string NombreCampaña => listaDeCampañas.FirstOrDefault(c => c.Codigo == Control.CodCampaña) is { } campaña ? TextoCampaña(campaña) : "—";
+    private string NombreApiario => listaDeApiarios.FirstOrDefault(a => a.Codigo == Control.CodApiario)?.Nombre ?? "—";
+    private string? NombreAlimento => Control.CodAlimento == 0 ? null : listaDeAlimentos.FirstOrDefault(a => a.Codigo == Control.CodAlimento)?.Nombre ?? "—";
+    private string? NombreEnfermedad => Control.CodEnfermedad == 0 ? null : listaDeEnfermedades.FirstOrDefault(e => e.Codigo == Control.CodEnfermedad)?.Nombre ?? "—";
+    private string? NombreProducto => Control.CodProductos == 0 ? null : listaDeProductos.FirstOrDefault(p => p.Codigo == Control.CodProductos)?.Nombre ?? "—";
+    private static string ValorOGuion(string? valor) => string.IsNullOrWhiteSpace(valor) ? "—" : valor;
     public ControlDto Control { get; set; } = new ControlDto();
     List<CampañaGrillaDto> listaDeCampañas = new();
 

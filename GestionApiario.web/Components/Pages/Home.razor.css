@@ -1,64 +1,72 @@
-/* Inicio: encabezado, tarjetas de indicadores y gráfico (los colores vienen de app.css). */
-
-.encabezado-tablero {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
+/* Inicio: tarjetas de números, gráfico y estado sanitario (los colores vienen de app.css). */
 
 .selector-apicultor {
     min-width: 260px;
 }
 
+    .selector-apicultor .form-select {
+        height: 42px;
+    }
+
+/* Tarjetas de números: ícono de línea a la izquierda, título y valor a la derecha. */
 .indicador .card-body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1.25rem 1.5rem;
+    padding: 1.25rem 1.4rem;
 }
 
 .indicador-icono {
     flex: 0 0 auto;
-    width: 3.25rem;
-    height: 3.25rem;
-    border-radius: 1rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
+    border: 1px solid transparent;
 }
 
 .indicador-titulo {
-    font-size: .8rem;
-    font-weight: 800;
-    letter-spacing: .04em;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .06em;
     text-transform: uppercase;
     color: var(--miel-texto-suave);
 }
 
 .indicador-valor {
-    font-size: 2rem;
-    font-weight: 800;
+    font-family: var(--fuente-titulos);
+    font-size: 2.1rem;
+    font-weight: 600;
     line-height: 1.1;
     color: var(--miel-texto);
+    font-variant-numeric: tabular-nums;
 }
 
 .indicador-ambar .indicador-icono {
     background: var(--miel-suave);
-    color: #C98A0C;
+    border-color: #F0D49B;
+    color: #8A5A12;
 }
 
 .indicador-verde .indicador-icono {
-    background: #EAF2E1;
+    background: var(--miel-verde-suave);
+    border-color: #CFE3C8;
     color: var(--miel-verde);
 }
 
 .indicador-rojo .indicador-icono {
-    background: #FBE7E3;
+    background: var(--miel-rojo-suave);
+    border-color: #F1CDC4;
     color: var(--miel-rojo);
+}
+
+/* Gráfico dentro de una tarjeta. */
+.titulo-tarjeta {
+    font-size: 1.2rem;
+    margin: 0 0 .15rem;
 }
 
 .grafico-contenedor {
@@ -66,12 +74,8 @@
     height: 320px;
 }
 
-.estado-sano {
-    border-top: 4px solid var(--miel-verde);
-}
-
 .estado-sano-icono {
-    font-size: 3.5rem;
+    font-size: 3.25rem;
     color: var(--miel-verde);
     margin-bottom: .5rem;
 }
