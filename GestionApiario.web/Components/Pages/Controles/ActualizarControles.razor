@@ -35,9 +35,13 @@ else
                     <label for="selectCampaña" class="form-label">Campaña</label>
                     <InputSelect id="selectCampaña" class="form-control" @bind-Value="Control.CodCampaña" disabled="@EsSoloLectura">
                         <option value="0">Seleccione una Campaña</option>
-                        @foreach (var campaña in listaDeCampañas)
+                        @foreach (var campaña in CampañasDisponibles)
                         {
-                            <option value="@campaña.Codigo">@campaña.Año</option>
+                            <option value="@campaña.Codigo">@TextoCampaña(campaña)</option>
+                        }
+                        @if (Control.CodCampaña != 0 && CampañasDisponibles.All(c => c.Codigo != Control.CodCampaña))
+                        {
+                            <option value="@Control.CodCampaña">(campaña de otro apicultor: elegí otra)</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="() => Control.CodCampaña" />
@@ -138,6 +142,25 @@ else
             : "/controles";
     public ControlDto Control { get; set; } = new ControlDto();
     List<CampañaGrillaDto> listaDeCampañas = new();
+
+    // Un control solo puede usar campañas del dueño de su apiario. Un apicultor ya recibe solo las suyas;
+    // la Administradora ve las del dueño del apiario elegido (o todas, mientras no elija apiario).
+    private IEnumerable<CampañaGrillaDto> CampañasDisponibles
+    {
+        get
+        {
+            var apiario = listaDeApiarios.FirstOrDefault(a => a.Codigo == Control.CodApiario);
+            return esAdministrador && apiario is not null
+                ? listaDeCampañas.Where(c => c.UsuarioId == apiario.UsuarioId)
+                : listaDeCampañas;
+        }
+    }
+
+    private string TextoCampaña(CampañaGrillaDto campaña)
+    {
+        var texto = string.IsNullOrEmpty(campaña.Responsable) ? $"{campaña.Año}" : $"{campaña.Año} - {campaña.Responsable}";
+        return esAdministrador && Control.CodApiario == 0 ? $"{texto} ({campaña.Apicultor})" : texto;
+    }
     List<ProductoGrillaDto> listaDeProductos = new();
     List<AlimentoGrillaDto> listaDeAlimentos = new();
     List<EnfermedadGrillaDto> listaDeEnfermedades = new();

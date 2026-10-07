@@ -157,13 +157,24 @@ namespace GestionApiario.Controllers
         // Devuelve el mensaje de error si alguna referencia no existe o está dada de baja; null si todo es válido.
         private async Task<string?> ValidarReferencias(ControlDto control)
         {
-            if (!await _context.Campañas.AnyAsync(c => c.Codigo == control.CodCampaña && c.FechaBaja == null))
+            // Un apicultor solo puede usar sus propias campañas y cargar controles en sus propios apiarios.
+            var campaña = await _context.Campañas
+                .Where(c => c.Codigo == control.CodCampaña && c.FechaBaja == null && (EsAdministrador || c.UsuarioId == UsuarioIdActual))
+                .Select(c => new { c.UsuarioId })
+                .FirstOrDefaultAsync();
+            if (campaña is null)
                 return "La campaña no existe.";
 
-            // Un apicultor solo puede cargar controles en sus propios apiarios.
-            if (!await _context.Apiarios.AnyAsync(a => a.Codigo == control.CodApiario && a.FechaBaja == null
-                    && (EsAdministrador || a.UsuarioId == UsuarioIdActual)))
+            var apiario = await _context.Apiarios
+                .Where(a => a.Codigo == control.CodApiario && a.FechaBaja == null && (EsAdministrador || a.UsuarioId == UsuarioIdActual))
+                .Select(a => new { a.UsuarioId })
+                .FirstOrDefaultAsync();
+            if (apiario is null)
                 return "El apiario no existe.";
+
+            // La campaña tiene que ser del dueño del apiario (relevante para la Administradora, que ve todo).
+            if (campaña.UsuarioId != apiario.UsuarioId)
+                return "La campaña tiene que ser del mismo apicultor que el apiario.";
 
             if (control.CodAlimento != 0 && !await _context.Alimentos.AnyAsync(al => al.Codigo == control.CodAlimento && al.FechaBaja == null))
                 return "El alimento no existe.";

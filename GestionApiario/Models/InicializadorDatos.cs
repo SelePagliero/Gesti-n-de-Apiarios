@@ -7,7 +7,7 @@ namespace GestionApiario.Models
     // Se ejecuta al arrancar la API. Se puede repetir sin efectos secundarios:
     //  1. Crea el rol "Administrador" si no existe.
     //  2. Se lo asigna a la cuenta configurada en "Administracion:Email" (si esa cuenta ya está registrada).
-    //  3. Pasa a esa cuenta los apiarios que todavía no tienen dueño (los cargados antes de que existieran los dueños).
+    //  3. Pasa a esa cuenta los apiarios y campañas que todavía no tienen dueño (los cargados antes de que existieran los dueños).
     public class InicializadorDatos
     {
         private readonly GestionApiariosContext _context;
@@ -49,12 +49,18 @@ namespace GestionApiario.Models
                 await _usuarios.AddToRoleAsync(administradora, RolesUsuario.Administrador);
 
             var apiariosSinDueño = await _context.Apiarios.Where(a => a.UsuarioId == null).ToListAsync();
-            if (apiariosSinDueño.Count > 0)
+            foreach (var apiario in apiariosSinDueño)
+                apiario.UsuarioId = administradora.Id;
+
+            var campañasSinDueño = await _context.Campañas.Where(c => c.UsuarioId == null).ToListAsync();
+            foreach (var campaña in campañasSinDueño)
+                campaña.UsuarioId = administradora.Id;
+
+            if (apiariosSinDueño.Count > 0 || campañasSinDueño.Count > 0)
             {
-                foreach (var apiario in apiariosSinDueño)
-                    apiario.UsuarioId = administradora.Id;
                 await _context.SaveChangesAsync();
-                _log.LogInformation("Se asignaron {Cantidad} apiarios sin dueño a {Email}.", apiariosSinDueño.Count, emailAdministracion);
+                _log.LogInformation("Se asignaron {Apiarios} apiarios y {Campañas} campañas sin dueño a {Email}.",
+                    apiariosSinDueño.Count, campañasSinDueño.Count, emailAdministracion);
             }
         }
     }

@@ -33,13 +33,15 @@ namespace GestionApiario.Controllers
         [HttpGet("{Codigo}")]
         public async Task<ActionResult<ProductoDetalleDto>> ObtenerProducto([FromRoute] int Codigo)
         {
+            // El email de quien creó el registro ("creado por") solo lo ve la Administradora.
+            var mostrarCreador = EsAdministrador;
             var producto = await _context.Productos
                 .Where(p => p.Codigo == Codigo && p.FechaBaja == null)
                 .Select(p => new ProductoDetalleDto()
                 {
                     Codigo = p.Codigo,
                     Nombre = p.Nombre,
-                    UsuarioAlta = p.UsuarioAlta,
+                    UsuarioAlta = mostrarCreador ? p.UsuarioAlta : null,
                     FechaAlta = p.FechaAlta,
                     UsuarioBaja = p.UsuarioBaja,
                     FechaBaja = p.FechaBaja,

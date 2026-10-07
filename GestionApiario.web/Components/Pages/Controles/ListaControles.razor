@@ -56,7 +56,7 @@
                     <option value="">Todas</option>
                     @foreach (var campaña in listaDeCampañas)
                     {
-                        <option value="@campaña.Codigo">@campaña.Año</option>
+                        <option value="@campaña.Codigo">@campaña.Año@(esAdministrador ? $" ({campaña.Apicultor})" : "")</option>
                     }
                     @if (filtro.CodCampaña is not null && listaDeCampañas.All(c => c.Codigo != filtro.CodCampaña))
                     {

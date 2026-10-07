@@ -14,38 +14,59 @@ else
     <h3>Actualizar Campaña</h3>
 }
 
-@* Los catálogos solo los modifica la Administradora; la API también lo exige. *@
-<AuthorizeView Roles="@RolesUsuario.Administrador" Context="autorizacion">
-    <Authorized>
-        <MensajeError Mensaje="@mensajeError" />
+<MensajeError Mensaje="@mensajeError" />
 
-        <EditForm Model="Campaña" OnValidSubmit="HandleSubmit">
-            <DataAnnotationsValidator />
-            <div class="mb-3">
-                <label for="año" class="form-label">Año</label>
-                <InputNumber class="form-control" id="año" @bind-Value="Campaña.Año" />
-                <ValidationMessage For="() => Campaña.Año" />
-            </div>
-            <div class="mb-3">
-                <label for="responsable" class="form-label">Responsable</label>
-                <InputText class="form-control" id="responsable" @bind-Value="Campaña.Responsable" />
-                <ValidationMessage For="() => Campaña.Responsable" />
-            </div>
-            <a href="/campanias" class="btn btn-secondary">Volver</a>
-            <button type="submit" class="btn btn-primary">Guardar</button>
-        </EditForm>
-    </Authorized>
-    <NotAuthorized>
-        <MensajeError Mensaje="No tenés permiso para realizar esta acción." />
-        <a href="/campanias" class="btn btn-secondary">Volver</a>
-    </NotAuthorized>
-</AuthorizeView>
+<EditForm Model="Campaña" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    @if (esAdministrador)
+    {
+        @* Solo la Administradora elige el dueño. La API también lo exige. *@
+        <div class="mb-3">
+            <label for="dueño" class="form-label">Dueño (apicultor)</label>
+            <InputSelect id="dueño" class="form-control" @bind-Value="Campaña.UsuarioId">
+                @foreach (var usuario in usuarios)
+                {
+                    <option value="@usuario.Id">@usuario.Email</option>
+                }
+            </InputSelect>
+            @if (Codigo is not null && Campaña.UsuarioId != dueñoOriginal)
+            {
+                <small class="form-text text-warning">Al guardar, la campaña pasa al nuevo dueño. No se puede si la usan controles de apiarios de otro apicultor.</small>
+            }
+        </div>
+    }
+    <div class="mb-3">
+        <label for="año" class="form-label">Año</label>
+        <InputNumber class="form-control" id="año" @bind-Value="Campaña.Año" />
+        <ValidationMessage For="() => Campaña.Año" />
+    </div>
+    <div class="mb-3">
+        <label for="responsable" class="form-label">Responsable</label>
+        <InputText class="form-control" id="responsable" @bind-Value="Campaña.Responsable" />
+        <ValidationMessage For="() => Campaña.Responsable" />
+    </div>
+    <a href="/campanias" class="btn btn-secondary">Volver</a>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</EditForm>
 
 @code {
     [Parameter]
     public int? Codigo { get; set; }
     public CampañaDto Campaña { get; set; } = new CampañaDto { Año = DateTime.Today.Year };
     string? mensajeError;
+    bool esAdministrador;
+    List<UsuarioDto> usuarios = new();
+    string? dueñoOriginal;
+
+    [CascadingParameter]
+    Task<AuthenticationState>? Autenticacion { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        esAdministrador = await Autenticacion.EsAdministradorAsync();
+        if (esAdministrador)
+            usuarios = await _servicio.ObtenerUsuarios();
+    }
 
     protected async Task HandleSubmit()
     {
@@ -78,8 +99,16 @@ else
             Campaña = new()
             {
                 Año = campañaDetalle.Año,
-                Responsable = campañaDetalle.Responsable
+                Responsable = campañaDetalle.Responsable,
+                UsuarioId = campañaDetalle.UsuarioId
             };
+            dueñoOriginal = campañaDetalle.UsuarioId;
+        }
+        else if (esAdministrador && string.IsNullOrEmpty(Campaña.UsuarioId))
+        {
+            // Al crear, la Administradora queda como dueña salvo que elija otro apicultor.
+            var email = (await Autenticacion!).User.Identity?.Name;
+            Campaña.UsuarioId = usuarios.FirstOrDefault(u => u.Email == email)?.Id;
         }
     }
 }

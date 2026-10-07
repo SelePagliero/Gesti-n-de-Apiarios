@@ -101,6 +101,11 @@ public partial class GestionApiariosContext : IdentityDbContext<IdentityUser>
                 .HasMaxLength(256);
             entity.Property(e => e.UsuarioModificacion)
                 .HasMaxLength(256);
+
+            // No se puede borrar un usuario que todavía es dueño de campañas.
+            entity.HasOne(d => d.Usuario).WithMany()
+                .HasForeignKey(d => d.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Controle>(entity =>

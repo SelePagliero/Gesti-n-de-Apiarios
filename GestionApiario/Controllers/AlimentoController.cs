@@ -33,13 +33,15 @@ namespace GestionApiario.Controllers
         [HttpGet("{Codigo}")]
         public async Task<ActionResult<AlimentoDetalleDto>> ObtenerAlimento([FromRoute] int Codigo)
         {
+            // El email de quien creó el registro ("creado por") solo lo ve la Administradora.
+            var mostrarCreador = EsAdministrador;
             var alimento = await _context.Alimentos
                 .Where(a => a.Codigo == Codigo && a.FechaBaja == null)
                 .Select(a => new AlimentoDetalleDto()
                 {
                     Codigo = a.Codigo,
                     Nombre = a.Nombre,
-                    UsuarioAlta = a.UsuarioAlta,
+                    UsuarioAlta = mostrarCreador ? a.UsuarioAlta : null,
                     FechaAlta = a.FechaAlta,
                     UsuarioBaja = a.UsuarioBaja,
                     FechaBaja = a.FechaBaja,

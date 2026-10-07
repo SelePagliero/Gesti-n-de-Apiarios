@@ -20,7 +20,7 @@ Sistema para la gestión de apiarios, campañas, controles, enfermedades, alimen
 
 - Alta, consulta, modificación y baja lógica de apiarios, campañas, controles, enfermedades, alimentos y productos.
 - Inicio de sesión con usuario y contraseña (ASP.NET Core Identity). Cada alta, modificación y baja registra qué usuario la hizo.
-- Varios apicultores: cada uno ve y modifica solo sus apiarios y controles. La Administradora ve y modifica todo, administra los catálogos y puede transferir apiarios entre apicultores.
+- Varios apicultores: cada uno ve y modifica solo sus apiarios y controles. La Administradora ve y modifica todo, administra Alimentos, Enfermedades y Productos, y puede transferir apiarios y campañas entre apicultores. Cada apicultor tiene sus propias campañas.
 - Filtros de controles por apiario, campaña, enfermedad (o "con alguna enfermedad") y rango de fechas. Los aplica la API y quedan en la URL.
 - Tablero con indicadores (apiarios activos, colmenas, apiarios con enfermedades) y gráfico de enfermedades.
 - Validaciones en los formularios y en la API, con mensajes en español.
@@ -133,12 +133,13 @@ SistemaGestionApiarios/
 | | Apicultor | Administradora |
 |---|---|---|
 | Apiarios | crea; ve, edita y elimina solo los suyos | ve, crea, edita y elimina todos; puede cambiar el dueño |
-| Controles | solo sobre sus apiarios | sobre cualquier apiario |
-| Alimentos, Enfermedades, Productos, Campañas | solo consulta | todo |
+| Campañas | crea; ve, edita y elimina solo las suyas | ve, crea, edita y elimina todas; puede cambiar el dueño |
+| Controles | solo sobre sus apiarios y con sus campañas | sobre cualquier apiario, con campañas del dueño del apiario |
+| Alimentos, Enfermedades, Productos | solo consulta | todo |
 | Tablero, gráfico y filtros | solo sus datos | todos, o los de un apicultor |
 
 - Las restricciones las aplica la API: un apiario o control ajeno responde 404 y modificar un catálogo sin permiso responde 403.
-- Cada control pertenece al dueño de su apiario. Al transferir un apiario, sus controles pasan con él.
+- Cada control pertenece al dueño de su apiario. Al transferir un apiario, sus controles pasan con él. Si usan campañas de otro dueño, se usa la campaña igual (mismo año y responsable) del nuevo dueño o se crea una copia; las campañas originales no se modifican.
 - **Configurar la Administradora:** guardá su email en los secretos de usuario:
 
   ```
@@ -177,15 +178,26 @@ El esquema se maneja con migraciones de Entity Framework Core. La herramienta `d
 
 ## Pruebas automatizadas
 
+Hay dos proyectos de pruebas. Ninguno usa la base de datos real.
+
+| Proyecto | Qué prueba | Base de datos | Duración |
+|---|---|---|---|
+| `GestionApiario.Pruebas` | La API: permisos, campañas, reasignación, auditoría, filtros y tablero | En memoria (InMemory) | ~40 s |
+| `GestionApiario.PruebasE2E` | La web completa en Microsoft Edge, siguiendo los pasos de la lista de pruebas manuales | `GestionApiarios_PruebasE2E` en LocalDB | ~2 min |
+
 ```
-dotnet test
+dotnet test                                  # todas
+dotnet test GestionApiario.Pruebas           # solo la API
+dotnet test GestionApiario.PruebasE2E        # solo las de navegador
 ```
 
-Las pruebas levantan la API en memoria con una base de datos InMemory, así que no necesitan SQL Server. Verifican:
-- el inicio de sesión;
-- las validaciones;
-- la auditoría de usuarios;
-- los cálculos del tablero.
+**Desde Visual Studio:** menú **Prueba → Explorador de pruebas** (Ctrl+E, T). Ahí aparecen los dos proyectos; **Ejecutar todas las pruebas** (Ctrl+R, A) las corre todas, o hacé clic derecho en un proyecto o en un paso para correr solo ese.
+
+Requisitos de las pruebas de navegador:
+- SQL Server LocalDB (viene con Visual Studio) y Microsoft Edge.
+- Usan los puertos 5390 (API) y 5391 (web); no hace falta cerrar la API y la web que usás normalmente.
+- Cada ejecución borra y vuelve a crear `GestionApiarios_PruebasE2E` en LocalDB. La API de prueba corre en el entorno "Pruebas", donde no se leen los secretos de usuario, así que no puede conectarse a la base real.
+- Para ver el navegador mientras corren, definí la variable de entorno `E2E_VISIBLE=1` antes de abrir Visual Studio o la terminal.
 
 ## Créditos
 

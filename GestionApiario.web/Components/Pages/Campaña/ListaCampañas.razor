@@ -14,10 +14,7 @@
 }
 else
 {
-    @if (esAdministrador)
-    {
-        <a href="/crear-campaña" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Campaña</a>
-    }
+    <a href="/crear-campaña" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Crear Campaña</a>
 
     @if (campañas.Count == 0)
     {
@@ -31,12 +28,13 @@ else
                     <th>Código</th>
                     <th>Año</th>
                     <th>Responsable</th>
-                    <th>Fecha de alta</th>
-                    <th>Fecha de modificación</th>
                     @if (esAdministrador)
                     {
-                        <th>Acciones</th>
+                        <th>Apicultor</th>
                     }
+                    <th>Fecha de alta</th>
+                    <th>Fecha de modificación</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -46,15 +44,16 @@ else
                         <td>@campaña.Codigo</td>
                         <td>@campaña.Año</td>
                         <td>@campaña.Responsable</td>
-                        <td>@campaña.FechaAlta?.ToString("g")</td>
-                        <td>@((campaña.FechaModificacion ?? campaña.FechaAlta)?.ToString("g"))</td>
                         @if (esAdministrador)
                         {
-                            <td>
-                                <a href="/actualizar-campaña/@campaña.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
-                                <button type="button" @onclick="() => EliminarCampaña(campaña)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
-                            </td>
+                            <td>@campaña.Apicultor</td>
                         }
+                        <td>@campaña.FechaAlta?.ToString("g")</td>
+                        <td>@((campaña.FechaModificacion ?? campaña.FechaAlta)?.ToString("g"))</td>
+                        <td>
+                            <a href="/actualizar-campaña/@campaña.Codigo" class="btn btn-dark"><i class="bi bi-pencil-square"></i> Editar</a>
+                            <button type="button" @onclick="() => EliminarCampaña(campaña)" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -70,6 +69,7 @@ else
     [CascadingParameter]
     Task<AuthenticationState>? Autenticacion { get; set; }
 
+    // Cada apicultor ve solo sus campañas (lo resuelve la API); la Administradora ve todas con su dueño.
     protected override async Task OnInitializedAsync()
     {
         esAdministrador = await Autenticacion.EsAdministradorAsync();

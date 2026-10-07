@@ -18,7 +18,7 @@ namespace GestionApiario.Controllers
         [HttpPost]
         public async Task<ActionResult> InsertarApiario([FromBody] ApiarioDto nuevoApiario)
         {
-            var (dueño, error) = await ResolverDueñoAsync(nuevoApiario.UsuarioId, dueñoActual: UsuarioIdActual);
+            var (dueño, error) = await ResolverDueñoAsync(_context, nuevoApiario.UsuarioId, dueñoActual: UsuarioIdActual);
             if (error != null) { return error; }
 
             Apiario apiario = new()
@@ -40,6 +40,8 @@ namespace GestionApiario.Controllers
         [HttpGet("{Codigo}")]
         public async Task<ActionResult<ApiarioDetalleDto>> ObtenerApiario([FromRoute] int Codigo)
         {
+            // El email de quien creó el registro ("creado por") solo lo ve la Administradora.
+            var mostrarCreador = EsAdministrador;
             var apiario = await ApiariosVisibles()
                 .Where(a => a.Codigo == Codigo)
                 .Select(a => new ApiarioDetalleDto()
@@ -51,7 +53,7 @@ namespace GestionApiario.Controllers
                     FechaBaja = a.FechaBaja,
                     Latitud = a.Latitud,
                     Longitud = a.Longitud,
-                    UsuarioAlta = a.UsuarioAlta,
+                    UsuarioAlta = mostrarCreador ? a.UsuarioAlta : null,
                     UsuarioBaja = a.UsuarioBaja,
                     FechaModificacion = a.FechaModificacion,
                     UsuarioModificacion = a.UsuarioModificacion,
@@ -72,8 +74,11 @@ namespace GestionApiario.Controllers
             if (apiario == null) { return NotFound(); }
 
             // Si no se indica dueño se mantiene el actual. Sus controles cambian de dueño junto con el apiario.
-            var (dueño, error) = await ResolverDueñoAsync(apiarioModificar.UsuarioId, dueñoActual: apiario.UsuarioId);
+            var (dueño, error) = await ResolverDueñoAsync(_context, apiarioModificar.UsuarioId, dueñoActual: apiario.UsuarioId);
             if (error != null) { return error; }
+
+            if (dueño != apiario.UsuarioId)
+                await PasarCampañasAlNuevoDueñoAsync(apiario.Codigo, dueño!);
 
             apiario.Nombre = apiarioModificar.Nombre;
             apiario.Empresa = apiarioModificar.Empresa;
@@ -82,6 +87,7 @@ namespace GestionApiario.Controllers
             apiario.UsuarioId = dueño;
             apiario.FechaModificacion = DateTime.Now;
             apiario.UsuarioModificacion = UsuarioActual;
+            // Un solo SaveChanges: el cambio de dueño, las campañas copiadas y los controles se guardan juntos o no se guarda nada.
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -97,6 +103,7 @@ namespace GestionApiario.Controllers
                     Nombre = apiario.Nombre,
                     FechaModificacion = apiario.FechaModificacion,
                     FechaAlta = apiario.FechaAlta,
+                    UsuarioId = apiario.UsuarioId,
                     Apicultor = apiario.Usuario!.Email
                 })
                 .ToListAsync();
@@ -124,19 +131,48 @@ namespace GestionApiario.Controllers
             return EsAdministrador ? activos : activos.Where(a => a.UsuarioId == UsuarioIdActual);
         }
 
-        // Decide el dueño del apiario. Solo la Administradora puede elegir un dueño distinto del que corresponde.
-        private async Task<(string? Dueño, ActionResult? Error)> ResolverDueñoAsync(string? dueñoPedido, string? dueñoActual)
+        // Al reasignar un apiario, sus controles (también los dados de baja) tienen que quedar con campañas del nuevo dueño.
+        // Solo se procesan las campañas que usan esos controles. Para cada una: si el nuevo dueño ya tiene una campaña activa
+        // igual (mismo año y responsable) se usa esa; si no, se crea una copia, una sola vez aunque varios controles la usen.
+        // Las campañas originales no se modifican, porque pueden estar usándolas otros apiarios.
+        private async Task PasarCampañasAlNuevoDueñoAsync(int codApiario, string nuevoDueño)
         {
-            if (string.IsNullOrEmpty(dueñoPedido) || dueñoPedido == dueñoActual)
-                return (dueñoActual, null);
+            var controles = await _context.Controles
+                .Include(c => c.CodCampañaNavigation)
+                .Where(c => c.CodApiario == codApiario && c.CodCampaña != null && c.CodCampañaNavigation!.UsuarioId != nuevoDueño)
+                .ToListAsync();
 
-            if (!EsAdministrador)
-                return (null, Forbid());
+            var reemplazos = new Dictionary<int, Campaña>();
+            var copiasNuevas = new List<Campaña>();
+            foreach (var control in controles)
+            {
+                var original = control.CodCampañaNavigation!;
+                if (!reemplazos.TryGetValue(original.Codigo, out var destino))
+                {
+                    destino = copiasNuevas.FirstOrDefault(c => c.Año == original.Año && c.Responsable == original.Responsable)
+                        ?? await _context.Campañas.FirstOrDefaultAsync(c => c.UsuarioId == nuevoDueño && c.FechaBaja == null
+                            && c.Año == original.Año && c.Responsable == original.Responsable);
 
-            if (!await _context.Users.AnyAsync(u => u.Id == dueñoPedido))
-                return (null, BadRequest("El apicultor no existe."));
+                    if (destino is null)
+                    {
+                        destino = new Campaña
+                        {
+                            Año = original.Año,
+                            Responsable = original.Responsable,
+                            UsuarioId = nuevoDueño,
+                            FechaAlta = DateTime.Now,
+                            UsuarioAlta = UsuarioActual
+                        };
+                        _context.Campañas.Add(destino);
+                        copiasNuevas.Add(destino);
+                    }
+                    reemplazos[original.Codigo] = destino;
+                }
 
-            return (dueñoPedido, null);
+                control.CodCampañaNavigation = destino;
+                control.FechaModificacion = DateTime.Now;
+                control.UsuarioModificacion = UsuarioActual;
+            }
         }
     }
 }

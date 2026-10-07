@@ -10,5 +10,9 @@ namespace GestionApiario.compartido.Dto
 
         [StringLength(100, ErrorMessage = "El responsable no puede superar los 100 caracteres.")]
         public string? Responsable { get; set; }
+
+        // Dueño de la campaña (Id de usuario). Solo la Administradora puede elegirlo o cambiarlo;
+        // si viene vacío, al crear queda el usuario actual y al modificar se mantiene el dueño.
+        public string? UsuarioId { get; set; }
     }
 }
