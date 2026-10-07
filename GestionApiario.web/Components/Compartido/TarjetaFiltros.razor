@@ -1,0 +1,34 @@
+@* Tarjeta "Filtrar" de los listados: los campos van en ChildContent; abajo, cuántos registros se ven y "Limpiar filtros". *@
+<div class="card tarjeta-filtros">
+    <div class="card-body">
+        <div class="filtros-titulo"><i class="bi bi-funnel" aria-hidden="true"></i> Filtrar</div>
+        <div class="grilla-filtros">
+            @ChildContent
+        </div>
+        <div class="pie-filtros">
+            <span class="text-muted" role="status">@Resumen</span>
+            <button type="button" class="btn-texto" @onclick="AlLimpiar" disabled="@(!HayFiltros)">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>Limpiar filtros
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = default!;
+
+    // Por ejemplo "Mostrando 3 apiarios".
+    [Parameter]
+    public string? Resumen { get; set; }
+
+    [Parameter]
+    public bool HayFiltros { get; set; }
+
+    [Parameter]
+    public EventCallback AlLimpiar { get; set; }
+
+    // Arma "Mostrando 1 apiario" o "Mostrando 5 apiarios".
+    public static string Mostrando(int? cantidad, string singular, string plural) =>
+        cantidad is null ? string.Empty : cantidad == 1 ? $"Mostrando 1 {singular}" : $"Mostrando {cantidad} {plural}";
+}
