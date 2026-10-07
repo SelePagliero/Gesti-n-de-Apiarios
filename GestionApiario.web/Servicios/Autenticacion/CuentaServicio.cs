@@ -48,14 +48,49 @@ namespace GestionApiario.web.Servicios.Autenticacion
             if (usuario is null)
                 return "La API devolvió una respuesta inesperada.";
 
-            await _estado.GuardarSesionAsync(new SesionUsuario
-            {
-                Email = usuario.Email,
-                AccessToken = tokens.AccessToken,
-                RefreshToken = tokens.RefreshToken,
-                EsAdministrador = usuario.EsAdministrador
-            });
+            await GuardarSesionAsync(tokens, usuario);
             return null;
+        }
+
+        // Cambia la contraseña del usuario que inició sesión. Devuelve null si salió bien, o el mensaje de error.
+        // Después vuelve a ingresar con la contraseña nueva: el cambio invalida el token anterior
+        // y, si era una contraseña temporal, la sesión nueva ya no la tiene marcada.
+        public async Task<string?> CambiarContraseñaAsync(CambioContraseñaDto cambio)
+        {
+            var sesion = await _estado.ObtenerSesionAsync();
+            if (sesion is null)
+                return new SesionExpiradaException().Message;
+
+            HttpResponseMessage respuesta;
+            try
+            {
+                respuesta = await EnviarCambioContraseñaAsync(cambio, sesion.AccessToken);
+
+                // Si el token venció se renueva una sola vez y se reintenta.
+                if (respuesta.StatusCode == HttpStatusCode.Unauthorized && await RenovarTokenAsync())
+                {
+                    respuesta.Dispose();
+                    sesion = await _estado.ObtenerSesionAsync();
+                    respuesta = await EnviarCambioContraseñaAsync(cambio, sesion!.AccessToken);
+                }
+            }
+            catch (HttpRequestException)
+            {
+                return ErroresApi.SinConexion;
+            }
+
+            using (respuesta)
+            {
+                if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    await CerrarSesionAsync();
+                    return new SesionExpiradaException().Message;
+                }
+                if (!respuesta.IsSuccessStatusCode)
+                    return await LeerErroresIdentityAsync(respuesta);
+            }
+
+            return await IniciarSesionAsync(sesion.Email, cambio.ContraseñaNueva);
         }
 
         // Devuelve null si el registro fue correcto, o el mensaje de error a mostrar.
@@ -74,23 +109,7 @@ namespace GestionApiario.web.Servicios.Autenticacion
             if (respuesta.IsSuccessStatusCode)
                 return null;
 
-            // Identity devuelve los errores con un código por cada problema (por ejemplo "PasswordTooShort").
-            var contenido = await respuesta.Content.ReadAsStringAsync();
-            var mensajes = new List<string>();
-            try
-            {
-                using var json = JsonDocument.Parse(contenido);
-                if (json.RootElement.TryGetProperty("errors", out var errores))
-                {
-                    foreach (var error in errores.EnumerateObject())
-                        mensajes.Add(TraducirErrorIdentity(error.Name, error.Value));
-                }
-            }
-            catch (JsonException)
-            {
-            }
-
-            return mensajes.Count > 0 ? string.Join(" ", mensajes.Distinct()) : await ErroresApi.LeerMensajeAsync(respuesta);
+            return await LeerErroresIdentityAsync(respuesta);
         }
 
         // Pide un token nuevo con el refresh token. Devuelve false si la sesión ya no es válida.
@@ -113,17 +132,52 @@ namespace GestionApiario.web.Servicios.Autenticacion
             if (usuario is null)
                 return false;
 
-            await _estado.GuardarSesionAsync(new SesionUsuario
-            {
-                Email = usuario.Email,
-                AccessToken = tokens.AccessToken,
-                RefreshToken = tokens.RefreshToken,
-                EsAdministrador = usuario.EsAdministrador
-            });
+            await GuardarSesionAsync(tokens, usuario);
             return true;
         }
 
         public Task CerrarSesionAsync() => _estado.CerrarSesionAsync();
+
+        private Task GuardarSesionAsync(RespuestaTokens tokens, UsuarioActualDto usuario) =>
+            _estado.GuardarSesionAsync(new SesionUsuario
+            {
+                Email = usuario.Email,
+                AccessToken = tokens.AccessToken,
+                RefreshToken = tokens.RefreshToken,
+                EsAdministrador = usuario.EsAdministrador,
+                DebeCambiarContraseña = usuario.DebeCambiarContraseña
+            });
+
+        private async Task<HttpResponseMessage> EnviarCambioContraseñaAsync(CambioContraseñaDto cambio, string accessToken)
+        {
+            using var solicitud = new HttpRequestMessage(HttpMethod.Post, "cuenta/cambiar-contrasena")
+            {
+                Content = JsonContent.Create(cambio)
+            };
+            solicitud.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            return await _httpClient.SendAsync(solicitud);
+        }
+
+        // Identity devuelve los errores con un código por cada problema (por ejemplo "PasswordTooShort").
+        private static async Task<string> LeerErroresIdentityAsync(HttpResponseMessage respuesta)
+        {
+            var contenido = await respuesta.Content.ReadAsStringAsync();
+            var mensajes = new List<string>();
+            try
+            {
+                using var json = JsonDocument.Parse(contenido);
+                if (json.RootElement.ValueKind == JsonValueKind.Object && json.RootElement.TryGetProperty("errors", out var errores))
+                {
+                    foreach (var error in errores.EnumerateObject())
+                        mensajes.Add(TraducirErrorIdentity(error.Name, error.Value));
+                }
+            }
+            catch (JsonException)
+            {
+            }
+
+            return mensajes.Count > 0 ? string.Join(" ", mensajes.Distinct()) : await ErroresApi.LeerMensajeAsync(respuesta);
+        }
 
         // GET /cuenta/yo con el token recién obtenido: devuelve el email y si es la Administradora.
         private async Task<UsuarioActualDto?> ConsultarUsuarioAsync(string accessToken)
@@ -143,6 +197,7 @@ namespace GestionApiario.web.Servicios.Autenticacion
             "PasswordRequiresLower" => "La contraseña debe tener al menos una letra minúscula.",
             "PasswordRequiresUpper" => "La contraseña debe tener al menos una letra mayúscula.",
             "PasswordRequiresUniqueChars" => "La contraseña debe tener más caracteres distintos.",
+            "PasswordMismatch" => "La contraseña actual no es correcta.",
             _ => string.Join(" ", mensajesOriginales.EnumerateArray().Select(m => m.GetString()))
         };
 

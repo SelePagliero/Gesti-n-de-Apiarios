@@ -76,6 +76,20 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Con una contraseña temporal solo se puede ingresar, consultar /cuenta/yo y cambiar la contraseña.
+// Se controla acá para que valga en todos los endpoints de la API, no solo en la web.
+app.Use(async (contexto, siguiente) =>
+{
+    if (contexto.User.HasClaim(c => c.Type == ContraseñaTemporal.TipoClaim)
+        && !ContraseñaTemporal.RutaPermitida(contexto.Request.Path))
+    {
+        contexto.Response.StatusCode = StatusCodes.Status403Forbidden;
+        await contexto.Response.WriteAsJsonAsync(ContraseñaTemporal.MensajeCambioObligatorio);
+        return;
+    }
+    await siguiente(contexto);
+});
+
 var cuenta = app.MapGroup("/cuenta").WithTags("Cuenta");
 cuenta.MapIdentityApi<IdentityUser>();
 
@@ -83,7 +97,8 @@ cuenta.MapIdentityApi<IdentityUser>();
 cuenta.MapGet("/yo", (ClaimsPrincipal usuario) => new UsuarioActualDto
 {
     Email = usuario.Identity?.Name ?? string.Empty,
-    EsAdministrador = usuario.IsInRole(RolesUsuario.Administrador)
+    EsAdministrador = usuario.IsInRole(RolesUsuario.Administrador),
+    DebeCambiarContraseña = usuario.HasClaim(c => c.Type == ContraseñaTemporal.TipoClaim)
 }).RequireAuthorization();
 
 // Todos los controladores exigen haber iniciado sesión.

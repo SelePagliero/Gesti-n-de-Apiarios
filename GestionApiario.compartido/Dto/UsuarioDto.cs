@@ -12,10 +12,25 @@ namespace GestionApiario.compartido.Dto
         public string Email { get; set; } = string.Empty;
     }
 
+    // Una fila de la pantalla Usuarios (GET /usuarios/grilla, solo para la Administradora).
+    public class UsuarioGrillaDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public bool EsAdministrador { get; set; }
+        public int CantidadApiarios { get; set; }
+
+        // Se le restableció la contraseña y todavía no eligió una propia.
+        public bool TieneContraseñaTemporal { get; set; }
+    }
+
     // Respuesta de GET /cuenta/yo.
     public class UsuarioActualDto
     {
         public string Email { get; set; } = string.Empty;
         public bool EsAdministrador { get; set; }
+
+        // Ingresó con una contraseña temporal: tiene que cambiarla antes de usar el sistema.
+        public bool DebeCambiarContraseña { get; set; }
     }
 }

@@ -121,6 +121,8 @@ SistemaGestionApiarios/
 - Después de 5 intentos fallidos, la cuenta se bloquea por 5 minutos.
 - Desde Swagger: ejecutá `POST /cuenta/login`, copiá el `accessToken` de la respuesta, tocá **Authorize** y pegalo.
 - El email del usuario se guarda en las columnas `UsuarioAlta`, `UsuarioModificacion` y `UsuarioBaja` de cada tabla.
+- **Cambiar contraseña:** cualquier usuario puede cambiar la suya desde el encabezado (pide la actual y la nueva dos veces).
+- **Contraseña olvidada:** la Administradora entra a **Usuarios** y toca **Restablecer contraseña** en la fila del apicultor. El sistema genera una contraseña temporal y la muestra una sola vez para que se la pase. Cuando el apicultor ingresa con ella, tiene que elegir una propia antes de usar el sistema; mientras tanto, la API rechaza cualquier otra operación. Solo la Administradora puede restablecer contraseñas (la API responde 403 a los apicultores).
 
 ### Apicultores y Administradora
 

@@ -3,42 +3,52 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="page">
-            <div class="sidebar">
-                <NavMenu />
-            </div>
-
-            <main>
-                <div class="top-row px-4">
-                    <div class="usuario">
-                        <span class="usuario-inicial" aria-hidden="true">@Inicial(context.User.Identity?.Name)</span>
-                        <span class="usuario-email">@context.User.Identity?.Name</span>
-                        @if (context.User.IsInRole(RolesUsuario.Administrador))
-                        {
-                            <span class="usuario-rol">Administradora</span>
-                        }
-                    </div>
-                    <button type="button" class="btn-texto usuario-salir" @onclick="CerrarSesion">
-                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Cerrar sesión
-                    </button>
+        @if (context.User.TieneContraseñaTemporal())
+        {
+            <RedirigirAContraseñaTemporal />
+        }
+        else
+        {
+            <div class="page">
+                <div class="sidebar">
+                    <NavMenu />
                 </div>
 
-                <article class="content px-4">
-                    <ErrorBoundary @ref="errorBoundary">
-                        <ChildContent>
-                            @Body
-                        </ChildContent>
-                        <ErrorContent Context="error">
-                            <div class="alert alert-danger mt-3" role="alert">
-                                <h5 class="alert-heading">No se pudo completar la operación</h5>
-                                <p class="mb-2">@MensajeDe(error)</p>
-                                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="Reintentar">Reintentar</button>
-                            </div>
-                        </ErrorContent>
-                    </ErrorBoundary>
-                </article>
-            </main>
-        </div>
+                <main>
+                    <div class="top-row px-4">
+                        <div class="usuario">
+                            <span class="usuario-inicial" aria-hidden="true">@Inicial(context.User.Identity?.Name)</span>
+                            <span class="usuario-email">@context.User.Identity?.Name</span>
+                            @if (context.User.IsInRole(RolesUsuario.Administrador))
+                            {
+                                <span class="usuario-rol">Administradora</span>
+                            }
+                        </div>
+                        <a href="cambiar-contrasena" class="btn-texto usuario-contrasena" title="Cambiar contraseña" aria-label="Cambiar contraseña">
+                            <i class="bi bi-key" aria-hidden="true"></i><span class="usuario-accion-texto">Cambiar contraseña</span>
+                        </a>
+                        <button type="button" class="btn-texto usuario-salir" @onclick="CerrarSesion">
+                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Cerrar sesión
+                        </button>
+                    </div>
+
+                    <article class="content px-4">
+                        <ErrorBoundary @ref="errorBoundary">
+                            <ChildContent>
+                                @Body
+                            </ChildContent>
+                            <ErrorContent Context="error">
+                                <div class="alert alert-danger mt-3" role="alert">
+                                    <h5 class="alert-heading">No se pudo completar la operación</h5>
+                                    <p class="mb-2">@MensajeDe(error)</p>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" @onclick="Reintentar">Reintentar</button>
+                                </div>
+                            </ErrorContent>
+                        </ErrorBoundary>
+                    </article>
+                </main>
+            </div>
+        }
     </Authorized>
     <Authorizing>
         <p class="p-4"><em>Cargando...</em></p>
