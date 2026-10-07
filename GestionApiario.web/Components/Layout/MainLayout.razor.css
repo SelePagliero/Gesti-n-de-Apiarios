@@ -126,23 +126,3 @@ main {
         padding-right: 2rem !important;
     }
 }
-
-#blazor-error-ui {
-    background: #FFF6DB;
-    border-top: 1px solid #F0D49B;
-    bottom: 0;
-    box-shadow: 0 -1px 4px rgba(0, 0, 0, .1);
-    display: none;
-    left: 0;
-    padding: .6rem 1.25rem .7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-}
-
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: .75rem;
-        top: .5rem;
-    }
