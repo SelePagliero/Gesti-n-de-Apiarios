@@ -1,5 +1,6 @@
 @page "/apiarios"
 @inject IApiariosServicio _servicio
+@inject NavigationManager _navegationmanager
 @inject IJSRuntime JS
 
 <PageTitle>Apiarios</PageTitle>
@@ -10,15 +11,52 @@
 
 <MensajeError Mensaje="@mensajeError" />
 
+@* Los filtros se aplican en pantalla sobre la lista cargada y se guardan en la URL (?nombre=...&desde=...). *@
+<TarjetaFiltros Resumen="@TarjetaFiltros.Mostrando(Filtrados?.Count, "apiario", "apiarios")" HayFiltros="HayFiltros" AlLimpiar="LimpiarFiltros">
+    <div>
+        <label for="filtroNombre" class="form-label">Nombre</label>
+        <input id="filtroNombre" type="search" class="form-control" placeholder="Buscar..." value="@nombre"
+               @oninput='e => CambiarTexto(ref nombre, "nombre", e.Value?.ToString())' />
+    </div>
+    @if (esAdministrador)
+    {
+        <div>
+            <label for="filtroApicultor" class="form-label">Apicultor</label>
+            <select id="filtroApicultor" class="form-select" value="@(apicultor ?? "")"
+                    @onchange='e => CambiarTexto(ref apicultor, "apicultor", e.Value?.ToString())'>
+                <option value="">Todos</option>
+                @foreach (var (id, email) in Apicultores)
+                {
+                    <option value="@id">@email</option>
+                }
+            </select>
+        </div>
+    }
+    <div>
+        <label for="filtroDesde" class="form-label">Alta desde</label>
+        <input id="filtroDesde" type="date" class="form-control" value="@FiltrosLista.FormatoUrl(desde)"
+               @onchange='e => CambiarFecha(ref desde, "desde", e.Value?.ToString())' />
+    </div>
+    <div>
+        <label for="filtroHasta" class="form-label">Alta hasta</label>
+        <input id="filtroHasta" type="date" class="form-control" value="@FiltrosLista.FormatoUrl(hasta)"
+               @onchange='e => CambiarFecha(ref hasta, "hasta", e.Value?.ToString())' />
+    </div>
+</TarjetaFiltros>
+
+<MensajeError Mensaje="@(RangoInvalido ? FiltrosLista.MensajeRangoInvalido : null)" />
+
 @if (apiarios == null)
 {
     <p><em>Cargando...</em></p>
 }
 else
 {
-    @if (apiarios.Count == 0)
+    @if (Filtrados!.Count == 0)
     {
-        <p class="text-muted">Todavía no hay apiarios cargados.</p>
+        <p class="text-muted">
+            @(HayFiltros ? "No hay apiarios que coincidan con los filtros." : "Todavía no hay apiarios cargados.")
+        </p>
     }
     else
     {
@@ -38,7 +76,7 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var apiario in apiarios)
+                    @foreach (var apiario in Filtrados)
                     {
                         <tr>
                             <td class="numero">@apiario.Codigo</td>
@@ -69,13 +107,63 @@ else
     string? mensajeError;
     bool esAdministrador;
 
+    // Filtros (se leen de la URL al entrar).
+    [SupplyParameterFromQuery(Name = "nombre")] public string? ParamNombre { get; set; }
+    [SupplyParameterFromQuery(Name = "apicultor")] public string? ParamApicultor { get; set; }
+    [SupplyParameterFromQuery(Name = "desde")] public string? ParamDesde { get; set; }
+    [SupplyParameterFromQuery(Name = "hasta")] public string? ParamHasta { get; set; }
+    string? nombre;
+    string? apicultor;
+    DateOnly? desde;
+    DateOnly? hasta;
+
     [CascadingParameter]
     Task<AuthenticationState>? Autenticacion { get; set; }
 
+    bool HayFiltros => !string.IsNullOrWhiteSpace(nombre) || !string.IsNullOrEmpty(apicultor) || desde is not null || hasta is not null;
+    bool RangoInvalido => desde is not null && hasta is not null && desde > hasta;
+
+    List<ApiarioGrillaDto>? Filtrados => apiarios?
+        .Where(a => !RangoInvalido)
+        .Where(a => FiltrosLista.Contiene(a.Nombre, nombre))
+        .Where(a => string.IsNullOrEmpty(apicultor) || a.UsuarioId == apicultor)
+        .Where(a => FiltrosLista.EntreFechas(a.FechaAlta, desde, hasta))
+        .ToList();
+
+    // Los apicultores que tienen algún apiario, para el desplegable de la Administradora.
+    IEnumerable<(string Id, string Email)> Apicultores => (apiarios ?? new())
+        .Where(a => a.UsuarioId is not null)
+        .GroupBy(a => a.UsuarioId!)
+        .Select(g => (g.Key, g.First().Apicultor ?? g.Key))
+        .OrderBy(a => a.Item2);
+
     protected override async Task OnInitializedAsync()
     {
+        nombre = ParamNombre;
+        desde = FiltrosLista.LeerFecha(ParamDesde);
+        hasta = FiltrosLista.LeerFecha(ParamHasta);
         esAdministrador = await Autenticacion.EsAdministradorAsync();
+        apicultor = esAdministrador ? ParamApicultor : null;
         await CargarApiarios();
+    }
+
+    void CambiarTexto(ref string? campo, string parametro, string? valor)
+    {
+        campo = valor;
+        _navegationmanager.CambiarParametro(parametro, valor);
+    }
+
+    void CambiarFecha(ref DateOnly? campo, string parametro, string? valor)
+    {
+        campo = FiltrosLista.LeerFecha(valor);
+        _navegationmanager.CambiarParametro(parametro, FiltrosLista.FormatoUrl(campo));
+    }
+
+    void LimpiarFiltros()
+    {
+        nombre = apicultor = null;
+        desde = hasta = null;
+        _navegationmanager.NavigateTo("/apiarios", replace: true);
     }
 
     async Task EliminarApiario(ApiarioGrillaDto apiario)

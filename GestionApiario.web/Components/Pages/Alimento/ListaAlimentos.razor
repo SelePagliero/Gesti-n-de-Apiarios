@@ -1,5 +1,6 @@
 @page "/alimentos"
 @inject IApiariosServicio _servicio
+@inject NavigationManager _navegationmanager
 @inject IJSRuntime JS
 
 <PageTitle>Alimentos</PageTitle>
@@ -13,15 +14,38 @@
 
 <MensajeError Mensaje="@mensajeError" />
 
+@* Los filtros se aplican en pantalla sobre la lista cargada y se guardan en la URL (?nombre=...&desde=...). *@
+<TarjetaFiltros Resumen="@TarjetaFiltros.Mostrando(Filtrados?.Count, "alimento", "alimentos")" HayFiltros="HayFiltros" AlLimpiar="LimpiarFiltros">
+    <div>
+        <label for="filtroNombre" class="form-label">Nombre</label>
+        <input id="filtroNombre" type="search" class="form-control" placeholder="Buscar..." value="@nombre"
+               @oninput="e => CambiarNombre(e.Value?.ToString())" />
+    </div>
+    <div>
+        <label for="filtroDesde" class="form-label">Alta desde</label>
+        <input id="filtroDesde" type="date" class="form-control" value="@FiltrosLista.FormatoUrl(desde)"
+               @onchange='e => CambiarFecha(ref desde, "desde", e.Value?.ToString())' />
+    </div>
+    <div>
+        <label for="filtroHasta" class="form-label">Alta hasta</label>
+        <input id="filtroHasta" type="date" class="form-control" value="@FiltrosLista.FormatoUrl(hasta)"
+               @onchange='e => CambiarFecha(ref hasta, "hasta", e.Value?.ToString())' />
+    </div>
+</TarjetaFiltros>
+
+<MensajeError Mensaje="@(RangoInvalido ? FiltrosLista.MensajeRangoInvalido : null)" />
+
 @if (alimentos == null)
 {
     <p><em>Cargando...</em></p>
 }
 else
 {
-    @if (alimentos.Count == 0)
+    @if (Filtrados!.Count == 0)
     {
-        <p class="text-muted">Todavía no hay alimentos cargados.</p>
+        <p class="text-muted">
+            @(HayFiltros ? "No hay alimentos que coincidan con los filtros." : "Todavía no hay alimentos cargados.")
+        </p>
     }
     else
     {
@@ -40,7 +64,7 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var alimento in alimentos)
+                    @foreach (var alimento in Filtrados)
                     {
                         <tr>
                             <td class="numero">@alimento.Codigo</td>
@@ -69,13 +93,52 @@ else
     string? mensajeError;
     bool esAdministrador;
 
+    // Filtros (se leen de la URL al entrar).
+    [SupplyParameterFromQuery(Name = "nombre")] public string? ParamNombre { get; set; }
+    [SupplyParameterFromQuery(Name = "desde")] public string? ParamDesde { get; set; }
+    [SupplyParameterFromQuery(Name = "hasta")] public string? ParamHasta { get; set; }
+    string? nombre;
+    DateOnly? desde;
+    DateOnly? hasta;
+
     [CascadingParameter]
     Task<AuthenticationState>? Autenticacion { get; set; }
 
+    bool HayFiltros => !string.IsNullOrWhiteSpace(nombre) || desde is not null || hasta is not null;
+    bool RangoInvalido => desde is not null && hasta is not null && desde > hasta;
+
+    List<AlimentoGrillaDto>? Filtrados => alimentos?
+        .Where(x => !RangoInvalido)
+        .Where(x => FiltrosLista.Contiene(x.Nombre, nombre))
+        .Where(x => FiltrosLista.EntreFechas(x.FechaAlta, desde, hasta))
+        .ToList();
+
     protected override async Task OnInitializedAsync()
     {
+        nombre = ParamNombre;
+        desde = FiltrosLista.LeerFecha(ParamDesde);
+        hasta = FiltrosLista.LeerFecha(ParamHasta);
         esAdministrador = await Autenticacion.EsAdministradorAsync();
         await CargarAlimentos();
+    }
+
+    void CambiarNombre(string? valor)
+    {
+        nombre = valor;
+        _navegationmanager.CambiarParametro("nombre", valor);
+    }
+
+    void CambiarFecha(ref DateOnly? campo, string parametro, string? valor)
+    {
+        campo = FiltrosLista.LeerFecha(valor);
+        _navegationmanager.CambiarParametro(parametro, FiltrosLista.FormatoUrl(campo));
+    }
+
+    void LimpiarFiltros()
+    {
+        nombre = null;
+        desde = hasta = null;
+        _navegationmanager.NavigateTo("/alimentos", replace: true);
     }
 
     async Task EliminarAlimento(AlimentoGrillaDto alimento)
