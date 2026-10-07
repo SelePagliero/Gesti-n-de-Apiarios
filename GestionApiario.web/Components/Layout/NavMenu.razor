@@ -54,5 +54,16 @@
                 <i class="bi bi-prescription2" aria-hidden="true"></i> Productos
             </NavLink>
         </div>
+
+        @* Solo para la Administradora; la API también lo exige. *@
+        <AuthorizeView Roles="@RolesUsuario.Administrador">
+            <div class="nav-seccion px-3">Administración</div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="usuarios">
+                    <i class="bi bi-people" aria-hidden="true"></i> Usuarios
+                </NavLink>
+            </div>
+        </AuthorizeView>
     </nav>
 </div>

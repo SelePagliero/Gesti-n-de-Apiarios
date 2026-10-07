@@ -385,6 +385,23 @@ h1:focus {
     border-color: #F1CDC4;
 }
 
+.etiqueta-miel {
+    background: var(--miel-suave);
+    color: #7A4D0B;
+    border-color: #F0D49B;
+}
+
+.etiqueta-neutra {
+    background: var(--miel-encabezado-tabla);
+    color: var(--miel-texto-suave);
+    border-color: var(--miel-borde);
+}
+
+.texto-suave {
+    color: var(--miel-texto-suave);
+    font-size: .88rem;
+}
+
 /* ---------- Formularios ---------- */
 
 /* Los formularios de alta y edición van en una tarjeta. */
@@ -544,6 +561,60 @@ h1:focus {
             padding-top: .2rem;
         }
 }
+
+/* ---------- Contraseñas ---------- */
+
+/* El formulario de "Cambiar contraseña" tiene pocos campos: va más angosto que los demás. */
+.content form.formulario-angosto {
+    max-width: 520px;
+}
+
+/* Tarjeta con la contraseña temporal recién generada (se muestra una sola vez). */
+.tarjeta-contrasena {
+    max-width: 640px;
+    border-color: #F0D49B;
+    background: #FFF9EC;
+}
+
+    .tarjeta-contrasena .card-body {
+        padding: 1.4rem 1.5rem;
+    }
+
+.tarjeta-contrasena-titulo {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    font-weight: 700;
+    margin-bottom: .85rem;
+    overflow-wrap: anywhere;
+}
+
+    .tarjeta-contrasena-titulo .bi {
+        color: var(--miel-oscura);
+    }
+
+.contrasena-temporal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+
+    .contrasena-temporal code {
+        font-size: 1.35rem;
+        letter-spacing: .08em;
+        color: var(--miel-texto);
+        background: var(--miel-superficie);
+        border: 1px dashed #DCCBAE;
+        border-radius: 10px;
+        padding: .45rem .9rem;
+        user-select: all;
+    }
+
+    .contrasena-temporal .btn {
+        min-width: 0;
+    }
 
 /* ---------- Validación ---------- */
 
