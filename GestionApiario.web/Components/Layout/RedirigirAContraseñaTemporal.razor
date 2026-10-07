@@ -1,0 +1,9 @@
+@inject NavigationManager _navegationmanager
+
+@code {
+    // Quien tiene una contraseña temporal solo puede ver la pantalla para cambiarla.
+    protected override void OnInitialized()
+    {
+        _navegationmanager.NavigateTo(AutenticacionExtensiones.PaginaContraseñaTemporal);
+    }
+}
