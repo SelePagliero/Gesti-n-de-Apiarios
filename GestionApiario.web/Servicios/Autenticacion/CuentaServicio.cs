@@ -53,8 +53,7 @@ namespace GestionApiario.web.Servicios.Autenticacion
         }
 
         // Cambia la contraseña del usuario que inició sesión. Devuelve null si salió bien, o el mensaje de error.
-        // Después vuelve a ingresar con la contraseña nueva: el cambio invalida el token anterior
-        // y, si era una contraseña temporal, la sesión nueva ya no la tiene marcada.
+        // Después vuelve a ingresar con la contraseña nueva, porque el cambio invalida el token de renovación anterior.
         public async Task<string?> CambiarContraseñaAsync(CambioContraseñaDto cambio)
         {
             var sesion = await _estado.ObtenerSesionAsync();
@@ -91,6 +90,35 @@ namespace GestionApiario.web.Servicios.Autenticacion
             }
 
             return await IniciarSesionAsync(sesion.Email, cambio.ContraseñaNueva);
+        }
+
+        // Pide que se envíe por correo el link para elegir una contraseña nueva.
+        // Devuelve null si el pedido se aceptó (la API no dice si el email existe), o el mensaje de error.
+        public async Task<string?> SolicitarRecuperacionAsync(string email)
+        {
+            try
+            {
+                using var respuesta = await _httpClient.PostAsJsonAsync("cuenta/olvide-contrasena", new OlvideContraseñaDto { Email = email });
+                return respuesta.IsSuccessStatusCode ? null : await ErroresApi.LeerMensajeAsync(respuesta);
+            }
+            catch (HttpRequestException)
+            {
+                return ErroresApi.SinConexion;
+            }
+        }
+
+        // Guarda la contraseña nueva con el código del link. Devuelve null si salió bien, o el mensaje de error.
+        public async Task<string?> RestablecerContraseñaAsync(RestablecimientoContraseñaDto restablecimiento)
+        {
+            try
+            {
+                using var respuesta = await _httpClient.PostAsJsonAsync("cuenta/restablecer-contrasena", restablecimiento);
+                return respuesta.IsSuccessStatusCode ? null : await LeerErroresIdentityAsync(respuesta);
+            }
+            catch (HttpRequestException)
+            {
+                return ErroresApi.SinConexion;
+            }
         }
 
         // Devuelve null si el registro fue correcto, o el mensaje de error a mostrar.
@@ -144,8 +172,7 @@ namespace GestionApiario.web.Servicios.Autenticacion
                 Email = usuario.Email,
                 AccessToken = tokens.AccessToken,
                 RefreshToken = tokens.RefreshToken,
-                EsAdministrador = usuario.EsAdministrador,
-                DebeCambiarContraseña = usuario.DebeCambiarContraseña
+                EsAdministrador = usuario.EsAdministrador
             });
 
         private async Task<HttpResponseMessage> EnviarCambioContraseñaAsync(CambioContraseñaDto cambio, string accessToken)

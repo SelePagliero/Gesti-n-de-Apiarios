@@ -1,13 +1,12 @@
-@* Formulario para cambiar la propia contraseña: la actual y la nueva dos veces.
-   Lo usan la pantalla "Cambiar contraseña" y la del cambio obligatorio después de una contraseña temporal. *@
+@* Formulario de la pantalla "Cambiar contraseña": la contraseña actual y la nueva dos veces. *@
 @inject CuentaServicio _cuenta
 
 <MensajeError Mensaje="@mensajeError" />
 
-<EditForm Model="Cambio" OnValidSubmit="Cambiar" class="@ClaseFormulario">
+<EditForm Model="Cambio" OnValidSubmit="Cambiar" class="formulario-angosto">
     <DataAnnotationsValidator />
     <div class="mb-3">
-        <label for="contrasena-actual" class="form-label">@EtiquetaActual</label>
+        <label for="contrasena-actual" class="form-label">Contraseña actual</label>
         <InputText id="contrasena-actual" type="password" class="form-control" @bind-Value="Cambio.ContraseñaActual" autocomplete="current-password" />
         <ValidationMessage For="() => Cambio.ContraseñaActual" />
     </div>
@@ -22,9 +21,8 @@
         <InputText id="contrasena-repetida" type="password" class="form-control" @bind-Value="Cambio.ConfirmacionContraseña" autocomplete="new-password" />
         <ValidationMessage For="() => Cambio.ConfirmacionContraseña" />
     </div>
-    @ChildContent
-    <div class="@ClaseAcciones">
-        <button type="submit" class="btn btn-guardar @ClaseBoton" disabled="@procesando">
+    <div class="acciones-formulario">
+        <button type="submit" class="btn btn-guardar" disabled="@procesando">
             @(procesando ? "Guardando..." : "Cambiar contraseña")
         </button>
         @Acciones
@@ -32,17 +30,7 @@
 </EditForm>
 
 @code {
-    [Parameter]
-    public string EtiquetaActual { get; set; } = "Contraseña actual";
-
-    // En la tarjeta de ingreso el botón ocupa todo el ancho y no lleva la línea separadora.
-    [Parameter]
-    public bool AnchoCompleto { get; set; }
-
-    // Contenido opcional antes de los botones y botones extra (por ejemplo "Cancelar").
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
+    // Botones extra al lado de "Cambiar contraseña" (por ejemplo "Cancelar").
     [Parameter]
     public RenderFragment? Acciones { get; set; }
 
@@ -52,10 +40,6 @@
     private CambioContraseñaDto Cambio { get; set; } = new();
     private string? mensajeError;
     private bool procesando;
-
-    private string? ClaseFormulario => AnchoCompleto ? null : "formulario-angosto";
-    private string ClaseAcciones => AnchoCompleto ? "mt-2" : "acciones-formulario";
-    private string? ClaseBoton => AnchoCompleto ? "w-100" : null;
 
     private async Task Cambiar()
     {

@@ -1,0 +1,84 @@
+@page "/restablecer-contrasena"
+@layout CuentaLayout
+@inject CuentaServicio _cuenta
+
+@* Se llega desde el link del correo de "¿Olvidaste tu contraseña?" (trae el email y un código que vence en una hora). *@
+
+<PageTitle>Elegí una contraseña nueva</PageTitle>
+
+<h5 class="mb-2">Elegí una contraseña nueva</h5>
+
+@if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Codigo))
+{
+    <MensajeError Mensaje="El link no es válido. Abrilo de nuevo desde el correo o pedí uno nuevo." />
+    <a href="olvide-contrasena" class="btn btn-guardar w-100">Pedir un link nuevo</a>
+}
+else if (cambiada)
+{
+    <div class="alert alert-success" role="status">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i> Listo, tu contraseña se cambió. Ya podés ingresar con la nueva.
+    </div>
+    <a href="login" class="btn btn-guardar w-100">Ingresar</a>
+}
+else
+{
+    <p class="cuenta-aviso">Para <strong>@Email</strong>.</p>
+
+    <MensajeError Mensaje="@mensajeError" />
+
+    <EditForm Model="Datos" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label for="contrasena-nueva" class="form-label">Contraseña nueva</label>
+            <InputText id="contrasena-nueva" type="password" class="form-control" @bind-Value="Datos.ContraseñaNueva" autocomplete="new-password" aria-describedby="reglas-contrasena" />
+            <div id="reglas-contrasena" class="form-text">Al menos 8 caracteres, con una mayúscula, una minúscula y un número.</div>
+            <ValidationMessage For="() => Datos.ContraseñaNueva" />
+        </div>
+        <div class="mb-3">
+            <label for="contrasena-repetida" class="form-label">Repetí la contraseña nueva</label>
+            <InputText id="contrasena-repetida" type="password" class="form-control" @bind-Value="Datos.ConfirmacionContraseña" autocomplete="new-password" />
+            <ValidationMessage For="() => Datos.ConfirmacionContraseña" />
+        </div>
+        <button type="submit" class="btn btn-guardar w-100" disabled="@procesando">
+            @(procesando ? "Guardando..." : "Guardar contraseña")
+        </button>
+    </EditForm>
+
+    @if (linkVencido)
+    {
+        <p class="mt-3 mb-0 text-center">
+            <a href="olvide-contrasena">Pedir un link nuevo</a>
+        </p>
+    }
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Email { get; set; }
+
+    [SupplyParameterFromQuery]
+    public string? Codigo { get; set; }
+
+    private RestablecimientoContraseñaDto Datos { get; set; } = new();
+    private string? mensajeError;
+    private bool procesando;
+    private bool cambiada;
+    private bool linkVencido;
+
+    // El email y el código vienen en el link; se cargan antes de validar el formulario.
+    protected override void OnParametersSet()
+    {
+        Datos.Email = Email ?? string.Empty;
+        Datos.Codigo = Codigo ?? string.Empty;
+    }
+
+    private async Task Guardar()
+    {
+        procesando = true;
+        mensajeError = await _cuenta.RestablecerContraseñaAsync(Datos);
+        procesando = false;
+
+        cambiada = mensajeError is null;
+        linkVencido = mensajeError?.Contains("link") == true;
+    }
+}

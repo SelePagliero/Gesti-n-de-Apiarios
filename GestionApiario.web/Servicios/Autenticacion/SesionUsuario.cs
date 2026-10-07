@@ -9,9 +9,6 @@ namespace GestionApiario.web.Servicios.Autenticacion
 
         // Lo informa la API en GET /cuenta/yo. Solo decide qué muestra la web: los permisos los controla la API.
         public bool EsAdministrador { get; set; }
-
-        // Ingresó con una contraseña temporal: la web solo le muestra la pantalla para cambiarla.
-        public bool DebeCambiarContraseña { get; set; }
     }
 
     public class SesionExpiradaException : Exception

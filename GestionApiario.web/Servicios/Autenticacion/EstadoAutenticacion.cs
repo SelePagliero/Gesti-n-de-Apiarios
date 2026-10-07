@@ -27,8 +27,6 @@ namespace GestionApiario.web.Servicios.Autenticacion
             var claims = new List<Claim> { new(ClaimTypes.Name, sesion.Email), new(ClaimTypes.Email, sesion.Email) };
             if (sesion.EsAdministrador)
                 claims.Add(new Claim(ClaimTypes.Role, RolesUsuario.Administrador));
-            if (sesion.DebeCambiarContraseña)
-                claims.Add(new Claim(AutenticacionExtensiones.ClaimContraseñaTemporal, "true"));
 
             var identidad = new ClaimsIdentity(claims, authenticationType: "ApiGestionApiarios");
             return new AuthenticationState(new ClaimsPrincipal(identidad));

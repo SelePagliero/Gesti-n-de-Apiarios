@@ -1,6 +1,10 @@
 using System.Security.Claims;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 using GestionApiario.compartido.Dto;
+using GestionApiario.Controllers;
 using GestionApiario.Models;
+using GestionApiario.Servicios;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -57,6 +61,28 @@ builder.Services
 
 builder.Services.AddScoped<InicializadorDatos>();
 
+// Recuperar la contraseña: el link que llega por correo vence en una hora.
+builder.Services.Configure<DataProtectionTokenProviderOptions>(opciones => opciones.TokenLifespan = TimeSpan.FromHours(1));
+builder.Services.Configure<OpcionesCorreo>(builder.Configuration.GetSection("Correo"));
+builder.Services.AddSingleton<IEnviadorCorreo, EnviadorCorreo>();
+
+// Límite de pedidos para recuperar la contraseña, por dirección IP: evita que se use para mandar correos sin parar
+// o para probar códigos al azar.
+builder.Services.AddRateLimiter(opciones =>
+{
+    var limite = builder.Configuration.GetValue("Recuperacion:PedidosCada15Minutos", 10);
+    opciones.AddPolicy(CuentaController.LimiteRecuperacion, contexto =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            contexto.Connection.RemoteIpAddress?.ToString() ?? "desconocida",
+            _ => new FixedWindowRateLimiterOptions { PermitLimit = limite, Window = TimeSpan.FromMinutes(15) }));
+    opciones.OnRejected = async (contexto, cancelacion) =>
+    {
+        contexto.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await contexto.HttpContext.Response.WriteAsJsonAsync(
+            "Hiciste demasiados pedidos seguidos. Probá de nuevo en unos minutos.", cancelacion);
+    };
+});
+
 var app = builder.Build();
 
 // Rol de Administradora y dueño de los apiarios cargados antes de que existieran los dueños.
@@ -75,20 +101,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Con una contraseña temporal solo se puede ingresar, consultar /cuenta/yo y cambiar la contraseña.
-// Se controla acá para que valga en todos los endpoints de la API, no solo en la web.
-app.Use(async (contexto, siguiente) =>
-{
-    if (contexto.User.HasClaim(c => c.Type == ContraseñaTemporal.TipoClaim)
-        && !ContraseñaTemporal.RutaPermitida(contexto.Request.Path))
-    {
-        contexto.Response.StatusCode = StatusCodes.Status403Forbidden;
-        await contexto.Response.WriteAsJsonAsync(ContraseñaTemporal.MensajeCambioObligatorio);
-        return;
-    }
-    await siguiente(contexto);
-});
+app.UseRateLimiter();
 
 var cuenta = app.MapGroup("/cuenta").WithTags("Cuenta");
 cuenta.MapIdentityApi<IdentityUser>();
@@ -97,8 +110,7 @@ cuenta.MapIdentityApi<IdentityUser>();
 cuenta.MapGet("/yo", (ClaimsPrincipal usuario) => new UsuarioActualDto
 {
     Email = usuario.Identity?.Name ?? string.Empty,
-    EsAdministrador = usuario.IsInRole(RolesUsuario.Administrador),
-    DebeCambiarContraseña = usuario.HasClaim(c => c.Type == ContraseñaTemporal.TipoClaim)
+    EsAdministrador = usuario.IsInRole(RolesUsuario.Administrador)
 }).RequireAuthorization();
 
 // Todos los controladores exigen haber iniciado sesión.
