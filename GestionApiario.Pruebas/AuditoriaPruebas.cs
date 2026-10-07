@@ -39,7 +39,7 @@ namespace GestionApiario.Pruebas
         public async Task Un_apicultor_queda_registrado_en_sus_apiarios_y_controles()
         {
             var ana = await _fabrica.CrearApicultorAsync(EmailAna);
-            var campaña = await CrearCampañaAsync();
+            var campaña = await PermisosPruebas.CrearCampañaAsync(ana);
             var apiario = await PermisosPruebas.CrearApiarioAsync(ana, "De Ana");
             var control = await PermisosPruebas.CrearControlAsync(ana, apiario, campaña);
 
@@ -57,7 +57,7 @@ namespace GestionApiario.Pruebas
         {
             var administradora = await _fabrica.CrearClienteAutenticadoAsync();
             var ana = await _fabrica.CrearApicultorAsync(EmailAna);
-            var campaña = await CrearCampañaAsync();
+            var campaña = await PermisosPruebas.CrearCampañaAsync(ana);
             var apiario = await PermisosPruebas.CrearApiarioAsync(ana, "De Ana");
             var control = await PermisosPruebas.CrearControlAsync(ana, apiario, campaña);
 
@@ -124,13 +124,6 @@ namespace GestionApiario.Pruebas
         }
 
         // ---- Ayudas ----
-
-        private async Task<int> CrearCampañaAsync()
-        {
-            var campaña = new Campaña { Año = 2026, FechaAlta = DateTime.Now };
-            await _fabrica.UsarBaseAsync(async contexto => { contexto.Add(campaña); await contexto.SaveChangesAsync(); });
-            return campaña.Codigo;
-        }
 
         private async Task<Auditoria> LeerAuditoriaApiarioAsync(int codigo)
         {

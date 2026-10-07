@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionApiario.Pruebas", "GestionApiario.Pruebas\GestionApiario.Pruebas.csproj", "{B53A7A6C-E674-439D-BEC9-84F6B53E0D6D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionApiario.PruebasE2E", "GestionApiario.PruebasE2E\GestionApiario.PruebasE2E.csproj", "{0135CE36-F7FE-43D5-A2D2-58C76079C27C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,18 @@ Global
 		{B53A7A6C-E674-439D-BEC9-84F6B53E0D6D}.Release|x64.Build.0 = Release|Any CPU
 		{B53A7A6C-E674-439D-BEC9-84F6B53E0D6D}.Release|x86.ActiveCfg = Release|Any CPU
 		{B53A7A6C-E674-439D-BEC9-84F6B53E0D6D}.Release|x86.Build.0 = Release|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Debug|x64.Build.0 = Debug|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Debug|x86.Build.0 = Debug|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Release|x64.ActiveCfg = Release|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Release|x64.Build.0 = Release|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Release|x86.ActiveCfg = Release|Any CPU
+		{0135CE36-F7FE-43D5-A2D2-58C76079C27C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

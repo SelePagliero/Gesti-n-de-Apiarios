@@ -56,6 +56,8 @@ namespace GestionApiario.Pruebas
             using var fabrica = new FabricaApi();
             var cliente = await fabrica.CrearClienteAutenticadoAsync();
             var (campaña, apiario, _) = await CargarDatosBaseAsync(fabrica);
+            // Los datos cargados sin dueño pasan a la Administradora, como en la base real.
+            await fabrica.EjecutarInicializadorAsync();
             var otroApiario = await ApiarioPruebas.ObtenerCodigoCreadoAsync(
                 await cliente.PostAsJsonAsync("/apiario", new ApiarioDto { Nombre = "Sigue activo" }));
             var controlOculto = await ApiarioPruebas.ObtenerCodigoCreadoAsync(

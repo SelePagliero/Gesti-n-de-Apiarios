@@ -55,7 +55,7 @@ namespace GestionApiario.Pruebas
         {
             var ana = await _fabrica.CrearApicultorAsync(EmailAna);
             var beto = await _fabrica.CrearApicultorAsync(EmailBeto);
-            var campaña = await CrearCampañaAsync();
+            var campaña = await CrearCampañaAsync(ana);
             var apiarioBeto = await CrearApiarioAsync(beto, "De Beto");
 
             var respuesta = await ana.PostAsJsonAsync("/controles", new ControlDto { CodCampaña = campaña, CodApiario = apiarioBeto });
@@ -69,11 +69,12 @@ namespace GestionApiario.Pruebas
         {
             var ana = await _fabrica.CrearApicultorAsync(EmailAna);
             var beto = await _fabrica.CrearApicultorAsync(EmailBeto);
-            var campaña = await CrearCampañaAsync();
+            var campaña = await CrearCampañaAsync(ana);
+            var campañaBeto = await CrearCampañaAsync(beto);
             var apiarioAna = await CrearApiarioAsync(ana, "De Ana");
             var apiarioBeto = await CrearApiarioAsync(beto, "De Beto");
             var controlAna = await CrearControlAsync(ana, apiarioAna, campaña);
-            var controlBeto = await CrearControlAsync(beto, apiarioBeto, campaña);
+            var controlBeto = await CrearControlAsync(beto, apiarioBeto, campañaBeto);
             var idBeto = await _fabrica.ObtenerIdUsuarioAsync(EmailBeto);
 
             // La grilla muestra solo lo propio, aunque se pidan explícitamente datos de otro.
@@ -99,10 +100,11 @@ namespace GestionApiario.Pruebas
             var administradora = await _fabrica.CrearClienteAutenticadoAsync();
             var ana = await _fabrica.CrearApicultorAsync(EmailAna);
             var beto = await _fabrica.CrearApicultorAsync(EmailBeto);
-            var campaña = await CrearCampañaAsync();
+            var campaña = await CrearCampañaAsync(ana);
+            var campañaBeto = await CrearCampañaAsync(beto);
             var varroa = await CrearEnfermedadAsync("Varroa");
             await CrearControlAsync(ana, await CrearApiarioAsync(ana, "De Ana"), campaña, colmenas: 10, enfermedad: varroa);
-            await CrearControlAsync(beto, await CrearApiarioAsync(beto, "De Beto"), campaña, colmenas: 20);
+            await CrearControlAsync(beto, await CrearApiarioAsync(beto, "De Beto"), campañaBeto, colmenas: 20);
             var idBeto = await _fabrica.ObtenerIdUsuarioAsync(EmailBeto);
 
             await VerificarTableroAsync(ana, "", apiarios: 1, colmenas: 10, conEnfermedad: 1, enfermedades: ["Varroa"]);
@@ -118,8 +120,7 @@ namespace GestionApiario.Pruebas
         [InlineData("alimento")]
         [InlineData("enfermedad")]
         [InlineData("producto")]
-        [InlineData("campaña")]
-        public async Task Un_apicultor_puede_consultar_los_catalogos_pero_no_modificarlos(string ruta)
+        public async Task Un_apicultor_puede_consultar_los_catalogos_compartidos_pero_no_modificarlos(string ruta)
         {
             var administradora = await _fabrica.CrearClienteAutenticadoAsync();
             var ana = await _fabrica.CrearApicultorAsync(EmailAna);
@@ -141,9 +142,10 @@ namespace GestionApiario.Pruebas
             var administradora = await _fabrica.CrearClienteAutenticadoAsync();
             var ana = await _fabrica.CrearApicultorAsync(EmailAna);
             var beto = await _fabrica.CrearApicultorAsync(EmailBeto);
-            var campaña = await CrearCampañaAsync();
+            var campaña = await CrearCampañaAsync(ana);
+            var campañaBeto = await CrearCampañaAsync(beto);
             var controlAna = await CrearControlAsync(ana, await CrearApiarioAsync(ana, "De Ana"), campaña);
-            var controlBeto = await CrearControlAsync(beto, await CrearApiarioAsync(beto, "De Beto"), campaña);
+            var controlBeto = await CrearControlAsync(beto, await CrearApiarioAsync(beto, "De Beto"), campañaBeto);
             var idAna = await _fabrica.ObtenerIdUsuarioAsync(EmailAna);
 
             var apiarios = await administradora.GetFromJsonAsync<List<ApiarioGrillaDto>>("/apiario/vertodos");
@@ -161,7 +163,7 @@ namespace GestionApiario.Pruebas
         {
             var administradora = await _fabrica.CrearClienteAutenticadoAsync();
             var beto = await _fabrica.CrearApicultorAsync(EmailBeto);
-            var campaña = await CrearCampañaAsync();
+            var campaña = await CrearCampañaAsync(beto);
             var apiarioBeto = await CrearApiarioAsync(beto, "De Beto");
             var controlBeto = await CrearControlAsync(beto, apiarioBeto, campaña);
 
@@ -198,7 +200,7 @@ namespace GestionApiario.Pruebas
             var administradora = await _fabrica.CrearClienteAutenticadoAsync();
             var ana = await _fabrica.CrearApicultorAsync(EmailAna);
             var beto = await _fabrica.CrearApicultorAsync(EmailBeto);
-            var campaña = await CrearCampañaAsync();
+            var campaña = await CrearCampañaAsync(ana);
             var apiario = await CrearApiarioAsync(ana, "De Ana");
             var control = await CrearControlAsync(ana, apiario, campaña, colmenas: 12);
             var idBeto = await _fabrica.ObtenerIdUsuarioAsync(EmailBeto);
@@ -318,12 +320,9 @@ namespace GestionApiario.Pruebas
             await ApiarioPruebas.ObtenerCodigoCreadoAsync(await cliente.PostAsJsonAsync("/controles",
                 new ControlDto { CodApiario = apiario, CodCampaña = campaña, CantDeColmenas = colmenas, CodEnfermedad = enfermedad }));
 
-        private async Task<int> CrearCampañaAsync()
-        {
-            var campaña = new Campaña { Año = 2026, FechaAlta = DateTime.Now };
-            await _fabrica.UsarBaseAsync(async contexto => { contexto.Add(campaña); await contexto.SaveChangesAsync(); });
-            return campaña.Codigo;
-        }
+        // Crea la campaña desde la API: queda a nombre de quien la crea.
+        internal static async Task<int> CrearCampañaAsync(HttpClient cliente, int año = 2026, string? responsable = "Responsable") =>
+            await ApiarioPruebas.ObtenerCodigoCreadoAsync(await cliente.PostAsJsonAsync("/campaña", new CampañaDto { Año = año, Responsable = responsable }));
 
         private async Task<int> CrearEnfermedadAsync(string nombre)
         {
