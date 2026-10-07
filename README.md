@@ -11,7 +11,6 @@ Sistema para la gestión de apiarios, campañas, controles, enfermedades, alimen
 - [Configuración y ejecución](#configuración-y-ejecución)
 - [Usuarios e inicio de sesión](#usuarios-e-inicio-de-sesión)
 - [Base de datos y migraciones](#base-de-datos-y-migraciones)
-- [Pruebas automatizadas](#pruebas-automatizadas)
 - [Créditos](#créditos)
 
 ---
@@ -24,16 +23,14 @@ Sistema para la gestión de apiarios, campañas, controles, enfermedades, alimen
 - Filtros de controles por apiario, campaña, enfermedad (o "con alguna enfermedad") y rango de fechas. Los aplica la API y quedan en la URL.
 - Tablero con indicadores (apiarios activos, colmenas, apiarios con enfermedades) y gráfico de enfermedades.
 - Validaciones en los formularios y en la API, con mensajes en español.
-- Pruebas automatizadas de la API.
 
 ## Arquitectura
 
-La solución tiene cuatro proyectos:
+La solución tiene tres proyectos:
 
 - **GestionApiario**: API REST con ASP.NET Core y Entity Framework Core. Expone los endpoints de cada entidad y los de cuenta de usuario (`/cuenta/login`, `/cuenta/register`, `/cuenta/refresh`). Todos los controladores exigen haber iniciado sesión.
 - **GestionApiario.web**: frontend en Blazor Server. Consume la API con `HttpClient` y envía el token del usuario en cada solicitud.
 - **GestionApiario.compartido**: DTO compartidos entre la API y el frontend, con sus validaciones.
-- **GestionApiario.Pruebas**: pruebas de integración de la API con xUnit y una base de datos en memoria.
 
 ## Tecnologías
 
@@ -43,7 +40,6 @@ La solución tiene cuatro proyectos:
 - Entity Framework Core 8 (SQL Server)
 - Bootstrap 4 (tema SB Admin 2) y Bootstrap Icons
 - Chart.js 2.9 para el gráfico del tablero
-- xUnit para las pruebas
 
 ## Estructura de la solución
 
@@ -78,10 +74,8 @@ SistemaGestionApiarios/
 │   ├── wwwroot/                          # CSS, íconos, Chart.js y DashBoard.js
 │   └── Program.cs
 │
-├── GestionApiario.compartido/
-│   └── Dto/                              # DTO de entrada, detalle, grilla y tablero
-│
-└── GestionApiario.Pruebas/               # Pruebas de integración de la API
+└── GestionApiario.compartido/
+    └── Dto/                              # DTO de entrada, detalle, grilla y tablero
 ```
 
 ## Configuración y ejecución
@@ -175,29 +169,6 @@ El esquema se maneja con migraciones de Entity Framework Core. La herramienta `d
   ```
   dotnet ef migrations add NombreDeLaMigracion --project GestionApiario
   ```
-
-## Pruebas automatizadas
-
-Hay dos proyectos de pruebas. Ninguno usa la base de datos real.
-
-| Proyecto | Qué prueba | Base de datos | Duración |
-|---|---|---|---|
-| `GestionApiario.Pruebas` | La API: permisos, campañas, reasignación, auditoría, filtros y tablero | En memoria (InMemory) | ~40 s |
-| `GestionApiario.PruebasE2E` | La web completa en Microsoft Edge, siguiendo los pasos de la lista de pruebas manuales | `GestionApiarios_PruebasE2E` en LocalDB | ~2 min |
-
-```
-dotnet test                                  # todas
-dotnet test GestionApiario.Pruebas           # solo la API
-dotnet test GestionApiario.PruebasE2E        # solo las de navegador
-```
-
-**Desde Visual Studio:** menú **Prueba → Explorador de pruebas** (Ctrl+E, T). Ahí aparecen los dos proyectos; **Ejecutar todas las pruebas** (Ctrl+R, A) las corre todas, o hacé clic derecho en un proyecto o en un paso para correr solo ese.
-
-Requisitos de las pruebas de navegador:
-- SQL Server LocalDB (viene con Visual Studio) y Microsoft Edge.
-- Usan los puertos 5390 (API) y 5391 (web); no hace falta cerrar la API y la web que usás normalmente.
-- Cada ejecución borra y vuelve a crear `GestionApiarios_PruebasE2E` en LocalDB. La API de prueba corre en el entorno "Pruebas", donde no se leen los secretos de usuario, así que no puede conectarse a la base real.
-- Para ver el navegador mientras corren, definí la variable de entorno `E2E_VISIBLE=1` antes de abrir Visual Studio o la terminal.
 
 ## Créditos
 
