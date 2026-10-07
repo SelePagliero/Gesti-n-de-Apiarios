@@ -1,0 +1,55 @@
+@page "/olvide-contrasena"
+@layout CuentaLayout
+@inject CuentaServicio _cuenta
+
+<PageTitle>Recuperar contraseña</PageTitle>
+
+<h5 class="mb-2">Recuperar contraseña</h5>
+
+@if (enviado)
+{
+    <div class="alert alert-success" role="status">
+        <i class="bi bi-envelope-check" aria-hidden="true"></i>
+        Si <strong>@Datos.Email</strong> está registrado, te enviamos un correo con un link para elegir una contraseña nueva.
+    </div>
+    <p class="cuenta-aviso">El link vence en una hora. Si no lo ves, revisá la carpeta de correo no deseado.</p>
+    <a href="login" class="btn btn-guardar w-100">Volver al ingreso</a>
+}
+else
+{
+    <p class="cuenta-aviso">Escribí el email con el que te registraste y te enviamos un link para elegir una contraseña nueva.</p>
+
+    <MensajeError Mensaje="@mensajeError" />
+
+    <EditForm Model="Datos" OnValidSubmit="Enviar">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <InputText id="email" type="email" class="form-control" @bind-Value="Datos.Email" autocomplete="username" />
+            <ValidationMessage For="() => Datos.Email" />
+        </div>
+        <button type="submit" class="btn btn-guardar w-100" disabled="@procesando">
+            @(procesando ? "Enviando..." : "Enviar link")
+        </button>
+    </EditForm>
+
+    <p class="mt-3 mb-0 text-center">
+        <a href="login">Volver al ingreso</a>
+    </p>
+}
+
+@code {
+    private OlvideContraseñaDto Datos { get; set; } = new();
+    private string? mensajeError;
+    private bool procesando;
+    private bool enviado;
+
+    private async Task Enviar()
+    {
+        procesando = true;
+        Datos.Email = Datos.Email.Trim();
+        mensajeError = await _cuenta.SolicitarRecuperacionAsync(Datos.Email);
+        procesando = false;
+        enviado = mensajeError is null;
+    }
+}

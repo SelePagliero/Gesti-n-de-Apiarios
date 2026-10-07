@@ -22,6 +22,9 @@
         <label for="password" class="form-label">Contraseña</label>
         <InputText id="password" type="password" class="form-control" @bind-Value="Datos.Password" autocomplete="current-password" />
         <ValidationMessage For="() => Datos.Password" />
+        <div class="text-end mt-2">
+            <a href="olvide-contrasena" class="link-olvide">¿Olvidaste tu contraseña?</a>
+        </div>
     </div>
     <button type="submit" class="btn btn-primary w-100" disabled="@procesando">
         @(procesando ? "Ingresando..." : "Ingresar")
@@ -54,13 +57,7 @@
         procesando = false;
 
         if (mensajeError is null)
-        {
-            // Con una contraseña temporal primero tiene que elegir una propia.
-            if ((await _estado.ObtenerSesionAsync())?.DebeCambiarContraseña == true)
-                _navegationmanager.NavigateTo(AutenticacionExtensiones.PaginaContraseñaTemporal);
-            else
-                IrAlDestino();
-        }
+            IrAlDestino();
     }
 
     private void IrAlDestino()
