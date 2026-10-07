@@ -4,11 +4,7 @@
 
 <PageTitle>Inicio</PageTitle>
 
-<div class="encabezado-tablero">
-    <div>
-        <h1 class="mb-1">Inicio</h1>
-        <p class="text-muted mb-0">@(esAdministrador ? "Resumen de los apiarios de todos los apicultores." : "Resumen de tus apiarios según el último control de cada uno.")</p>
-    </div>
+<EncabezadoPagina Titulo="Inicio" Descripcion="@(esAdministrador ? "Resumen de los apiarios de todos los apicultores." : "Resumen de tus apiarios según el último control de cada uno.")">
     @if (esAdministrador)
     {
         <div class="selector-apicultor">
@@ -22,13 +18,13 @@
             </select>
         </div>
     }
-</div>
+</EncabezadoPagina>
 
 <div class="row g-3 mb-4">
     <div class="col-12 col-md-4">
         <div class="card indicador indicador-ambar h-100">
             <div class="card-body">
-                <div class="indicador-icono"><i class="bi bi-hexagon-fill" aria-hidden="true"></i></div>
+                <div class="indicador-icono"><i class="bi bi-hexagon" aria-hidden="true"></i></div>
                 <div>
                     <div class="indicador-titulo">Apiarios activos</div>
                     <div id="tablero-apiarios" class="indicador-valor">@DashBoard.ApiariosActivos</div>
@@ -40,7 +36,7 @@
     <div class="col-12 col-md-4">
         <div class="card indicador indicador-verde h-100">
             <div class="card-body">
-                <div class="indicador-icono"><i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i></div>
+                <div class="indicador-icono"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i></div>
                 <div>
                     <div class="indicador-titulo">Colmenas en total</div>
                     <div id="tablero-colmenas" class="indicador-valor">@DashBoard.CantidadTotalDeColmenas</div>
@@ -52,7 +48,7 @@
     <div class="col-12 col-md-4">
         <div class="card indicador indicador-rojo h-100">
             <div class="card-body">
-                <div class="indicador-icono"><i class="bi bi-virus" aria-hidden="true"></i></div>
+                <div class="indicador-icono"><i class="bi bi-heart-pulse" aria-hidden="true"></i></div>
                 <div>
                     <div class="indicador-titulo">Apiarios con enfermedades</div>
                     <div id="tablero-enfermos" class="indicador-valor">@DashBoard.ApiariosConEnfermedades</div>
@@ -70,7 +66,7 @@ else if (HayEnfermedades)
 {
     <div class="card">
         <div class="card-header py-3">
-            <h6 class="m-0 fw-bold">Enfermedades encontradas</h6>
+            <h2 class="titulo-tarjeta">Enfermedades encontradas</h2>
             <small class="text-muted">Porcentaje de apiarios según la enfermedad de su último control</small>
         </div>
         <div class="card-body">
@@ -84,7 +80,7 @@ else
 {
     <div class="card estado-sano">
         <div class="card-body text-center py-5">
-            <div class="estado-sano-icono"><i class="bi bi-check-circle-fill" aria-hidden="true"></i></div>
+            <div class="estado-sano-icono"><i class="bi bi-check-circle" aria-hidden="true"></i></div>
             <h4 class="mb-2">¡Excelente!</h4>
             <p class="mb-0">No se han registrado enfermedades en los apiarios</p>
             <p class="text-muted small mb-0">Todos los apiarios se encuentran en estado óptimo</p>

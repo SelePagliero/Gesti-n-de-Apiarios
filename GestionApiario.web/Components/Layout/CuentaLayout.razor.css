@@ -1,67 +1,83 @@
+/* Ingreso y registro: tarjeta centrada sobre el fondo crema (colores de app.css). */
+
 .cuenta-fondo {
     min-height: 100vh;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
     background-color: var(--miel-fondo);
 }
 
-/* Mitad izquierda: foto con un degradé cálido para que el texto se lea. */
-.cuenta-foto {
-    flex: 1 1 55%;
-    display: none;
-    position: relative;
-    background:
-        linear-gradient(180deg, rgba(62, 36, 22, .05) 30%, rgba(62, 36, 22, .85) 100%),
-        url("apicultor.jpg") center / cover no-repeat;
+.cuenta-contenido {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
 }
 
-.cuenta-foto-texto {
-    position: absolute;
-    left: 3rem;
-    right: 3rem;
-    bottom: 3rem;
-    color: #fff;
+/* Logo del hexágono y nombre del sistema, arriba de la tarjeta. */
+.cuenta-marca {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
 }
 
-    .cuenta-foto-texto h2 {
-        color: #fff;
-        font-size: 2.25rem;
-        font-weight: 800;
-        line-height: 1.15;
-        text-shadow: 0 2px 12px rgba(0, 0, 0, .35);
-    }
-
-    .cuenta-foto-texto p {
-        font-size: 1.1rem;
-        color: #F6E7C8;
-        margin: 0;
-    }
-
-/* Mitad derecha: el formulario. */
-.cuenta-panel {
-    flex: 1 1 45%;
+.cuenta-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--miel);
+    color: var(--miel-menu);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem;
-    background: radial-gradient(circle at 20% 10%, #FDF1D6 0%, var(--miel-fondo) 45%);
+    font-size: 1.75rem;
+    box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .12);
+}
+
+.cuenta-nombre {
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+    font-size: 1.6rem;
+    color: var(--miel-texto);
+    letter-spacing: -.01em;
 }
 
 .cuenta-tarjeta {
     width: 100%;
-    max-width: 440px;
-    border: 1px solid var(--miel-borde);
 }
 
-.cuenta-logo {
-    width: 72px;
-    height: 72px;
-    background: var(--miel-suave);
-    border-radius: 20px;
-    padding: 8px;
-}
-
-@media (min-width: 992px) {
-    .cuenta-foto {
-        display: block;
+    .cuenta-tarjeta .card-body {
+        padding: 1.75rem;
     }
-}
+
+    /* Mismo alto de campos que el resto del sistema; el botón principal en marrón oscuro. */
+    .cuenta-tarjeta ::deep .form-control {
+        height: 42px;
+    }
+
+    .cuenta-tarjeta ::deep h5 {
+        font-family: var(--fuente-titulos);
+        font-size: 1.3rem;
+        margin-bottom: 1.1rem !important;
+    }
+
+    .cuenta-tarjeta ::deep .btn-primary {
+        --bs-btn-color: #FFF8EC;
+        --bs-btn-bg: var(--miel-menu);
+        --bs-btn-border-color: var(--miel-menu);
+        --bs-btn-hover-color: #fff;
+        --bs-btn-hover-bg: #47321F;
+        --bs-btn-hover-border-color: #47321F;
+        --bs-btn-active-color: #fff;
+        --bs-btn-active-bg: #47321F;
+        --bs-btn-active-border-color: #47321F;
+        --bs-btn-disabled-color: #FFF8EC;
+        --bs-btn-disabled-bg: #8A7765;
+        --bs-btn-disabled-border-color: #8A7765;
+        height: 44px;
+    }

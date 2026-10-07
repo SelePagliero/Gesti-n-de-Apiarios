@@ -5,14 +5,7 @@
 
 <PageTitle>Alimento</PageTitle>
 
-@if (Codigo is null)
-{
-    <h3>Crear Alimento</h3>
-}
-else
-{
-    <h3>Actualizar Alimento</h3>
-}
+<EncabezadoPagina Titulo="@(Codigo is null ? "Nuevo alimento" : "Editar alimento")" />
 
 @* Los catálogos solo los modifica la Administradora; la API también lo exige. *@
 <AuthorizeView Roles="@RolesUsuario.Administrador" Context="autorizacion">
@@ -26,8 +19,10 @@ else
                 <InputText class="form-control" id="nombre" @bind-Value="Alimento.Nombre" />
                 <ValidationMessage For="() => Alimento.Nombre" />
             </div>
-            <a href="/alimentos" class="btn btn-secondary">Volver</a>
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <div class="acciones-formulario">
+                <button type="submit" class="btn btn-guardar">Guardar</button>
+                <a href="/alimentos" class="btn btn-cancelar">Cancelar</a>
+            </div>
         </EditForm>
     </Authorized>
     <NotAuthorized>

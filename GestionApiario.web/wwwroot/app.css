@@ -424,6 +424,127 @@ h1:focus {
     border-radius: var(--miel-radio);
 }
 
+/* ---------- Formularios y pantallas de Ver ---------- */
+
+/* "Guardar" (y "Editar" en las pantallas de Ver): marrón oscuro, igual que "Nuevo ...". */
+.btn-guardar {
+    --bs-btn-color: #FFF8EC;
+    --bs-btn-bg: var(--miel-menu);
+    --bs-btn-border-color: var(--miel-menu);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #47321F;
+    --bs-btn-hover-border-color: #47321F;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #47321F;
+    --bs-btn-active-border-color: #47321F;
+    --bs-btn-disabled-color: #FFF8EC;
+    --bs-btn-disabled-bg: #8A7765;
+    --bs-btn-disabled-border-color: #8A7765;
+    --bs-btn-focus-shadow-rgb: 46, 31, 20;
+    min-width: 7.5rem;
+    padding: .55rem 1.1rem;
+}
+
+/* "Cancelar" y "Volver": con borde, sin relleno. */
+.btn-cancelar {
+    --bs-btn-color: var(--miel-texto);
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: #D9CBB2;
+    --bs-btn-hover-color: var(--miel-texto);
+    --bs-btn-hover-bg: var(--miel-encabezado-tabla);
+    --bs-btn-hover-border-color: #CDBFA7;
+    --bs-btn-active-color: var(--miel-texto);
+    --bs-btn-active-bg: var(--miel-encabezado-tabla);
+    --bs-btn-active-border-color: #CDBFA7;
+    min-width: 7.5rem;
+    padding: .55rem 1.1rem;
+}
+
+/* Botones al pie del formulario o de la tarjeta de detalle. */
+.acciones-formulario {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    border-top: 1px solid var(--miel-borde);
+    margin-top: .75rem;
+    padding-top: 1.1rem;
+}
+
+    .acciones-formulario .btn + .btn {
+        margin-left: 0;
+    }
+
+/* Campos de los formularios: mismo alto que los filtros (las áreas de texto conservan su alto). */
+.content form .form-control:not(textarea), .content form .form-select {
+    height: 42px;
+}
+
+.form-text.text-warning {
+    color: #8A5A12 !important;
+}
+
+/* Pantallas de Ver: los datos en dos columnas, etiqueta y valor. */
+.tarjeta-detalle {
+    max-width: 960px;
+}
+
+    .tarjeta-detalle .card-body {
+        padding: 1.5rem;
+    }
+
+.detalle {
+    display: grid;
+    grid-template-columns: minmax(10rem, 14rem) 1fr;
+    margin: 0;
+}
+
+    .detalle dt, .detalle dd {
+        margin: 0;
+        padding: .7rem 0;
+        border-bottom: 1px solid #EFE6D6;
+    }
+
+    .detalle dt {
+        color: var(--miel-texto-suave);
+        font-weight: 600;
+        font-size: .9rem;
+        padding-right: 1rem;
+    }
+
+    .detalle dd {
+        color: var(--miel-texto);
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+        .detalle dd.numero {
+            font-variant-numeric: tabular-nums;
+        }
+
+    .detalle .detalle-texto {
+        white-space: pre-line;
+    }
+
+    .detalle dt:last-of-type, .detalle dd:last-of-type {
+        border-bottom: 0;
+    }
+
+@media (max-width: 575.98px) {
+    /* En el celular, cada etiqueta queda arriba de su valor. */
+    .detalle {
+        grid-template-columns: 1fr;
+    }
+
+        .detalle dt {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .detalle dd {
+            padding-top: .2rem;
+        }
+}
+
 /* ---------- Validación ---------- */
 
 .valid.modified:not([type=checkbox]) {
