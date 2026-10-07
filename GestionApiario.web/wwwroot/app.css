@@ -291,6 +291,16 @@ h1:focus {
         height: 42px;
     }
 
+    /* La "x" para borrar la búsqueda, en marrón en lugar del azul del navegador. */
+    .grilla-filtros input[type=search]::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        cursor: pointer;
+        background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3 3l10 10M13 3L3 13' stroke='%236E5A45' stroke-width='2' stroke-linecap='round'/></svg>") center / 12px no-repeat;
+    }
+
 .pie-filtros {
     display: flex;
     flex-wrap: wrap;
@@ -312,6 +322,9 @@ h1:focus {
     border-radius: var(--miel-radio);
     box-shadow: var(--miel-sombra);
     overflow-x: auto;
+    /* Contiene los textos ocultos (por ejemplo, el título "Acciones"): sin esto quedaban fuera de la
+       tarjeta y en el celular la página se podía desplazar hacia los costados. */
+    position: relative;
 }
 
     .tabla-tarjeta .table {
