@@ -17,41 +17,11 @@ namespace GestionApiario.compartido.Dto
         public string ConfirmacionContraseña { get; set; } = string.Empty;
     }
 
-    // PUT /usuarios/{id}/contrasena: la Administradora le pone una contraseña nueva a un apicultor que la olvidó.
-    public class ContraseñaNuevaDto
+    // Respuesta de POST /usuarios/{id}/restablecer-contrasena. La contraseña no se guarda en ningún lado:
+    // la Administradora la ve una sola vez.
+    public class ContraseñaTemporalDto
     {
-        [Required(ErrorMessage = "Ingresá la contraseña nueva.")]
-        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña nueva debe tener al menos 8 caracteres.")]
-        public string ContraseñaNueva { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Repetí la contraseña nueva.")]
-        [Compare(nameof(ContraseñaNueva), ErrorMessage = "Las dos contraseñas nuevas no coinciden.")]
-        public string ConfirmacionContraseña { get; set; } = string.Empty;
-    }
-
-    // POST /cuenta/olvide-contrasena: pide el link para elegir una contraseña nueva.
-    public class OlvideContraseñaDto
-    {
-        [Required(ErrorMessage = "Ingresá tu email.")]
-        [EmailAddress(ErrorMessage = "El email no es válido.")]
         public string Email { get; set; } = string.Empty;
-    }
-
-    // POST /cuenta/restablecer-contrasena: la contraseña nueva, con el código que llegó en el link del correo.
-    public class RestablecimientoContraseñaDto
-    {
-        [Required(ErrorMessage = "El link no es válido.")]
-        public string Email { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "El link no es válido.")]
-        public string Codigo { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Ingresá la contraseña nueva.")]
-        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña nueva debe tener al menos 8 caracteres.")]
-        public string ContraseñaNueva { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Repetí la contraseña nueva.")]
-        [Compare(nameof(ContraseñaNueva), ErrorMessage = "Las dos contraseñas nuevas no coinciden.")]
-        public string ConfirmacionContraseña { get; set; } = string.Empty;
+        public string Contraseña { get; set; } = string.Empty;
     }
 }

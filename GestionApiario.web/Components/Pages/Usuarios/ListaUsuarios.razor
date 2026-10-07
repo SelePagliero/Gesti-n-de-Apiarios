@@ -1,17 +1,37 @@
 @page "/usuarios"
 @inject IApiariosServicio _servicio
+@inject IJSRuntime JS
 
 <PageTitle>Usuarios</PageTitle>
 
-<EncabezadoPagina Titulo="Usuarios" Descripcion="Las personas registradas en el sistema. Si un apicultor olvidó su contraseña, cambiásela desde acá." />
+<EncabezadoPagina Titulo="Usuarios" Descripcion="Las personas registradas en el sistema. Si un apicultor olvidó su contraseña, restablecela desde acá." />
 
 @* Solo la Administradora; la API también lo exige (responde 403 a los apicultores). *@
 <AuthorizeView Roles="@RolesUsuario.Administrador" Context="autorizacion">
     <Authorized>
-        @if (!string.IsNullOrEmpty(Cambiada))
+        <MensajeError Mensaje="@mensajeError" />
+
+        @if (temporal is not null)
         {
-            <div class="alert alert-success" role="status">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i> Se cambió la contraseña de <strong>@Cambiada</strong>. Pasásela por un medio seguro; la anterior ya no sirve.
+            <div class="card tarjeta-contrasena mb-4" role="status">
+                <div class="card-body">
+                    <div class="tarjeta-contrasena-titulo">
+                        <i class="bi bi-key" aria-hidden="true"></i> Contraseña temporal de @temporal.Email
+                    </div>
+                    <div class="contrasena-temporal">
+                        <code id="contrasena-temporal">@temporal.Contraseña</code>
+                        <button type="button" class="btn btn-cancelar" @onclick="Copiar">
+                            <i class="bi @(copiada ? "bi-check2" : "bi-clipboard")" aria-hidden="true"></i> @(copiada ? "Copiada" : "Copiar")
+                        </button>
+                    </div>
+                    <p class="mb-0">
+                        Pasásela al apicultor. Cuando ingrese con ella, el sistema le va a pedir que elija una contraseña propia.
+                        <strong>No se vuelve a mostrar:</strong> si la perdés, restablecela de nuevo.
+                    </p>
+                    <div class="acciones-formulario">
+                        <button type="button" class="btn btn-guardar" @onclick="Ocultar">Listo</button>
+                    </div>
+                </div>
             </div>
         }
 
@@ -28,16 +48,18 @@
                             <th>Email</th>
                             <th>Rol</th>
                             <th class="numero">Apiarios</th>
+                            <th>Contraseña</th>
                             <th class="col-acciones"><span class="visually-hidden">Acciones</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var usuario in usuarios)
                         {
+                            var esYo = usuario.Email == emailActual;
                             <tr>
                                 <td>
                                     @usuario.Email
-                                    @if (usuario.Email == emailActual)
+                                    @if (esYo)
                                     {
                                         <span class="texto-suave ms-1">(vos)</span>
                                     }
@@ -53,13 +75,25 @@
                                     }
                                 </td>
                                 <td class="numero">@usuario.CantidadApiarios</td>
-                                <td class="col-acciones">
-                                    @if (!usuario.EsAdministrador)
+                                <td>
+                                    @if (usuario.TieneContraseñaTemporal)
                                     {
-                                        <a href="@($"/usuarios/{usuario.Id}/contrasena")" class="btn-texto"
-                                           aria-label="Cambiar la contraseña de @usuario.Email">
-                                            <i class="bi bi-key" aria-hidden="true"></i> Cambiar contraseña
-                                        </a>
+                                        <span class="etiqueta etiqueta-miel" title="Todavía no ingresó para elegir una propia">Temporal</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="etiqueta etiqueta-sana">Propia</span>
+                                    }
+                                </td>
+                                <td class="col-acciones">
+                                    @if (!esYo)
+                                    {
+                                        <button type="button" class="btn-texto" disabled="@(procesando is not null)"
+                                                aria-label="Restablecer la contraseña de @usuario.Email"
+                                                @onclick="() => Restablecer(usuario)">
+                                            <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+                                            @(procesando == usuario.Id ? "Restableciendo..." : "Restablecer contraseña")
+                                        </button>
                                     }
                                 </td>
                             </tr>
@@ -77,11 +111,11 @@
 
 @code {
     List<UsuarioGrillaDto>? usuarios = null;
+    ContraseñaTemporalDto? temporal;
+    string? mensajeError;
     string? emailActual;
-
-    // Email del apicultor al que se le acaba de cambiar la contraseña (lo pone ContraseñaUsuario al volver).
-    [SupplyParameterFromQuery]
-    public string? Cambiada { get; set; }
+    string? procesando;
+    bool copiada;
 
     [CascadingParameter]
     Task<AuthenticationState>? Autenticacion { get; set; }
@@ -92,6 +126,58 @@
             return;
 
         emailActual = (await Autenticacion!).User.Identity?.Name;
+        await CargarUsuarios();
+    }
+
+    async Task Restablecer(UsuarioGrillaDto usuario)
+    {
+        if (!await JS.InvokeAsync<bool>("confirm",
+                $"¿Restablecer la contraseña de {usuario.Email}? La contraseña que usa ahora va a dejar de funcionar."))
+            return;
+
+        mensajeError = null;
+        temporal = null;
+        copiada = false;
+        procesando = usuario.Id;
+        try
+        {
+            temporal = await _servicio.RestablecerContraseña(usuario.Id);
+            await CargarUsuarios();
+        }
+        catch (HttpRequestException ex)
+        {
+            mensajeError = ex.Message;
+        }
+        finally
+        {
+            procesando = null;
+        }
+    }
+
+    async Task Copiar()
+    {
+        if (temporal is null)
+            return;
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", temporal.Contraseña);
+            copiada = true;
+        }
+        catch (JSException)
+        {
+            mensajeError = "No se pudo copiar. Seleccioná la contraseña y copiala a mano.";
+        }
+    }
+
+    // La contraseña solo vive en esta pantalla: al tocar "Listo" (o salir) ya no se puede volver a ver.
+    void Ocultar()
+    {
+        temporal = null;
+        copiada = false;
+    }
+
+    async Task CargarUsuarios()
+    {
         usuarios = await _servicio.ObtenerGrillaUsuarios();
     }
 }

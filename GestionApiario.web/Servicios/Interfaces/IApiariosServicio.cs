@@ -64,7 +64,7 @@ namespace GestionApiario.web.Servicios.Interfaces
         // Solo para la Administradora (la API responde 403 a los apicultores).
         Task<List<UsuarioDto>> ObtenerUsuarios();
         Task<List<UsuarioGrillaDto>> ObtenerGrillaUsuarios();
-        Task CambiarContraseñaDeUsuario(string usuarioId, ContraseñaNuevaDto cambio);
+        Task<ContraseñaTemporalDto> RestablecerContraseña(string usuarioId);
         #endregion
     }
 }

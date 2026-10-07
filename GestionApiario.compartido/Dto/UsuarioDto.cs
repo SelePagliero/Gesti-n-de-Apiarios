@@ -19,6 +19,9 @@ namespace GestionApiario.compartido.Dto
         public string Email { get; set; } = string.Empty;
         public bool EsAdministrador { get; set; }
         public int CantidadApiarios { get; set; }
+
+        // Se le restableció la contraseña y todavía no eligió una propia.
+        public bool TieneContraseñaTemporal { get; set; }
     }
 
     // Respuesta de GET /cuenta/yo.
@@ -26,5 +29,8 @@ namespace GestionApiario.compartido.Dto
     {
         public string Email { get; set; } = string.Empty;
         public bool EsAdministrador { get; set; }
+
+        // Ingresó con una contraseña temporal: tiene que cambiarla antes de usar el sistema.
+        public bool DebeCambiarContraseña { get; set; }
     }
 }
