@@ -1,4 +1,7 @@
 # Visual Studio
+# La única solución es la de la raíz (GestionApiario.sln). Visual Studio crea otra dentro de la carpeta
+# de un proyecto si se abre el .csproj directamente; se ignora para que no se suba por error.
+/*/*.sln
 .vs/
 *.user
 *.suo
