@@ -1,0 +1,22 @@
+@page "/cambiar-contrasena"
+
+<PageTitle>Cambiar contraseña</PageTitle>
+
+<EncabezadoPagina Titulo="Cambiar contraseña" Descripcion="Elegí una contraseña nueva para entrar al sistema." />
+
+@if (cambiada)
+{
+    <div class="alert alert-success ancho-formulario-angosto" role="status">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i> Tu contraseña se cambió. La próxima vez que ingreses usá la nueva.
+    </div>
+}
+
+<FormularioCambioContraseña AlCambiar="() => cambiada = true">
+    <Acciones>
+        <a href="/" class="btn btn-cancelar">Cancelar</a>
+    </Acciones>
+</FormularioCambioContraseña>
+
+@code {
+    private bool cambiada;
+}

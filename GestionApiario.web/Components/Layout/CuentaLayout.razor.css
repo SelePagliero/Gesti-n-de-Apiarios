@@ -66,6 +66,16 @@
         margin-bottom: 1.1rem !important;
     }
 
+    .cuenta-tarjeta ::deep .cuenta-aviso {
+        color: var(--miel-texto-suave);
+        font-size: .92rem;
+        margin-bottom: 1.1rem;
+    }
+
+    .cuenta-tarjeta ::deep .btn-guardar {
+        height: 44px;
+    }
+
     .cuenta-tarjeta ::deep .btn-primary {
         --bs-btn-color: #FFF8EC;
         --bs-btn-bg: var(--miel-menu);
