@@ -134,6 +134,11 @@ h1:focus {
     margin-right: .25rem;
 }
 
+/* Botón cuyo texto se oculta en pantallas chicas: el ícono no lleva margen extra. */
+.btn .bi:has(+ .d-none) {
+    margin-right: 0;
+}
+
 .btn:focus-visible, .btn:active:focus, .form-control:focus, .form-select:focus, .form-check-input:focus {
     border-color: var(--miel-ambar);
     box-shadow: 0 0 0 .2rem rgba(233, 168, 37, .3);
@@ -142,6 +147,7 @@ h1:focus {
 /* ---------- Tarjetas, tablas y formularios ---------- */
 
 .card {
+    --bs-card-bg: #fff;
     border-color: var(--miel-borde);
     border-radius: var(--bs-border-radius-lg);
     box-shadow: var(--miel-sombra);
@@ -184,9 +190,15 @@ h1:focus {
 }
 
 .tabla-tarjeta .table > :not(caption) > * > * {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: .85rem;
+    padding-right: .85rem;
     border-bottom-color: #F1E8D6;
+}
+
+/* La columna de acciones (la última) va en una sola línea; el resto puede cortar el texto. */
+.tabla-tarjeta .table > tbody > tr > td:last-child {
+    white-space: nowrap;
+    width: 1%;
 }
 
 .tabla-tarjeta .table > tbody > tr:last-child > * {
@@ -197,7 +209,7 @@ h1:focus {
 .tabla-tarjeta .btn {
     padding: .25rem .65rem;
     font-size: .82rem;
-    margin: .1rem .1rem .1rem 0;
+    margin: 0;
     border-width: 1px;
 }
 
@@ -243,13 +255,20 @@ h1:focus {
 }
 
 .form-control, .form-select {
+    background-color: #fff;
     border-color: #E3D6BF;
     border-radius: .55rem;
 }
 
 .form-control:disabled, .form-select:disabled {
-    background-color: #F7F1E6;
-    color: var(--miel-texto);
+    background-color: #F4EDE1;
+    border-color: #EADFC9;
+    color: var(--miel-texto-suave);
+}
+
+/* Espacio entre botones contiguos (por ejemplo "Volver" y "Guardar"). */
+.btn + .btn {
+    margin-left: .5rem;
 }
 
 .alert {

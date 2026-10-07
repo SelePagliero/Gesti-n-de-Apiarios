@@ -33,7 +33,8 @@ window.renderGraficoEnfermedades = function (dataEnfermedades) {
             },
             legend: {
                 display: true,
-                position: 'right',
+                // En pantallas chicas la leyenda va abajo para que el gráfico no quede angosto.
+                position: window.innerWidth < 768 ? 'bottom' : 'right',
                 labels: {
                     boxWidth: 14,
                     padding: 16,
