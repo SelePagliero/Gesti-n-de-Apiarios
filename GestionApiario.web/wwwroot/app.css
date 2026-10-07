@@ -565,7 +565,7 @@ h1:focus {
 /* ---------- Contraseñas ---------- */
 
 /* El formulario de "Cambiar contraseña" tiene pocos campos: va más angosto que los demás. */
-.content form.formulario-angosto {
+.content form.formulario-angosto, .ancho-formulario-angosto {
     max-width: 520px;
 }
 
