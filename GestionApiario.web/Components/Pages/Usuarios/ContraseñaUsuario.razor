@@ -23,14 +23,16 @@
         }
         else
         {
-            <MensajeError Mensaje="@mensajeError" />
+            <div class="ancho-formulario-angosto">
+                <MensajeError Mensaje="@mensajeError" />
+            </div>
 
             <EditForm Model="Cambio" OnValidSubmit="Guardar" class="formulario-angosto">
                 <DataAnnotationsValidator />
-                <dl class="detalle mb-3">
-                    <dt>Apicultor</dt>
-                    <dd id="usuario-email">@usuario.Email</dd>
-                </dl>
+                <div class="mb-3">
+                    <span class="form-label d-block mb-1">Apicultor</span>
+                    <span id="usuario-email" class="fw-semibold text-break">@usuario.Email</span>
+                </div>
                 <div class="mb-3">
                     <label for="contrasena-nueva" class="form-label">Contraseña nueva</label>
                     <InputText id="contrasena-nueva" type="password" class="form-control" @bind-Value="Cambio.ContraseñaNueva" autocomplete="new-password" aria-describedby="reglas-contrasena" />

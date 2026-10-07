@@ -149,6 +149,7 @@ SistemaGestionApiarios/
 ### Contraseñas
 
 - **Cambiar contraseña:** cualquier usuario puede cambiar la suya desde el encabezado. Pide la actual y la nueva dos veces.
+- **Apicultor que olvidó su contraseña:** la Administradora se la cambia desde **Usuarios → Cambiar contraseña** (escribe la nueva dos veces y después se la pasa). Solo ella puede hacerlo: la API responde 403 a los apicultores y no permite usarlo sobre la propia cuenta ni sobre otra Administradora.
 - **¿Olvidaste tu contraseña?:** desde la pantalla de ingreso se escribe el email y llega un correo con un link para elegir una contraseña nueva. El link vence en una hora y sirve una sola vez. La API responde lo mismo aunque el email no esté registrado, para que no se pueda averiguar quién tiene cuenta, y limita los pedidos por dirección IP (10 cada 15 minutos).
 - **Configurar el envío de correos.** Por defecto se usa Gmail (`smtp.gmail.com`, puerto 587, en `GestionApiario/appsettings.json`). La cuenta tiene que tener la verificación en dos pasos activada; en <https://myaccount.google.com/apppasswords> se crea una *contraseña de aplicación* y se guarda en los secretos de usuario junto con el email:
 
