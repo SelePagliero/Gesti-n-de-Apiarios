@@ -56,18 +56,21 @@ SistemaGestionApiarios/
 │   │   ├── AlimentoController.cs
 │   │   ├── ApiarioController.cs
 │   │   ├── CampañaController.cs
+│   │   ├── CuentaController.cs           # Cambiar y recuperar la contraseña
 │   │   ├── ControlesController.cs
 │   │   ├── DashBoardController.cs        # Indicadores y gráfico del tablero
 │   │   ├── EnfermedadController.cs
-│   │   └── ProductoController.cs
+│   │   ├── ProductoController.cs
+│   │   └── UsuariosController.cs         # Lista de usuarios (solo la Administradora)
 │   ├── Migrations/                       # Migraciones de Entity Framework Core
 │   ├── Models/                           # Entidades y GestionApiariosContext
+│   ├── Servicios/EnviadorCorreo.cs        # Envío de correos por SMTP
 │   └── Program.cs                        # Configuración de la API, Identity y Swagger
 │
 ├── GestionApiario.web/                   # Frontend (Blazor Server)
 │   ├── Components/
 │   │   ├── Compartido/MensajeError.razor
-│   │   ├── Cuenta/                       # Login.razor y Registro.razor
+│   │   ├── Cuenta/                       # Ingreso, registro y recuperar la contraseña
 │   │   ├── Layout/                       # MainLayout, CuentaLayout, NavMenu
 │   │   └── Pages/                        # Una carpeta por entidad (Lista y Actualizar)
 │   ├── Servicios/
@@ -148,6 +151,19 @@ SistemaGestionApiarios/
 
   Al arrancar, la API le asigna el rol y le pasa los apiarios que no tienen dueño. Si la cuenta se registra después de arrancar la API, reiniciala una vez.
 - Si se cambia el rol de un usuario, el cambio se aplica cuando vuelve a iniciar sesión o cuando se renueva su token (como máximo en una hora).
+
+### Contraseñas
+
+- **Cambiar contraseña:** cualquier usuario puede cambiar la suya desde el encabezado. Pide la actual y la nueva dos veces.
+- **¿Olvidaste tu contraseña?:** desde la pantalla de ingreso se escribe el email y llega un correo con un link para elegir una contraseña nueva. El link vence en una hora y sirve una sola vez. La API responde lo mismo aunque el email no esté registrado, para que no se pueda averiguar quién tiene cuenta, y limita los pedidos por dirección IP (10 cada 15 minutos).
+- **Configurar el envío de correos.** Por defecto se usa Gmail (`smtp.gmail.com`, puerto 587, en `GestionApiario/appsettings.json`). La cuenta tiene que tener la verificación en dos pasos activada; en <https://myaccount.google.com/apppasswords> se crea una *contraseña de aplicación* y se guarda en los secretos de usuario junto con el email:
+
+  ```
+  dotnet user-secrets set "Correo:Usuario" "cuenta@gmail.com" --project GestionApiario
+  dotnet user-secrets set "Correo:Contraseña" "la-contraseña-de-aplicación" --project GestionApiario
+  ```
+
+  El link del correo apunta a la web, cuya dirección se configura en `Web:UrlBase` (por defecto `https://localhost:7101`). Si el correo no está configurado, la pantalla avisa que por ahora no se pueden enviar correos.
 
 ## Base de datos y migraciones
 
