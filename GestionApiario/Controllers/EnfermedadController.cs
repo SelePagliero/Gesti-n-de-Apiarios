@@ -33,20 +33,20 @@ namespace GestionApiario.Controllers
         [HttpGet("{Codigo}")]
         public async Task<ActionResult<EnfermedadDetalleDto>> ObtenerEnfermedad([FromRoute] int Codigo)
         {
-            // El email de quien creó el registro ("creado por") solo lo ve la Administradora.
-            var mostrarCreador = EsAdministrador;
+            // Los emails de auditoría ("creado por", "modificado por" y "dado de baja por") solo los ve la Administradora.
+            var mostrarAuditoria = EsAdministrador;
             var enfermedad = await _context.Enfermedades
                 .Where(e => e.Codigo == Codigo && e.FechaBaja == null)
                 .Select(e => new EnfermedadDetalleDto()
                 {
                     Codigo = e.Codigo,
                     Nombre = e.Nombre,
-                    UsuarioAlta = mostrarCreador ? e.UsuarioAlta : null,
+                    UsuarioAlta = mostrarAuditoria ? e.UsuarioAlta : null,
                     FechaAlta = e.FechaAlta,
-                    UsuarioBaja = e.UsuarioBaja,
+                    UsuarioBaja = mostrarAuditoria ? e.UsuarioBaja : null,
                     FechaBaja = e.FechaBaja,
                     FechaModificacion = e.FechaModificacion,
-                    UsuarioModificacion = e.UsuarioModificacion
+                    UsuarioModificacion = mostrarAuditoria ? e.UsuarioModificacion : null
                 })
                 .FirstOrDefaultAsync();
 

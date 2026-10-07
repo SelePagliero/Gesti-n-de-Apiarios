@@ -38,8 +38,8 @@ namespace GestionApiario.Controllers
         [HttpGet("{Codigo}")]
         public async Task<ActionResult<CampañaDetalleDto>> ObtenerCampaña([FromRoute] int Codigo)
         {
-            // El email de quien creó el registro ("creado por") solo lo ve la Administradora.
-            var mostrarCreador = EsAdministrador;
+            // Los emails de auditoría ("creado por", "modificado por" y "dado de baja por") solo los ve la Administradora.
+            var mostrarAuditoria = EsAdministrador;
             var campaña = await CampañasVisibles()
                 .Where(c => c.Codigo == Codigo)
                 .Select(c => new CampañaDetalleDto()
@@ -47,12 +47,12 @@ namespace GestionApiario.Controllers
                     Codigo = c.Codigo,
                     Año = c.Año,
                     Responsable = c.Responsable,
-                    UsuarioAlta = mostrarCreador ? c.UsuarioAlta : null,
+                    UsuarioAlta = mostrarAuditoria ? c.UsuarioAlta : null,
                     FechaAlta = c.FechaAlta,
-                    UsuarioBaja = c.UsuarioBaja,
+                    UsuarioBaja = mostrarAuditoria ? c.UsuarioBaja : null,
                     FechaBaja = c.FechaBaja,
                     FechaModificacion = c.FechaModificacion,
-                    UsuarioModificacion = c.UsuarioModificacion,
+                    UsuarioModificacion = mostrarAuditoria ? c.UsuarioModificacion : null,
                     UsuarioId = c.UsuarioId,
                     Apicultor = c.Usuario!.Email
                 })
